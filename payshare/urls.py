@@ -16,6 +16,9 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from payshare.purchases import views as purchases_views
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^', purchases_views.index),
 ]

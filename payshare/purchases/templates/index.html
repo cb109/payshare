@@ -1,0 +1,46 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Payshare</title>
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <style>
+
+    </style>
+  </head>
+  <body>
+    {% load customtags %}
+    <div class="container">
+      <form action="/your-name/" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          {{ purchase_form.name.errors }}
+          {{ purchase_form.name.label_tag }}
+          {{ purchase_form.name }}
+        </div>
+        <div class="form-group">
+          {{ purchase_form.price.errors }}
+          {{ purchase_form.price.label_tag }}
+          {{ purchase_form.price }}
+        </div>
+        <div class="form-group">
+          {{ purchase_form.buyer.errors }}
+          {{ purchase_form.buyer.label_tag }}
+          {{ purchase_form.buyer }}
+        </div>
+        <div class="form-group">
+          {{ purchase_form.collective.errors }}
+          {{ purchase_form.collective.label_tag }}
+          {{ purchase_form.collective }}
+        </div>
+        <button type="submit" class="btn btn-lg btn-success float-right">
+          Add
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
