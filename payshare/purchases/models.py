@@ -18,6 +18,7 @@ class BuyerNotMemberOfCollectiveError(PayShareError):
 
 
 class TimestampMixin(models.Model):
+    """Add created and modified timestamps to a model."""
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
 
@@ -26,6 +27,7 @@ class TimestampMixin(models.Model):
 
 
 class Collective(TimestampMixin, models.Model):
+    """A collective groups users that want to share payments."""
     name = models.CharField(max_length=100)
 
     def is_member(self, user):
@@ -40,6 +42,7 @@ class Collective(TimestampMixin, models.Model):
 
 
 class Membership(TimestampMixin, models.Model):
+    """A membership is a mapping of a user to a collective."""
     member = models.ForeignKey("auth.User")
     collective = models.ForeignKey("purchases.Collective")
 
@@ -49,6 +52,7 @@ class Membership(TimestampMixin, models.Model):
 
 
 class Purchase(TimestampMixin, models.Model):
+    """A purchase describes a certain payment of a member of a collective."""
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     price = MoneyField(max_digits=10,
