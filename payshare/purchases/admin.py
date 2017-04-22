@@ -6,9 +6,10 @@ from django.contrib import admin
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Membership
 from payshare.purchases.models import Purchase
+from payshare.purchases.models import Liquidation
 
-# Register your models here.
 
 admin.site.register(Collective)
 admin.site.register(Membership)
 admin.site.register(Purchase)
+admin.site.register(Liquidation)

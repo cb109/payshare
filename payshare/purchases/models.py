@@ -13,8 +13,18 @@ class PayShareError(Exception):
     pass
 
 
-class BuyerNotMemberOfCollectiveError(PayShareError):
-    pass
+class UserNotMemberOfCollectiveError(PayShareError):
+
+    def __init__(self, user, collective):
+        message = "{} is not part of collective {}".format(user, collective)
+        super(UserNotMemberOfCollectiveError, self).__init__(message)
+
+
+class LiquidationNeedsTwoDifferentUsersError(PayShareError):
+
+    def __init__(self, user):
+        message = "{} cannot be both debtor and creditor".format(user)
+        super(LiquidationNeedsTwoDifferentUsersError, self).__init__(message)
 
 
 class TimestampMixin(models.Model):
@@ -71,4 +81,31 @@ class Purchase(TimestampMixin, models.Model):
 @receiver(pre_save, sender=Purchase)
 def purchase_pre_save_ensure_membership(sender, instance, *args, **kwargs):
     if not instance.collective.is_member(instance.buyer):
-        raise BuyerNotMemberOfCollectiveError()
+        raise UserNotMemberOfCollectiveError(instance.buyer,
+                                             instance.collective)
+
+
+class Liquidation(TimestampMixin, models.Model):
+    """A liquidation describes a repayment of one member to another."""
+    description = models.TextField(blank=True, null=True)
+    amount = MoneyField(max_digits=10,
+                        decimal_places=2,
+                        default_currency='EUR')
+    debtor = models.ForeignKey("auth.User", related_name="debtor")
+    creditor = models.ForeignKey("auth.User", related_name="creditor")
+    collective = models.ForeignKey("purchases.Collective")
+
+    def __unicode__(self):
+        return u"{} from {} to {} in {}".format(self.price,
+                                                self.debtor.username,
+                                                self.creditor.username,
+                                                self.collective.name)
+
+
+@receiver(pre_save, sender=Liquidation)
+def liquidation_pre_save_ensure_constraints(sender, instance, *args, **kwargs):
+    if instance.debtor == instance.creditor:
+        raise LiquidationNeedsTwoDifferentUsersError(instance.debtor)
+    for user in [instance.debtor, instance.creditor]:
+        if not instance.collective.is_member(user):
+            raise UserNotMemberOfCollectiveError(user, instance.collective)
