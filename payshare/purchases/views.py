@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-# from django.http import HttpResponseRedirect
 
 from payshare.purchases.models import Collective
 from payshare.purchases.forms import PurchaseForm
+from payshare.purchases.forms import LiquidationForm
 
 
 def index(request):
@@ -23,7 +23,9 @@ def index(request):
     # else:
     #    form = PurchaseForm()
     collective = Collective.objects.first()
-    purchase_form = PurchaseForm(initial={"collective": collective})
     return render(request, "index.html", {
-        "purchase_form": purchase_form,
+        "collective": collective,
+        "purchase_form": PurchaseForm(initial={"collective": collective}),
+        "liquidation_form": LiquidationForm(
+            initial={"collective": collective}),
     })

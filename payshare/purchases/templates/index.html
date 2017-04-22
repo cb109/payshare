@@ -8,39 +8,147 @@
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <!-- Open Sans -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <style>
+      body {
+        font-family: 'Open Sans', sans-serif;
+      }
 
+      .container-fluid {
+        display: flex;
+        flex-flow: column wrap;
+        padding: 0;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .stat {
+        opacity: 0.5;
+        margin: 0 5px 0 5px;
+      }
+
+      .card-container {
+        display: flex;
+        justify-content: center;
+      }
+
+      .card {
+        width: 200px;
+        display: flex;
+        justify-content: space-around;
+        margin: 0 15px 0 15px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .toolbar .btn {
+        margin: 0 5px 0 5px;
+      }
+
+      .outcome {
+        font-size: 2em;
+        font-weight: bold;
+      }
+
+      .green {
+        color: #00cc00;
+      }
+
+      .red {
+        color: #cc0000;
+      }
     </style>
   </head>
   <body>
+    {% load bootstrap %}
     {% load customtags %}
-    <div class="container">
-      <form action="/your-name/" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          {{ purchase_form.name.errors }}
-          {{ purchase_form.name.label_tag }}
-          {{ purchase_form.name }}
+
+    <div class="container-fluid">
+
+      <div class="jumbotron">
+        <h1><a href="#">{{ collective.name }}</a></h1>
+        <div class="stats">
+          <div class="lead stat">Created at {{ collective.created_at|date }}</div>
+          <div class="lead stat">{{ collective.membership_set.count }} Users</div>
+          <div class="lead stat">{{ collective.purchase_set.count }} Purchases</div>
+          <div class="lead stat">{{ collective.liquidation_set.count }} Liquidations</div>
+          <div class="toolbar">
+            <button type="button" class="btn btn-lg btn-outline-primary"
+                    data-toggle="modal" data-target="#new-purchase-modal">
+              Add Purchase
+            </button>
+            <button type="button" class="btn btn-lg btn-outline-info"
+                    data-toggle="modal" data-target="#new-liquidation-modal">
+              Add Liquidation
+            </button>
+          </div>
         </div>
-        <div class="form-group">
-          {{ purchase_form.price.errors }}
-          {{ purchase_form.price.label_tag }}
-          {{ purchase_form.price }}
+        <hr class="my-4">
+        <div class="card-container">
+          {% for membership in collective.membership_set.all %}
+          <div class="card">
+            <img class="card-img-top"
+                 src="https://api.adorable.io/avatars/200/{{ membership.member.username }}.png"
+                 alt="{{ membership.member.username }}">
+            <div class="card-block">
+              <h4 class="card-title">{{ membership.member.username }}</h4>
+              <p class="card-text">
+                <span class="outcome green">93.50 €</span>
+              </p>
+            </div>
+          </div>
+          {% endfor %}
         </div>
-        <div class="form-group">
-          {{ purchase_form.buyer.errors }}
-          {{ purchase_form.buyer.label_tag }}
-          {{ purchase_form.buyer }}
+      </div>
+
+      <div id="new-purchase-modal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form action="/your-name/" method="post">
+              <div class="modal-header">
+                <h5 class="modal-title">Add new Purchase</h5>
+              </div>
+              <div class="modal-body">
+                {% csrf_token %}
+                {{ purchase_form|bootstrap }}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="form-group">
-          {{ purchase_form.collective.errors }}
-          {{ purchase_form.collective.label_tag }}
-          {{ purchase_form.collective }}
+      </div>
+
+      <div id="new-liquidation-modal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form action="/your-name/" method="post">
+              <div class="modal-header">
+                <h5 class="modal-title">Add new Liquidation</h5>
+              </div>
+              <div class="modal-body">
+                {% csrf_token %}
+                {{ liquidation_form|bootstrap }}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <button type="submit" class="btn btn-lg btn-success float-right">
-          Add
-        </button>
-      </form>
+      </div>
+
     </div>
   </body>
 </html>
