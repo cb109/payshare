@@ -45,6 +45,18 @@
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
       }
 
+      .purchase-list {
+        display: flex;
+        flex-flow: column wrap;
+        align-items: center;
+      }
+
+      .card.purchase {
+        min-width: 50%;
+        margin: 5px 10px 5px 10px;
+        box-shadow: none;
+      }
+
       .toolbar {
         display: flex;
         flex-flow: row wrap;
@@ -149,6 +161,19 @@
             </form>
           </div>
         </div>
+      </div>
+
+      <div class="purchase-list">
+        {% for purchase in purchases %}
+        <div class="card purchase">
+          <div class="card-block">
+            <img src="https://api.adorable.io/avatars/30/{{ purchase.buyer.username }}.png"
+                 alt="{{ purchase.buyer.username }}"
+                 style="margin-right: 10px">
+            {{ purchase.buyer }} paid <b>{{ purchase.price }}</b> for <a href="#">{{ purchase.name }}</a>
+          </div>
+        </div>
+        {% endfor %}
       </div>
 
     </div>

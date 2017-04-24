@@ -28,4 +28,5 @@ def index(request):
         "purchase_form": PurchaseForm(initial={"collective": collective}),
         "liquidation_form": LiquidationForm(
             initial={"collective": collective}),
+        "purchases": collective.purchase_set.all().order_by("created_at"),
     })
