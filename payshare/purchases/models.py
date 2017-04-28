@@ -58,6 +58,9 @@ class Membership(TimestampMixin, models.Model):
     member = models.ForeignKey("auth.User")
     collective = models.ForeignKey("purchases.Collective")
 
+    class Meta:
+        unique_together = ("member", "collective")
+
     def __unicode__(self):
         return u"{} in {}".format(self.member.username,
                                   self.collective.name)
