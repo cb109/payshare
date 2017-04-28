@@ -48,11 +48,19 @@
         justify-content: space-around;
         margin: 0 15px 0 15px;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        transition: all .5s ease;
+        transition: all .3s ease-in-out;
       }
 
       .card:hover {
         transform: scale(1.08);
+      }
+
+      .purchase-overall {
+        margin-bottom: 1em;
+        font-weight: bold;
+        font-size: 2em;
+        color: #9AC8EF;
+        text-align: center;
       }
 
       .purchase-list {
@@ -122,17 +130,20 @@
           <div class="lead stat">{{ collective.purchase_set.count|apnumber|capfirst }} Purchases</div>
           <div class="lead stat">{{ collective.liquidation_set.count|apnumber|capfirst }} Liquidations</div>
           <div class="toolbar">
-            <button type="button" class="btn btn-lg btn-outline-primary"
+            <button type="button" class="btn btn-lg btn-outline-primary" disabled
                     data-toggle="modal" data-target="#new-purchase-modal">
               Add Purchase
             </button>
-            <button type="button" class="btn btn-lg btn-outline-info"
+            <button type="button" class="btn btn-lg btn-outline-info" disabled
                     data-toggle="modal" data-target="#new-liquidation-modal">
               Add Liquidation
             </button>
           </div>
         </div>
         <hr class="my-4">
+        <div class="purchase-overall">
+          {{ overall_purchased }} spent overall
+        </div>
         <div class="card-container">
           {% for member in members %}
           <div class="card">

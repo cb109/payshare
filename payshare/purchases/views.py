@@ -39,6 +39,7 @@ def index(request):
         "collective": collective,
         "members": members,
         "purchases": purchases,
+        "overall_purchased": overall_purchased,
         "member_summary": member_summary,
         "purchase_form": PurchaseForm(initial={"collective": collective}),
         "liquidation_form": LiquidationForm(
