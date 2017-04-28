@@ -1,0 +1,5 @@
+* TODO [0/2]
+
+ - [ ] consider liquidations when calculating balance
+ - [ ] implement modal to add purchase
+ - [ ] implement modal to add liquidation
