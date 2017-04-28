@@ -56,6 +56,13 @@
         align-items: center;
       }
 
+      .purchase-price {
+        font-weight: bold;
+        font-size: 1.5em;
+        /*opacity: 0.4;*/
+        color: #9AC8EF;
+      }
+
       .card.purchase {
         min-width: 50%;
         margin: 3px 10px 3px 10px;
@@ -88,8 +95,9 @@
     </style>
   </head>
   <body>
+    {% load humanize %}
+
     {% load bootstrap %}
-    {% load customtags %}
 
     <div class="container-fluid">
 
@@ -97,9 +105,9 @@
         <h1><a href="#">{{ collective.name }}</a></h1>
         <div class="stats">
           <div class="lead stat">Created at {{ collective.created_at|date }}</div>
-          <div class="lead stat">{{ collective.membership_set.count }} Users</div>
-          <div class="lead stat">{{ collective.purchase_set.count }} Purchases</div>
-          <div class="lead stat">{{ collective.liquidation_set.count }} Liquidations</div>
+          <div class="lead stat">{{ collective.membership_set.count|apnumber|capfirst }} Users</div>
+          <div class="lead stat">{{ collective.purchase_set.count|apnumber|capfirst }} Purchases</div>
+          <div class="lead stat">{{ collective.liquidation_set.count|apnumber|capfirst }} Liquidations</div>
           <div class="toolbar">
             <button type="button" class="btn btn-lg btn-outline-primary"
                     data-toggle="modal" data-target="#new-purchase-modal">
@@ -132,7 +140,7 @@
       <div id="new-purchase-modal" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
-            <form action="/your-name/" method="post">
+            <form action="/purchase/create/" method="post">
               <div class="modal-header">
                 <h5 class="modal-title">Add new Purchase</h5>
               </div>
@@ -176,7 +184,10 @@
             <img src="https://api.adorable.io/avatars/30/{{ purchase.buyer.username }}.png"
                  alt="{{ purchase.buyer.username }}"
                  style="margin-right: 10px">
-            {{ purchase.buyer }} paid <b>{{ purchase.price }}</b> for <a href="#">{{ purchase.name }}</a>
+            {{ purchase.buyer }} paid for <strong>{{ purchase.name }}</strong>
+            <span class="purchase-price float-right">
+              {{ purchase.price }}
+            </span>
           </div>
         </div>
         {% endfor %}
