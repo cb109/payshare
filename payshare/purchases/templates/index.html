@@ -48,6 +48,11 @@
         justify-content: space-around;
         margin: 0 15px 0 15px;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        transition: all .5s ease;
+      }
+
+      .card:hover {
+        transform: scale(1.08);
       }
 
       .purchase-list {
@@ -61,6 +66,10 @@
         font-size: 1.5em;
         /*opacity: 0.4;*/
         color: #9AC8EF;
+      }
+
+      .purchase-date {
+        opacity: 0.7;
       }
 
       .card.purchase {
@@ -121,15 +130,22 @@
         </div>
         <hr class="my-4">
         <div class="card-container">
-          {% for membership in collective.membership_set.all %}
+          {% for member in members %}
           <div class="card">
             <img class="card-img-top"
-                 src="https://api.adorable.io/avatars/200/{{ membership.member.username }}.png"
-                 alt="{{ membership.member.username }}">
+                 src="https://api.adorable.io/avatars/200/{{ member.username }}.png"
+                 alt="{{ member.username }}">
             <div class="card-block">
-              <h4 class="card-title">{{ membership.member.username }}</h4>
+              <h2 class="card-title">{{ member.username }}</h2>
               <p class="card-text">
-                <span class="outcome green">93.50 €</span>
+                {% for user, balance in member_summary.items %}
+                  {% if user == member %}
+                  <span class="outcome float-right {% if balance < 0 %}red{% else %}green{% endif %}">
+                    {{ balance|floatformat:2 }}
+                  <span>
+                  {% endif %}
+                {% endfor %}
+                </span>
               </p>
             </div>
           </div>
@@ -184,7 +200,12 @@
             <img src="https://api.adorable.io/avatars/30/{{ purchase.buyer.username }}.png"
                  alt="{{ purchase.buyer.username }}"
                  style="margin-right: 10px">
-            {{ purchase.buyer }} paid for <strong>{{ purchase.name }}</strong>
+            <span class="purchase-description">
+              {{ purchase.buyer }} paid for <strong>{{ purchase.name }}</strong>
+            </span>
+            <span class="purchase-date">
+              {{ purchase.created_at|naturaltime }}
+            </span>
             <span class="purchase-price float-right">
               {{ purchase.price }}
             </span>

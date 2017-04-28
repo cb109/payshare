@@ -14,12 +14,28 @@ from payshare.purchases.forms import LiquidationForm
 
 def index(request):
     collective = Collective.objects.first()
+    purchases = collective.purchase_set.all().order_by("-created_at")
+    members = [ms.member for ms in collective.membership_set.all()]
+
+    overall_purchased = sum([purchase.price for purchase in purchases])
+    per_member = float(overall_purchased) / float(len(members))
+
+    member_summary = {}
+    for member in members:
+        member_purchased = sum([purchase.price for purchase in purchases
+                                if purchase.buyer == member])
+        has_to_pay = per_member - float(member_purchased)
+        balance = has_to_pay * -1
+        member_summary[member] = balance
+
     return render(request, "index.html", {
         "collective": collective,
+        "members": members,
+        "purchases": purchases,
+        "member_summary": member_summary,
         "purchase_form": PurchaseForm(initial={"collective": collective}),
         "liquidation_form": LiquidationForm(
             initial={"collective": collective}),
-        "purchases": collective.purchase_set.all().order_by("-created_at"),
     })
 
 
