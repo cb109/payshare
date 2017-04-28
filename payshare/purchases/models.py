@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import uuid
 
 from django.db import models
 from django.db.models.signals import pre_save
@@ -39,6 +40,7 @@ class TimestampMixin(models.Model):
 class Collective(TimestampMixin, models.Model):
     """A collective groups users that want to share payments."""
     name = models.CharField(max_length=100)
+    key = models.UUIDField(default=uuid.uuid4, editable=False)
 
     def is_member(self, user):
         try:

@@ -9,7 +9,11 @@ from payshare.purchases.models import Purchase
 from payshare.purchases.models import Liquidation
 
 
-admin.site.register(Collective)
+class CollectiveAdmin(admin.ModelAdmin):
+    readonly_fields = ["key"]
+
+
+admin.site.register(Collective, CollectiveAdmin)
 admin.site.register(Membership)
 admin.site.register(Purchase)
 admin.site.register(Liquidation)
