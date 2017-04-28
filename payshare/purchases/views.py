@@ -7,15 +7,20 @@ from django.shortcuts import render
 # from moneyed import Money, EUR
 
 from payshare.purchases.models import Collective
-# from payshare.purchases.models import Purchase
+from payshare.purchases.models import Purchase
 from payshare.purchases.forms import PurchaseForm
 from payshare.purchases.forms import LiquidationForm
 
 
 def index(request):
     collective = Collective.objects.first()
-    purchases = collective.purchase_set.all().order_by("-created_at")
     members = [ms.member for ms in collective.membership_set.all()]
+
+    purchases = []
+    for member in members:
+        purchases.extend(Purchase.objects.filter(collective=collective,
+                                                 buyer=member))
+    purchases = sorted(purchases, key=lambda p: p.created_at, reverse=True)
 
     overall_purchased = sum([purchase.price for purchase in purchases])
     per_member = float(overall_purchased) / float(len(members))
@@ -26,6 +31,8 @@ def index(request):
                                 if purchase.buyer == member])
         has_to_pay = per_member - float(member_purchased)
         balance = has_to_pay * -1
+        if balance == 0:  # Remove '-' from the display.
+            balance = 0
         member_summary[member] = balance
 
     return render(request, "index.html", {

@@ -101,6 +101,10 @@
       .red {
         color: #CC0000;
       }
+
+      .gray {
+        opacity: 0.5;
+      }
     </style>
   </head>
   <body>
@@ -140,8 +144,10 @@
               <p class="card-text">
                 {% for user, balance in member_summary.items %}
                   {% if user == member %}
-                  <span class="outcome float-right {% if balance < 0 %}red{% else %}green{% endif %}">
-                    {{ balance|floatformat:2 }}
+                  <span class="outcome float-right">
+                    <span class="{% if balance < 0 %}red{% elif balance > 0 %}green{% else %}gray{% endif %}">
+                      {{ balance|floatformat:2 }}
+                    </span>
                   <span>
                   {% endif %}
                 {% endfor %}
