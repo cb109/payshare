@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 # from django.contrib.auth.models import User
 from django.shortcuts import render
-# from django.http import HttpResponse
+from django.http import HttpResponse
+from django.core.exceptions import ValidationError
 # from moneyed import Money, EUR
 
 from payshare.purchases.models import Collective
@@ -13,8 +14,12 @@ from payshare.purchases.forms import PurchaseForm
 from payshare.purchases.forms import LiquidationForm
 
 
-def index(request):
-    collective = Collective.objects.first()
+def index(request, uuid):
+    try:
+        collective = Collective.objects.get(key=uuid)
+    except (Collective.DoesNotExist, ValidationError):
+        return HttpResponse("This does not exist :(", status=404)
+
     members = [ms.member for ms in collective.membership_set.all()]
 
     purchases = []

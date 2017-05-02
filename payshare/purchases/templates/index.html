@@ -124,7 +124,7 @@
     <div class="container-fluid">
 
       <div class="jumbotron">
-        <h1><a href="#">{{ collective.name }}</a></h1>
+        <h1><a href="/{{ collective.key }}">{{ collective.name }}</a></h1>
         <div class="stats">
           <div class="lead stat">Created at {{ collective.created_at|date }}</div>
           <div class="lead stat">{{ collective.membership_set.count|apnumber|capfirst }} Users</div>
