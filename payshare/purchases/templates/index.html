@@ -64,7 +64,7 @@
         text-align: center;
       }
 
-      .purchase-list {
+      .transaction-list {
         display: flex;
         flex-flow: column wrap;
         align-items: center;
@@ -211,24 +211,49 @@
         </div>
       </div>
 
-      <div class="purchase-list">
-        {% for purchase in purchases %}
+      <div class="transaction-list">
+        {% for typ, transaction in transactions %}
+        {% if typ == 'purchase' %}
         <div class="card purchase">
           <div class="card-block">
-            <img src="https://api.adorable.io/avatars/30/{{ purchase.buyer.username }}.png"
-                 alt="{{ purchase.buyer.username }}"
+            <img src="https://api.adorable.io/avatars/30/{{ transaction.buyer.username }}.png"
+                 alt="{{ transaction.buyer.username }}"
                  style="margin-right: 10px">
-            <span class="purchase-description">
-              {{ purchase.buyer }} paid for <strong>{{ purchase.name }}</strong>
+            <span class="transaction-description">
+              {{ transaction.buyer }} paid for <strong>{{ transaction.name }}</strong>
             </span>
             <span class="purchase-date">
-              {{ purchase.created_at|naturaltime }}
+              {{ transaction.created_at|naturaltime }}
             </span>
             <span class="purchase-price float-right">
-              {{ purchase.price }}
+              {{ transaction.price }}
             </span>
           </div>
         </div>
+        {% elif typ == 'liquidation' %}
+        <div class="card purchase">
+          <div class="card-block">
+            <img src="https://api.adorable.io/avatars/30/{{ transaction.creditor.username }}.png"
+                 alt="{{ transaction.creditor.username }}"
+                 style="margin-right: 10px">
+            <span class="transaction-description">
+              {{ transaction.creditor }} gave to {{ transaction.debtor }}
+            </span>
+            <img src="https://api.adorable.io/avatars/30/{{ transaction.debtor.username }}.png"
+                 alt="{{ transaction.debtor.username }}"
+                 style="margin-right: 10px">
+            <span class="purchase-date">
+              {{ transaction.created_at|naturaltime }}
+            </span>
+            <div>
+                {{ transaction.description }}
+            </div>
+            <span class="purchase-price float-right">
+              {{ transaction.amount }}
+            </span>
+          </div>
+        </div>
+        {% endif %}
         {% endfor %}
       </div>
 

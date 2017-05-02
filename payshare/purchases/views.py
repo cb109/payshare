@@ -8,6 +8,7 @@ from django.shortcuts import render
 
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Purchase
+from payshare.purchases.models import Liquidation
 from payshare.purchases.forms import PurchaseForm
 from payshare.purchases.forms import LiquidationForm
 
@@ -20,7 +21,7 @@ def index(request):
     for member in members:
         purchases.extend(Purchase.objects.filter(collective=collective,
                                                  buyer=member))
-    purchases = sorted(purchases, key=lambda p: p.created_at, reverse=True)
+    liquidations = list(Liquidation.objects.filter(collective=collective))
 
     overall_purchased = sum([purchase.price for purchase in purchases])
     per_member = float(overall_purchased) / float(len(members))
@@ -29,16 +30,35 @@ def index(request):
     for member in members:
         member_purchased = sum([purchase.price for purchase in purchases
                                 if purchase.buyer == member])
-        has_to_pay = per_member - float(member_purchased)
+
+        credit = sum([liq.amount for liq in liquidations
+                     if liq.creditor == member])
+        debt = sum([liq.amount for liq in liquidations
+                    if liq.debtor == member])
+        has_to_pay = (
+            per_member -
+            float(member_purchased) -
+            float(credit) +
+            float(debt)
+        )
+
         balance = has_to_pay * -1
         if balance == 0:  # Remove '-' from the display.
             balance = 0
         member_summary[member] = balance
 
+    transactions = purchases + liquidations
+    transactions = sorted(transactions, key=lambda t: t.created_at,
+                          reverse=True)
+    transactions = [
+        ("purchase" if isinstance(t, Purchase) else "liquidation", t)
+        for t in transactions
+    ]
+
     return render(request, "index.html", {
         "collective": collective,
         "members": members,
-        "purchases": purchases,
+        "transactions": transactions,
         "overall_purchased": overall_purchased,
         "member_summary": member_summary,
         "purchase_form": PurchaseForm(initial={"collective": collective}),

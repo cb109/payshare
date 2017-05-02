@@ -1,6 +1,6 @@
-* TODO [0/2]
+* TODO [1/5]
 
- - [ ] consider liquidations when calculating balance
+ - [X] consider liquidations when calculating balance
  - [ ] implement modal to add purchase
  - [ ] implement modal to add liquidation
  - [ ] filtering for member, price, time, title, ...
