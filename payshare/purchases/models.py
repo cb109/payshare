@@ -101,9 +101,9 @@ class Liquidation(TimestampMixin, models.Model):
     collective = models.ForeignKey("purchases.Collective")
 
     def __unicode__(self):
-        return u"{} from {} to {} in {}".format(self.price,
-                                                self.debtor.username,
+        return u"{} from {} to {} in {}".format(self.amount,
                                                 self.creditor.username,
+                                                self.debtor.username,
                                                 self.collective.name)
 
 
