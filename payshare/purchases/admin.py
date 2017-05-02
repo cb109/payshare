@@ -10,7 +10,8 @@ from payshare.purchases.models import Liquidation
 
 
 class CollectiveAdmin(admin.ModelAdmin):
-    readonly_fields = ["key"]
+    readonly_fields = ("key",)
+    list_display = ("name", "key", "id",)
 
 
 admin.site.register(Collective, CollectiveAdmin)
