@@ -20,8 +20,15 @@ from payshare.purchases import views
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
+
     url(r"^purchase/create/$", views.purchase_create, name="purchase-create"),
+    url(r"^purchase/delete/(?P<pk>[0-9]+)/$", views.purchase_delete,
+        name="purchase-delete"),
+
     url(r"^liquidation/create/$", views.liquidation_create,
         name="liquidation-create"),
+    url(r"^liquidation/delete/(?P<pk>[0-9]+)/$", views.liquidation_delete,
+        name="liquidation-delete"),
+
     url(r"^(?P<uuid>[^/]+)", views.index, name="index"),
 ]

@@ -128,3 +128,25 @@ def liquidation_create(request):
     )
 
     return redirect(get_collective_url(collective))
+
+
+def purchase_delete(request, pk):
+    purchase = Purchase.objects.get(pk=pk)
+    collective_id = int(request.POST["collective"])
+    if not purchase.collective.id == collective_id:
+        return HttpResponse(status=403)
+
+    purchase.delete()
+
+    return redirect(get_collective_url(purchase.collective))
+
+
+def liquidation_delete(request, pk):
+    liquidation = Liquidation.objects.get(pk=pk)
+    collective_id = int(request.POST["collective"])
+    if not liquidation.collective.id == collective_id:
+        return HttpResponse(status=403)
+
+    liquidation.delete()
+
+    return redirect(get_collective_url(liquidation.collective))

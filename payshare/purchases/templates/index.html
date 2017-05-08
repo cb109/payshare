@@ -5,11 +5,13 @@
     <title>Payshare</title>
     <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <!-- Open Sans -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
       body {
         font-family: 'Open Sans', sans-serif;
@@ -116,6 +118,15 @@
 
       .gray {
         opacity: 0.5;
+      }
+
+      .delete-icon {
+        display: flex;
+        justify-content: flex-end;
+        color: #e00000;
+        opacity: 0.5;
+        font-size: 1.5em;
+        margin: 10px;
       }
     </style>
   </head>
@@ -301,6 +312,12 @@
               {{ transaction.price }}
             </span>
           </div>
+          <div class="delete-icon" title="Remove this"
+               data-collective="{{ collective.id }}"
+               data-typ="{{ typ }}"
+               data-id="{{ transaction.id }}">
+            <i class="fa fa-times"></i>
+          </div>
         </div>
         {% elif typ == 'liquidation' %}
         <div class="card purchase">
@@ -324,6 +341,12 @@
               {{ transaction.amount }}
             </span>
           </div>
+          <div class="delete-icon" title="Remove this"
+               data-collective="{{ collective.id }}"
+               data-typ="{{ typ }}"
+               data-id="{{ transaction.id }}">
+            <i class="fa fa-times"></i>
+          </div>
         </div>
         {% endif %}
         {% endfor %}
@@ -333,6 +356,33 @@
     <script>
       (function() {
         'use strict';
+
+        // http://stackoverflow.com/questions/10730362
+        function getCookie(name) {
+          var value = '; ' + document.cookie;
+          var parts = value.split('; ' + name + '=');
+          if (parts.length == 2) return parts.pop().split(';').shift();
+        }
+
+        $.ajaxSetup({
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+          },
+        });
+
+        $('.delete-icon').click(function(event) {
+          var el = $(this);
+          var collective = el.data('collective');
+          var typ = el.data('typ');
+          var id = el.data('id');
+          var confirmed = confirm('Really delete this ' + typ + '?');
+          if (confirmed) {
+            var url = '/' + typ + '/delete/' + id + '/';
+            $.post(url, {'collective': collective}, function(html) {
+              location.reload();
+            });
+          }
+        });
 
       })();
     </script>>

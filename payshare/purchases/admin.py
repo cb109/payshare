@@ -14,7 +14,11 @@ class CollectiveAdmin(admin.ModelAdmin):
     list_display = ("name", "key", "id",)
 
 
+class PurchaseAdmin(admin.ModelAdmin):
+    list_display = ["name", "price", "buyer", "id", "collective"]
+
+
 admin.site.register(Collective, CollectiveAdmin)
 admin.site.register(Membership)
-admin.site.register(Purchase)
+admin.site.register(Purchase, PurchaseAdmin)
 admin.site.register(Liquidation)
