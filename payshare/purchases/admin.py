@@ -15,7 +15,12 @@ class CollectiveAdmin(admin.ModelAdmin):
 
 
 class PurchaseAdmin(admin.ModelAdmin):
-    list_display = ["name", "price", "buyer", "id", "collective"]
+    list_display = ["name", "deleted", "price", "buyer", "id", "collective"]
+
+
+class LiquidationAdmin(admin.ModelAdmin):
+    list_display = ["description", "deleted", "amount", "creditor", "debtor",
+                    "id", "collective"]
 
 
 admin.site.register(Collective, CollectiveAdmin)

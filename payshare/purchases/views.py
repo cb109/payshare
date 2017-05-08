@@ -27,8 +27,10 @@ def index(request, uuid):
     purchases = []
     for member in members:
         purchases.extend(Purchase.objects.filter(collective=collective,
-                                                 buyer=member))
-    liquidations = list(Liquidation.objects.filter(collective=collective))
+                                                 buyer=member,
+                                                 deleted=False))
+    liquidations = list(Liquidation.objects.filter(collective=collective,
+                                                   deleted=False))
 
     overall_purchased = sum([purchase.price for purchase in purchases])
     per_member = float(overall_purchased) / float(len(members))

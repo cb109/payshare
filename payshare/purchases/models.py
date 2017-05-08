@@ -75,12 +75,17 @@ class Purchase(TimestampMixin, models.Model):
                        default_currency='EUR')
     buyer = models.ForeignKey("auth.User")
     collective = models.ForeignKey("purchases.Collective")
+    deleted = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u"{} for {} by {} in {}".format(self.price,
                                                self.name,
                                                self.buyer.username,
                                                self.collective.name)
+
+    def delete(self):
+        self.deleted = True
+        self.save()
 
 
 @receiver(pre_save, sender=Purchase)
@@ -99,12 +104,17 @@ class Liquidation(TimestampMixin, models.Model):
     debtor = models.ForeignKey("auth.User", related_name="debtor")
     creditor = models.ForeignKey("auth.User", related_name="creditor")
     collective = models.ForeignKey("purchases.Collective")
+    deleted = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u"{} from {} to {} in {}".format(self.amount,
                                                 self.creditor.username,
                                                 self.debtor.username,
                                                 self.collective.name)
+
+    def delete(self):
+        self.deleted = True
+        self.save()
 
 
 @receiver(pre_save, sender=Liquidation)
