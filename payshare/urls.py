@@ -16,11 +16,12 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from payshare.purchases.views import index
-from payshare.purchases.views import purchase_create
+from payshare.purchases import views
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
-    url(r"^purchase/create/$", purchase_create, name="purchase-create"),
-    url(r"^(?P<uuid>[^/]+)", index, name="index"),
+    url(r"^purchase/create/$", views.purchase_create, name="purchase-create"),
+    url(r"^liquidation/create/$", views.liquidation_create,
+        name="liquidation-create"),
+    url(r"^(?P<uuid>[^/]+)", views.index, name="index"),
 ]

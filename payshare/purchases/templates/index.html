@@ -55,10 +55,6 @@
         transition: all .3s ease-in-out;
       }
 
-      .card:hover {
-        transform: scale(1.08);
-      }
-
       .card.member {
         width: 200px;
       }
@@ -182,45 +178,45 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <form id="purchase-form" action="/purchase/create/" method="post">
-               <div class="modal-header">
-                  <h5 class="modal-title">Add new Purchase</h5>
-               </div>
-               <div class="modal-body">
-                  {% csrf_token %}
-                  <div class="form-group">
-                     <label class="control-label" for="id_name">Name</label>
-                     <div class=" ">
-                        <input type="text" name="name" id="id_name" required class="form-control" maxlength="100" autofocus="autofocus" />
-                     </div>
+              <div class="modal-header">
+                <h5 class="modal-title">Add new Purchase</h5>
+              </div>
+              <div class="modal-body">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label class="control-label" for="id_name">Name</label>
+                  <div class=" ">
+                    <input type="text" name="name" id="id_name" required class="form-control" maxlength="100" autofocus="autofocus" />
                   </div>
-                  <div class="form-group">
-                     <label class="control-label" for="id_price">Price</label>
-                     <div class=" ">
-                        <input type="number" name="price_0" value="0.0" step="0.01" required class=" form-control" id="id_price_0" />
-                        <select name="price_1" required class="form-control" id="id_price_1" disabled>
-                           <option value="EUR" selected>Euro</option>
-                        </select>
-                     </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label" for="id_price">Price</label>
+                  <div class=" ">
+                    <input type="number" name="price_0" value="0.0" step="0.01" required class=" form-control" id="id_price_0" />
+                    <select name="price_1" required class="form-control" id="id_price_1" disabled>
+                      <option value="EUR" selected>Euro</option>
+                    </select>
                   </div>
-                  <div class="form-group">
-                     <label class="control-label  " for="id_buyer">Buyer</label>
-                     <div class=" ">
-                        <select name="buyer" required class="form-control" id="id_buyer">
-                          <option value="" selected>---------</option>
-                          {% for member in members %}
-                          <option value="{{ member.id }}">
-                            {{ member.username }}
-                          </option>
-                          {% endfor %}
-                        </select>
-                     </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label  " for="id_buyer">Buyer</label>
+                  <div class=" ">
+                    <select name="buyer" required class="form-control" id="id_buyer">
+                      <option value="" selected>---------</option>
+                      {% for member in members %}
+                      <option value="{{ member.id }}">
+                        {{ member.username }}
+                      </option>
+                      {% endfor %}
+                    </select>
                   </div>
-                  <input class="hidden" name="collective" value="{{ collective.id }}" />
-               </div>
-               <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-success">Save</button>
-               </div>
+                </div>
+                <input class="hidden" name="collective" value="{{ collective.id }}" />
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save</button>
+              </div>
             </form>
           </div>
         </div>
@@ -229,13 +225,54 @@
       <div id="new-liquidation-modal" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
-            <form action="/your-name/" method="post">
+            <form id="liquidation-form" action="/liquidation/create/" method="post">
               <div class="modal-header">
                 <h5 class="modal-title">Add new Liquidation</h5>
               </div>
               <div class="modal-body">
                 {% csrf_token %}
-                {{ liquidation_form|bootstrap }}
+                <div class="form-group">
+                  <label class="control-label" for="id_description">Description</label>
+                  <div class="">
+                    <input type="text" name="description" id="id_description" required class="form-control" maxlength="100" autofocus="autofocus" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label" for="id_amount">Amount</label>
+                  <div class="">
+                    <input type="number" name="amount_0" value="0.0" step="0.01" required class=" form-control" id="id_amount_0" />
+                    <select name="amount_1" required class="form-control" id="id_amount_1" disabled>
+                      <option value="EUR" selected>Euro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label" for="id_debtor">From</label>
+                  <div class="">
+                    <select name="debtor" required class="form-control" id="id_debtor">
+                      <option value="" selected>---------</option>
+                      {% for member in members %}
+                      <option value="{{ member.id }}">
+                        {{ member.username }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label" for="id_creditor">To</label>
+                  <div class="">
+                    <select name="creditor" required class="form-control" id="id_creditor">
+                      <option value="" selected>---------</option>
+                      {% for member in members %}
+                      <option value="{{ member.id }}">
+                        {{ member.username }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <input class="hidden" name="collective" value="{{ collective.id }}" />
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

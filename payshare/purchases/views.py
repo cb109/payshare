@@ -10,8 +10,9 @@ from moneyed import Money, EUR
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Purchase
 from payshare.purchases.models import Liquidation
-from payshare.purchases.forms import PurchaseForm
-from payshare.purchases.forms import LiquidationForm
+
+
+CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
 
 
 def index(request, uuid):
@@ -67,26 +68,27 @@ def index(request, uuid):
         "transactions": transactions,
         "overall_purchased": overall_purchased,
         "member_summary": member_summary,
-        "purchase_form": PurchaseForm(initial={"collective": collective}),
-        "liquidation_form": LiquidationForm(
-            initial={"collective": collective}),
     })
 
 
+def get_collective_url(collective):
+    collective_url = "/{}".format(collective.key)
+    return collective_url
+
+
 def purchase_create(request):
-    from pprint import pprint
-    pprint(request.POST)
     name = request.POST["name"]
 
     collective_id = request.POST["collective"][0]
     collective = Collective.objects.get(id=collective_id)
-    collective_url = "/{}".format(collective.key)
 
     buyer_id = request.POST["buyer"][0]
     buyer = User.objects.get(id=buyer_id)
 
     # FIXME: Either don't allow something else than euro or handle here.
     price_value = float(request.POST["price_0"])
+    if price_value <= 0:
+        raise ValueError(CANNOT_ADD_ZERO_MONEY)
     price = Money(price_value, EUR)
 
     Purchase.objects.create(
@@ -96,4 +98,33 @@ def purchase_create(request):
         buyer=buyer,
     )
 
-    return redirect(collective_url)
+    return redirect(get_collective_url(collective))
+
+
+def liquidation_create(request):
+    description = request.POST["description"]
+
+    collective_id = request.POST["collective"][0]
+    collective = Collective.objects.get(id=collective_id)
+
+    debtor_id = request.POST["debtor"][0]
+    debtor = User.objects.get(id=debtor_id)
+
+    creditor_id = request.POST["creditor"][0]
+    creditor = User.objects.get(id=creditor_id)
+
+    # FIXME: Either don't allow something else than euro or handle here.
+    amount_value = float(request.POST["amount_0"])
+    if amount_value <= 0:
+        raise ValueError(CANNOT_ADD_ZERO_MONEY)
+    amount = Money(amount_value, EUR)
+
+    Liquidation.objects.create(
+        description=description,
+        amount=amount,
+        debtor=debtor,
+        creditor=creditor,
+        collective=collective,
+    )
+
+    return redirect(get_collective_url(collective))
