@@ -16,6 +16,10 @@
         background-color: #EEE;
       }
 
+      .hidden {
+        display: none;
+      }
+
       .jumbotron {
         background-color: white;
       }
@@ -85,6 +89,7 @@
       }
 
       .card.purchase {
+        width: 90%;
         margin: 3px 10px 3px 10px;
         box-shadow: none;
         border-color: #DDD;
@@ -133,11 +138,11 @@
           <div class="lead stat">{{ collective.purchase_set.count|apnumber|capfirst }} Purchases</div>
           <div class="lead stat">{{ collective.liquidation_set.count|apnumber|capfirst }} Liquidations</div>
           <div class="toolbar">
-            <button type="button" class="btn btn-lg btn-outline-primary" disabled
+            <button type="button" class="btn btn-lg btn-outline-primary"
                     data-toggle="modal" data-target="#new-purchase-modal">
               Add Purchase
             </button>
-            <button type="button" class="btn btn-lg btn-outline-info" disabled
+            <button type="button" class="btn btn-lg btn-outline-info"
                     data-toggle="modal" data-target="#new-liquidation-modal">
               Add Liquidation
             </button>
@@ -176,18 +181,46 @@
       <div id="new-purchase-modal" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
-            <form action="/purchase/create/" method="post">
-              <div class="modal-header">
-                <h5 class="modal-title">Add new Purchase</h5>
-              </div>
-              <div class="modal-body">
-                {% csrf_token %}
-                {{ purchase_form|bootstrap }}
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-success">Save</button>
-              </div>
+            <form id="purchase-form" action="/purchase/create/" method="post">
+               <div class="modal-header">
+                  <h5 class="modal-title">Add new Purchase</h5>
+               </div>
+               <div class="modal-body">
+                  {% csrf_token %}
+                  <div class="form-group">
+                     <label class="control-label" for="id_name">Name</label>
+                     <div class=" ">
+                        <input type="text" name="name" id="id_name" required class="form-control" maxlength="100" autofocus="autofocus" />
+                     </div>
+                  </div>
+                  <div class="form-group">
+                     <label class="control-label" for="id_price">Price</label>
+                     <div class=" ">
+                        <input type="number" name="price_0" value="0.0" step="0.01" required class=" form-control" id="id_price_0" />
+                        <select name="price_1" required class="form-control" id="id_price_1" disabled>
+                           <option value="EUR" selected>Euro</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="form-group">
+                     <label class="control-label  " for="id_buyer">Buyer</label>
+                     <div class=" ">
+                        <select name="buyer" required class="form-control" id="id_buyer">
+                          <option value="" selected>---------</option>
+                          {% for member in members %}
+                          <option value="{{ member.id }}">
+                            {{ member.username }}
+                          </option>
+                          {% endfor %}
+                        </select>
+                     </div>
+                  </div>
+                  <input class="hidden" name="collective" value="{{ collective.id }}" />
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-success">Save</button>
+               </div>
             </form>
           </div>
         </div>
@@ -220,7 +253,7 @@
           <div class="card-block">
             <img src="https://api.adorable.io/avatars/30/{{ transaction.buyer.username }}.png"
                  alt="{{ transaction.buyer.username }}"
-                 style="margin-right: 10px">
+                 style="margin: 10px">
             <span class="transaction-description">
               {{ transaction.buyer }} paid for <strong>{{ transaction.name }}</strong>
             </span>
@@ -237,13 +270,13 @@
           <div class="card-block">
             <img src="https://api.adorable.io/avatars/30/{{ transaction.creditor.username }}.png"
                  alt="{{ transaction.creditor.username }}"
-                 style="margin-right: 10px">
+                 style="margin: 10px">
             <span class="transaction-description">
               {{ transaction.creditor }} gave to {{ transaction.debtor }}
             </span>
             <img src="https://api.adorable.io/avatars/30/{{ transaction.debtor.username }}.png"
                  alt="{{ transaction.debtor.username }}"
-                 style="margin-right: 10px">
+                 style="margin: 10px">
             <span class="purchase-date">
               {{ transaction.created_at|naturaltime }}
             </span>
@@ -260,5 +293,10 @@
       </div>
 
     </div>
-  </body>
+    <script>
+      (function() {
+        'use strict';
+
+      })();
+    </script>>
 </html>

@@ -17,12 +17,10 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from payshare.purchases.views import index
-# from payshare.purchases.views import purchase_create
+from payshare.purchases.views import purchase_create
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
+    url(r"^purchase/create/$", purchase_create, name="purchase-create"),
     url(r"^(?P<uuid>[^/]+)", index, name="index"),
-    # url(r"^purchase/create/$", purchase_create, name="purchase-create"),
-    # url(r"^purchase/create/$", PurchaseCreateView.as_view(),
-    #     name="purchase-create"),
 ]

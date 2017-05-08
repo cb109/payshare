@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-# from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
-# from moneyed import Money, EUR
+from moneyed import Money, EUR
 
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Purchase
@@ -21,6 +21,7 @@ def index(request, uuid):
         return HttpResponse("This does not exist :(", status=404)
 
     members = [ms.member for ms in collective.membership_set.all()]
+    members = sorted(members, key=lambda m: m.username)
 
     purchases = []
     for member in members:
@@ -72,29 +73,27 @@ def index(request, uuid):
     })
 
 
-# def purchase_create(request):
-#     # <QueryDict: {u'price_1': [u'EUR'], u'price_0': [u'50'], u'name': [u'551'], u'collective': [u'1'], u'buyer': [u'2'], u'csrfmiddlewaretoken': [u'xLRW08hDiRNGfcm2KMDdnGmQoAToTRY7Wknu99t7VTI2OG0PPo0VJsmwKBAEWg0b']}>
+def purchase_create(request):
+    from pprint import pprint
+    pprint(request.POST)
+    name = request.POST["name"]
 
-#     from pprint import pprint
-#     pprint(dict(request.POST))
+    collective_id = request.POST["collective"][0]
+    collective = Collective.objects.get(id=collective_id)
+    collective_url = "/{}".format(collective.key)
 
-#     name = request.POST["name"][0]
+    buyer_id = request.POST["buyer"][0]
+    buyer = User.objects.get(id=buyer_id)
 
-#     collective_id = request.POST["collective"][0]
-#     collective = Collective.objects.get(collective_id)
+    # FIXME: Either don't allow something else than euro or handle here.
+    price_value = float(request.POST["price_0"])
+    price = Money(price_value, EUR)
 
-#     buyer_id = request.POST["buyer"][0]
-#     buyer = User.objects.get(buyer_id)
+    Purchase.objects.create(
+        name=name,
+        price=price,
+        collective=collective,
+        buyer=buyer,
+    )
 
-#     # FIXME: Either don't allow something else than euro or handle here.
-#     price_value = request.POST["price_0"][0]
-#     price = Money(price_value, EUR)
-
-#     Purchase.objects.create(
-#         name=name,
-#         price=price,
-#         collective=collective,
-#         buyer=buyer,
-#     )
-
-#     return HttpResponse()
+    return redirect(collective_url)
