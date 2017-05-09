@@ -191,6 +191,9 @@
             <form id="purchase-form" action="/purchase/create/" method="post">
               <div class="modal-header">
                 <h5 class="modal-title">Add new Purchase</h5>
+                <span class="gray">
+                  A member buys something and the price will be shared.
+                </span>
               </div>
               <div class="modal-body">
                 {% csrf_token %}
@@ -239,6 +242,9 @@
             <form id="liquidation-form" action="/liquidation/create/" method="post">
               <div class="modal-header">
                 <h5 class="modal-title">Add new Liquidation</h5>
+                <span class="gray">
+                  A member gives money to another member.
+                </span>
               </div>
               <div class="modal-body">
                 {% csrf_token %}
@@ -261,7 +267,7 @@
                   <label class="control-label" for="id_creditor">From</label>
                   <div class="">
                     <select name="creditor" required class="form-control" id="id_creditor">
-                      <option value="" selected>---------</option>
+                      <option class="no-selected" value="" selected>---------</option>
                       {% for member in members %}
                       <option value="{{ member.id }}">
                         {{ member.username }}
@@ -387,9 +393,11 @@
         });
 
         // Store/retrieve last users in modals.
+        // Also ensure we can't have the same user as debtor and creditor.
 
         $('#id_buyer').on('click', function() {
-          localStorage.setItem('lastBuyerId', $('#id_buyer').val());
+          var buyerId = $(this).val();
+          localStorage.setItem('lastBuyerId', buyerId);
         });
 
         $('#new-purchase-modal').on('show.bs.modal', function() {
@@ -400,11 +408,29 @@
         });
 
         $('#id_debtor').on('click', function() {
-          localStorage.setItem('lastDebtorId', $('#id_debtor').val());
+          var debtorId = $(this).val();
+          localStorage.setItem('lastDebtorId', debtorId);
+
+          if (debtorId) {
+            var creditorId = $('#id_creditor').val();
+            if (debtorId === creditorId) {
+              var opt = '#new-liquidation-modal #id_creditor option[value=' + debtorId + ']';
+              $(opt).prop('selected', false);
+            }
+          }
         });
 
         $('#id_creditor').on('click', function() {
-          localStorage.setItem('lastCreditorId', $('#id_creditor').val());
+          var creditorId = $(this).val();
+          localStorage.setItem('lastCreditorId', creditorId);
+
+          if (creditorId) {
+            var debtorId = $('#id_debtor').val();
+            if (creditorId === debtorId) {
+              var opt = '#new-liquidation-modal #id_debtor option[value=' + creditorId + ']';
+              $(opt).prop('selected', false);
+            }
+          }
         });
 
         $('#new-liquidation-modal').on('show.bs.modal', function() {
