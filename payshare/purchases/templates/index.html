@@ -267,7 +267,7 @@
                   <label class="control-label" for="id_creditor">From</label>
                   <div class="">
                     <select name="creditor" required class="form-control" id="id_creditor">
-                      <option class="no-selected" value="" selected>---------</option>
+                      <option class="none" value="" selected>---------</option>
                       {% for member in members %}
                       <option value="{{ member.id }}">
                         {{ member.username }}
@@ -275,11 +275,12 @@
                       {% endfor %}
                     </select>
                   </div>
+                </div>
                 <div class="form-group">
                   <label class="control-label" for="id_debtor">To</label>
                   <div class="">
                     <select name="debtor" required class="form-control" id="id_debtor">
-                      <option value="" selected>---------</option>
+                      <option class="none" value="" selected>---------</option>
                       {% for member in members %}
                       <option value="{{ member.id }}">
                         {{ member.username }}
@@ -288,7 +289,7 @@
                     </select>
                   </div>
                 </div>
-                </div>
+                <button id="btn-swap" type="button" class="btn btn-default">Swap</button>
                 <input class="hidden" name="collective" value="{{ collective.id }}" />
               </div>
               <div class="modal-footer">
@@ -441,6 +442,27 @@
           var lastCreditorId = localStorage.getItem('lastCreditorId');
           if (lastCreditorId !== null) {
             $('#id_creditor').val(lastCreditorId);
+          }
+        });
+
+        // Swap debtor <-> creditor.
+
+        $('#btn-swap').on('click', function() {
+          var debtorId = $('#new-liquidation-modal #id_debtor').val();
+          var creditorId = $('#new-liquidation-modal #id_creditor').val();
+
+          if (debtorId) {
+            $('#new-liquidation-modal #id_creditor option[value=' + debtorId + ']').prop('selected', true);
+          }
+          else {
+            $('#new-liquidation-modal #id_creditor option.none').prop('selected', true);
+          }
+
+          if (creditorId) {
+            $('#new-liquidation-modal #id_debtor option[value=' + creditorId + ']').prop('selected', true);
+          }
+          else {
+            $('#new-liquidation-modal #id_debtor option.none').prop('selected', true);
           }
         });
 
