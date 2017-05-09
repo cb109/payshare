@@ -30,5 +30,5 @@ urlpatterns = [
     url(r"^liquidation/delete/(?P<pk>[0-9]+)/$", views.liquidation_delete,
         name="liquidation-delete"),
 
-    url(r"^(?P<uuid>[^/]+)", views.index, name="index"),
+    url(r"^(?P<uuid>[a-f0-9-]{36})/$", views.index, name="index"),
 ]
