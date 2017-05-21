@@ -172,9 +172,9 @@
         <div class="card-container">
           {% for member in members %}
           <div class="card member">
-            <img class="card-img-top"
+<!--             <img class="card-img-top"
                  src="https://api.adorable.io/avatars/200/{{ member.username }}.png"
-                 alt="{{ member.username }}">
+                 alt="{{ member.username }}"> -->
             <div class="card-block">
               <h2 class="card-title">{{ member.username }}</h2>
               <p class="card-text">
@@ -330,9 +330,9 @@
         {% if typ == 'purchase' %}
         <div class="card purchase">
           <div class="card-block">
-            <img src="https://api.adorable.io/avatars/30/{{ transaction.buyer.username }}.png"
+            <!-- <img src="https://api.adorable.io/avatars/30/{{ transaction.buyer.username }}.png"
                  alt="{{ transaction.buyer.username }}"
-                 style="margin: 10px">
+                 style="margin: 10px"> -->
             <span class="transaction-description">
               {{ transaction.buyer }} paid for <strong>{{ transaction.name }}</strong>
             </span>
@@ -353,15 +353,15 @@
         {% elif typ == 'liquidation' %}
         <div class="card purchase">
           <div class="card-block">
-            <img src="https://api.adorable.io/avatars/30/{{ transaction.creditor.username }}.png"
+<!--             <img src="https://api.adorable.io/avatars/30/{{ transaction.creditor.username }}.png"
                  alt="{{ transaction.creditor.username }}"
-                 style="margin: 10px">
+                 style="margin: 10px"> -->
             <span class="transaction-description">
               {{ transaction.creditor }} gave to {{ transaction.debtor }}
             </span>
-            <img src="https://api.adorable.io/avatars/30/{{ transaction.debtor.username }}.png"
+<!--             <img src="https://api.adorable.io/avatars/30/{{ transaction.debtor.username }}.png"
                  alt="{{ transaction.debtor.username }}"
-                 style="margin: 10px">
+                 style="margin: 10px"> -->
             <span class="purchase-date">
               {{ transaction.created_at|naturaltime }}
             </span>
