@@ -131,6 +131,11 @@
         font-size: 1.5em;
         margin: 10px;
       }
+
+      .to-end {
+        display: flex;
+        justify-content: flex-end;
+      }
     </style>
   </head>
   <body>
@@ -203,15 +208,15 @@
               <div class="modal-body">
                 {% csrf_token %}
                 <div class="form-group row">
-                  <label class="col-2 col-form-label" for="id_name">Name</label>
-                  <div class="col-10">
+                  <label class="col-4 col-form-label" for="id_name">Name</label>
+                  <div class="col-8">
                     <input type="text" name="name" id="id_name" required class="form-control" maxlength="100"
                            v-model="purchaseName"/>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-2 col-form-label" for="id_price">Price</label>
-                  <div class="col-10">
+                  <label class="col-4 col-form-label" for="id_price">Price</label>
+                  <div class="col-8">
                     <input type="number" name="price_0" min="0" step="any" required class=" form-control" id="id_price_0"
                            v-model.number="purchasePrice"/>
                     <select name="price_1" required class="form-control hidden" id="id_price_1">
@@ -220,8 +225,8 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-2 col-form-label" for="id_buyer">Buyer</label>
-                  <div class="col-10">
+                  <label class="col-6 col-form-label" for="id_buyer">Bought by</label>
+                  <div class="col-6">
                     <select name="buyer" required class="form-control" id="id_buyer"
                             v-model="purchaseBuyer">
                       <option value="" selected>---------</option>
@@ -258,16 +263,16 @@
               </div>
               <div class="modal-body">
                 {% csrf_token %}
-                <div class="form-group">
-                  <label class="control-label" for="id_description">Description</label>
-                  <div class="">
+                <div class="form-group row">
+                  <label class="col-4 control-label" for="id_description">Description</label>
+                  <div class="col-8">
                     <input type="text" name="description" id="id_description" required class="form-control" maxlength="100"
                            v-model="liquidationDescr"/>
                   </div>
                 </div>
-                <div class="form-group">
-                  <label class="control-label" for="id_amount">Amount</label>
-                  <div class="">
+                <div class="form-group row">
+                  <label class="col-4 control-label" for="id_amount">Amount</label>
+                  <div class="col-8">
                     <input type="number" name="amount_0" min="0" step="any" required class=" form-control" id="id_amount_0"
                            v-model.number="liquidationAmount"/>
                     <select name="amount_1" required class="form-control hidden" id="id_amount_1" disabled>
@@ -275,9 +280,9 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group">
-                  <label class="control-label" for="id_creditor">Given from</label>
-                  <div class="">
+                <div class="form-group row">
+                  <label class="col-6 control-label" for="id_creditor">Given from</label>
+                  <div class="col-6">
                     <select name="creditor" required class="form-control" id="id_creditor"
                             v-model="liquidationCreditor">
                       <option class="none" value="" selected>---------</option>
@@ -289,9 +294,9 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group">
-                  <label class="control-label" for="id_debtor">To</label>
-                  <div class="">
+                <div class="form-group row">
+                  <label class="col-6 control-label" for="id_debtor">to</label>
+                  <div class="col-6">
                     <select name="debtor" required class="form-control" id="id_debtor"
                             v-model="liquidationDebtor">
                       <option class="none" value="" selected>---------</option>
@@ -303,8 +308,10 @@
                     </select>
                   </div>
                 </div>
-                <button id="btn-swap" type="button" class="btn btn-default"
-                        @click="swapActors()">Swap</button>
+                <div class="to-end">
+                  <button id="btn-swap" type="button" class="btn btn-default"
+                          @click="swapActors()">Swap</button>
+                </div>
                 <input class="hidden" name="collective" value="{{ collective.id }}" />
               </div>
               <div class="modal-footer">
