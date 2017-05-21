@@ -1,7 +1,8 @@
-* TODO [1/5]
+* TODO [3/5]
 
  - [X] consider liquidations when calculating balance
- - [ ] implement modal to add purchase
- - [ ] implement modal to add liquidation
+ - [X] implement modal to add purchase
+ - [X] implement modal to add liquidation
+ - [ ] feedback (toast/snackbar)
  - [ ] filtering for member, price, time, title, ...
  - [ ] sorting by price, member, time, title, ...
