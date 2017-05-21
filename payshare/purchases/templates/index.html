@@ -8,6 +8,8 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <!-- Vue -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.3/vue.min.js"></script>
     <!-- Open Sans -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <!-- Font Awesome -->
@@ -101,6 +103,7 @@
 
       .toolbar .btn {
         margin: 5px;
+        min-width: 200px;
       }
 
       .outcome {
@@ -135,7 +138,7 @@
 
     {% load bootstrap %}
 
-    <div class="container-fluid">
+    <div class="container-fluid" id="app">
 
       <div class="jumbotron">
         <h1><a href="/{{ collective.key }}">{{ collective.name }}</a></h1>
@@ -146,11 +149,13 @@
           <div class="lead stat">{{ collective.liquidation_set.count|apnumber|capfirst }} Liquidations</div>
           <div class="toolbar">
             <button type="button" class="btn btn-lg btn-outline-primary"
-                    data-toggle="modal" data-target="#new-purchase-modal">
+                    data-toggle="modal" data-target="#new-purchase-modal"
+                    @click="loadFromStorage()">
               Add Purchase
             </button>
             <button type="button" class="btn btn-lg btn-outline-info"
-                    data-toggle="modal" data-target="#new-liquidation-modal">
+                    data-toggle="modal" data-target="#new-liquidation-modal"
+                    @click="loadFromStorage()">
               Add Liquidation
             </button>
           </div>
@@ -200,22 +205,25 @@
                 <div class="form-group row">
                   <label class="col-2 col-form-label" for="id_name">Name</label>
                   <div class="col-10">
-                    <input type="text" name="name" id="id_name" required class="form-control" maxlength="100" autofocus="autofocus" />
+                    <input type="text" name="name" id="id_name" required class="form-control" maxlength="100"
+                           v-model="purchaseName"/>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-2 col-form-label" for="id_price">Price</label>
                   <div class="col-10">
-                    <input type="number" name="price_0" value="10.00" step="any" required class=" form-control" id="id_price_0" />
+                    <input type="number" name="price_0" min="0" step="any" required class=" form-control" id="id_price_0"
+                           v-model.number="purchasePrice"/>
                     <select name="price_1" required class="form-control hidden" id="id_price_1">
                       <option value="EUR" selected>Euro</option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-2 col-form-label" for="id_buyer">Bought by</label>
+                  <label class="col-2 col-form-label" for="id_buyer">Buyer</label>
                   <div class="col-10">
-                    <select name="buyer" required class="form-control" id="id_buyer">
+                    <select name="buyer" required class="form-control" id="id_buyer"
+                            v-model="purchaseBuyer">
                       <option value="" selected>---------</option>
                       {% for member in members %}
                       <option value="{{ member.id }}">
@@ -229,7 +237,9 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-success">Save</button>
+                <button type="submit" class="btn btn-success"
+                        @click="submitPurchase()"
+                        :disabled="!isPurchaseValid">Purchase</button>
               </div>
             </form>
           </div>
@@ -251,22 +261,25 @@
                 <div class="form-group">
                   <label class="control-label" for="id_description">Description</label>
                   <div class="">
-                    <input type="text" name="description" id="id_description" required class="form-control" maxlength="100" autofocus="autofocus" />
+                    <input type="text" name="description" id="id_description" required class="form-control" maxlength="100"
+                           v-model="liquidationDescr"/>
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="control-label" for="id_amount">Amount</label>
                   <div class="">
-                    <input type="number" name="amount_0" value="10.00" step="any" required class=" form-control" id="id_amount_0" />
+                    <input type="number" name="amount_0" min="0" step="any" required class=" form-control" id="id_amount_0"
+                           v-model.number="liquidationAmount"/>
                     <select name="amount_1" required class="form-control hidden" id="id_amount_1" disabled>
                       <option value="EUR" selected>Euro</option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="control-label" for="id_creditor">From</label>
+                  <label class="control-label" for="id_creditor">Given from</label>
                   <div class="">
-                    <select name="creditor" required class="form-control" id="id_creditor">
+                    <select name="creditor" required class="form-control" id="id_creditor"
+                            v-model="liquidationCreditor">
                       <option class="none" value="" selected>---------</option>
                       {% for member in members %}
                       <option value="{{ member.id }}">
@@ -279,7 +292,8 @@
                 <div class="form-group">
                   <label class="control-label" for="id_debtor">To</label>
                   <div class="">
-                    <select name="debtor" required class="form-control" id="id_debtor">
+                    <select name="debtor" required class="form-control" id="id_debtor"
+                            v-model="liquidationDebtor">
                       <option class="none" value="" selected>---------</option>
                       {% for member in members %}
                       <option value="{{ member.id }}">
@@ -289,12 +303,15 @@
                     </select>
                   </div>
                 </div>
-                <button id="btn-swap" type="button" class="btn btn-default">Swap</button>
+                <button id="btn-swap" type="button" class="btn btn-default"
+                        @click="swapActors()">Swap</button>
                 <input class="hidden" name="collective" value="{{ collective.id }}" />
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-success">Save</button>
+                <button type="submit" class="btn btn-success"
+                        @click="submitLiquidation()"
+                        :disabled="!isLiquidationValid">Liquidate</button>
               </div>
             </form>
           </div>
@@ -364,6 +381,100 @@
       (function() {
         'use strict';
 
+        // The Vue app handles basic form validation and logic, as well
+        // as loading/saving values to/from local storage.
+        var app = new Vue({
+          el: '#app',
+          data: {
+            purchaseName: '',
+            purchasePrice: null,
+            purchaseBuyer: null,
+
+            liquidationDescr: '',
+            liquidationAmount: null,
+            liquidationCreditor: null,
+            liquidationDebtor: null,
+          },
+          watch: {
+            liquidationCreditor: function(newVal, oldVal) {
+              var vm = this;
+              if (vm.liquidationDebtor === newVal) {
+                vm.liquidationDebtor = null;
+              }
+            },
+            liquidationDebtor: function(newVal, oldVal) {
+              var vm = this;
+              if (vm.liquidationCreditor === newVal) {
+                vm.liquidationCreditor = null;
+              }
+            },
+          },
+          computed: {
+            isPurchaseValid: function() {
+              var vm = this;
+              var validName = Boolean(vm.purchaseName.trim());
+              var validPrice = vm.purchasePrice > 0;
+              var validBuyer = Boolean(vm.purchaseBuyer);
+              return validName && validPrice && validBuyer;
+            },
+            isLiquidationValid: function() {
+              var vm = this;
+              var validDescr = Boolean(vm.liquidationDescr.trim());
+              var validAmount = vm.liquidationAmount > 0;
+              var validCreditor = Boolean(vm.liquidationCreditor);
+              var validDebtor = Boolean(vm.liquidationDebtor);
+              return validDescr && validAmount && validCreditor && validDebtor;
+            },
+          },
+          mounted: function() {
+            var vm = this;
+            vm.loadFromStorage();
+          },
+          methods: {
+            loadFromStorage: function() {
+              var vm = this;
+              if (localStorage.lastBuyerId !== undefined) {
+                vm.purchaseBuyer = localStorage.lastBuyerId;
+              }
+              if (localStorage.lastCreditorId !== undefined) {
+                vm.liquidationCreditor = localStorage.lastCreditorId;
+              }
+              if (localStorage.lastDebtorId !== undefined) {
+                vm.liquidationDebtor = localStorage.lastDebtorId;
+              }
+            },
+            saveToStorage: function() {
+              var vm = this;
+              if (vm.purchaseBuyer !== null) {
+                localStorage.lastBuyerId = vm.purchaseBuyer;
+              }
+              if (vm.liquidationCreditor !== null) {
+
+                localStorage.lastCreditorId = vm.liquidationCreditor;
+              }
+              if (vm.liquidationDebtor !== null) {
+                localStorage.lastDebtorId = vm.liquidationDebtor;
+              }
+            },
+            swapActors: function() {
+              var vm = this;
+              var debtor = vm.liquidationDebtor;
+              vm.liquidationDebtor = vm.liquidationCreditor;
+              vm.liquidationCreditor = debtor;
+            },
+            submitPurchase: function() {
+              var vm = this;
+              vm.saveToStorage();
+            },
+            submitLiquidation: function() {
+              var vm = this;
+              vm.saveToStorage();
+            },
+          },
+        });
+
+        // We use jQuery to send AJAX requests to delete items.
+        //
         // http://stackoverflow.com/questions/10730362
         function getCookie(name) {
           var value = '; ' + document.cookie;
@@ -377,8 +488,6 @@
           },
         });
 
-        // Handle removal of items.
-
         $('.delete-icon').click(function(event) {
           var el = $(this);
           var collective = el.data('collective');
@@ -388,81 +497,9 @@
           if (confirmed) {
             var url = '/' + typ + '/delete/' + id + '/';
             $.post(url, {'collective': collective}, function(html) {
+              // Reload page.
               window.location.replace(window.location.href);
             });
-          }
-        });
-
-        // Store/retrieve last users in modals.
-        // Also ensure we can't have the same user as debtor and creditor.
-
-        $('#id_buyer').on('click', function() {
-          var buyerId = $(this).val();
-          localStorage.setItem('lastBuyerId', buyerId);
-        });
-
-        $('#new-purchase-modal').on('show.bs.modal', function() {
-          var lastBuyerId = localStorage.getItem('lastBuyerId');
-          if (lastBuyerId !== null) {
-            $('#id_buyer').val(lastBuyerId);
-          }
-        });
-
-        $('#id_debtor').on('click', function() {
-          var debtorId = $(this).val();
-          localStorage.setItem('lastDebtorId', debtorId);
-
-          if (debtorId) {
-            var creditorId = $('#id_creditor').val();
-            if (debtorId === creditorId) {
-              var opt = '#new-liquidation-modal #id_creditor option[value=' + debtorId + ']';
-              $(opt).prop('selected', false);
-            }
-          }
-        });
-
-        $('#id_creditor').on('click', function() {
-          var creditorId = $(this).val();
-          localStorage.setItem('lastCreditorId', creditorId);
-
-          if (creditorId) {
-            var debtorId = $('#id_debtor').val();
-            if (creditorId === debtorId) {
-              var opt = '#new-liquidation-modal #id_debtor option[value=' + creditorId + ']';
-              $(opt).prop('selected', false);
-            }
-          }
-        });
-
-        $('#new-liquidation-modal').on('show.bs.modal', function() {
-          var lastDebtorId = localStorage.getItem('lastDebtorId');
-          if (lastDebtorId !== null) {
-            $('#id_debtor').val(lastDebtorId);
-          }
-          var lastCreditorId = localStorage.getItem('lastCreditorId');
-          if (lastCreditorId !== null) {
-            $('#id_creditor').val(lastCreditorId);
-          }
-        });
-
-        // Swap debtor <-> creditor.
-
-        $('#btn-swap').on('click', function() {
-          var debtorId = $('#new-liquidation-modal #id_debtor').val();
-          var creditorId = $('#new-liquidation-modal #id_creditor').val();
-
-          if (debtorId) {
-            $('#new-liquidation-modal #id_creditor option[value=' + debtorId + ']').prop('selected', true);
-          }
-          else {
-            $('#new-liquidation-modal #id_creditor option.none').prop('selected', true);
-          }
-
-          if (creditorId) {
-            $('#new-liquidation-modal #id_debtor option[value=' + creditorId + ']').prop('selected', true);
-          }
-          else {
-            $('#new-liquidation-modal #id_debtor option.none').prop('selected', true);
           }
         });
 
