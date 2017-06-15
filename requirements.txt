@@ -4,15 +4,12 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-appdirs==1.4.3            # via setuptools
 django-bootstrap-form==3.2.1
-django-money==0.10.2
-django==1.11
-packaging==16.8           # via setuptools
-py-moneyed==0.6.0         # via django-money
-pyparsing==2.2.0          # via packaging
+django-money==0.11.2
+django==1.11.2
+djangorestframework==3.6.3
+py-moneyed==0.7.0         # via django-money
 pytz==2017.2              # via django
-six==1.10.0               # via packaging, setuptools
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools                # via django-money

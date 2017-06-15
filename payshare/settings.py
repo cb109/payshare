@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
 
     'bootstrapform',
+    'rest_framework',
 
     'payshare.purchases',
 ]
