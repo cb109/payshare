@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib.auth import login
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from moneyed import Money, EUR
 from rest_framework import viewsets
 
@@ -35,13 +37,48 @@ class PurchaseViewSet(viewsets.ModelViewSet):
 
 
 def index(request, uuid):
+    """TODO: This view does way too many things. Login, logout, content
+    view etc. please refactor!
+    """
+    from pprint import pprint
+    pprint(request.POST)
     try:
         collective = Collective.objects.get(key=uuid)
     except (Collective.DoesNotExist, ValidationError):
         return HttpResponse("This does not exist :(", status=404)
 
+    collective_url = request.build_absolute_uri(request.get_full_path())
+
+    logout = request.POST.get("logout", None)
+    if logout is not None:
+        request.session.flush()
+        return render(request, "index.html", {
+            "authenticated": False,
+            "collective": collective,
+            "next": collective_url,
+        })
+
     members = [ms.member for ms in collective.membership_set.all()]
     members = sorted(members, key=lambda m: m.username)
+
+    if not request.user.is_authenticated():
+        password = request.POST.get("password", None)
+        if password is not None:
+            if not check_password(password, collective.password):
+                return render(request, "index.html", {
+                    "wrong_password": True,
+                    "authenticated": False,
+                    "collective": collective,
+                    "next": collective_url,
+                })
+            else:
+                # This will set a session id cookie which we can use to
+                # authenticate subsequent requests for convience. The
+                # member we choose is not important here, we just want
+                # to make use of the builtin User authentication system
+                # for now.
+                first_member = members[0]
+                login(request, first_member)
 
     purchases = []
     for member in members:
@@ -84,12 +121,21 @@ def index(request, uuid):
     ]
 
     return render(request, "index.html", {
+        "authenticated": request.user.is_authenticated(),
         "collective": collective,
+        "next": collective_url,
         "members": members,
         "transactions": transactions,
         "overall_purchased": overall_purchased,
         "member_summary": member_summary,
     })
+
+
+# def login_and_redirect(request):
+#     print request.POST
+#     return render(request, "index.html", {
+#         "authenticated": True,
+#     })
 
 
 def get_collective_url(collective):

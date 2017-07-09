@@ -55,12 +55,17 @@
         display: flex;
         justify-content: space-around;
         margin: 1em;
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         transition: all .3s ease-in-out;
       }
 
       .card.member {
         width: 200px;
+      }
+
+      @media (max-width: 599px) {
+        .card.member {
+          width: 100%;
+        }
       }
 
       .purchase-overall {
@@ -101,6 +106,12 @@
         justify-content: center;
       }
 
+      @media (orientation: portrait) {
+        .toolbar {
+          justify-content: flex-start;
+        }
+      }
+
       .toolbar .btn {
         margin: 5px;
         min-width: 200px;
@@ -136,8 +147,51 @@
         display: flex;
         justify-content: flex-end;
       }
+
+      .login-box {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
     </style>
   </head>
+  {% if not authenticated %}
+  <body>
+    <div class="login-box">
+      <div class="container col-md-4">
+        <div class="jumbotron">
+          <div class="display-4">
+            PAYSHARE
+          </div>
+          <div class="lead text-muted">
+            {{ collective.name }}
+          </div>
+        </div>
+        <form id="login-form" method="post" action="{{ collective_url }}">
+          {% csrf_token %}
+          <div class="form-group {% if wrong_password %}has-danger{% endif %}">
+            <div style="display: flex">
+              <input id="id_password" name="password" placeholder="Password..."
+                     type="password" class="form-control" autofocus
+                     style="margin-right: .5em" required>
+              <button type="submit" class="btn btn-primary pull-right">
+                <i class="fa fa-fw fa-sign-in" title="Login"></i>
+              </button>
+            </div>
+            {% if wrong_password %}
+            <div class="form-control-feedback form-control-danger">
+              Wrong password. Please try again.
+            </div>
+            {% endif %}
+          </div>
+          <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+      </div>
+    </div>
+  </body>
+  {% else %}
   <body>
     {% load humanize %}
 
@@ -163,6 +217,15 @@
                     @click="loadFromStorage()">
               Add Liquidation
             </button>
+            <form method="post" action="{{ collective_url }}">
+              {% csrf_token %}
+              <input type="hidden" name="logout" value="true">
+              <button type="submit"
+                      class="btn btn-secondary" title="Logout"
+                      style="min-width: 60px; height: 50px">
+                <i class="fa fa-fw fa-sign-out"></i>
+              </button>
+            </form>
           </div>
         </div>
         <hr class="my-4">
@@ -385,131 +448,128 @@
 
     </div>
     <script>
-      (function() {
-        'use strict';
+      // The Vue app handles basic form validation and logic, as well
+      // as loading/saving values to/from local storage.
+      var app = new Vue({
+        el: '#app',
+        data: {
+          purchaseName: '',
+          purchasePrice: null,
+          purchaseBuyer: null,
 
-        // The Vue app handles basic form validation and logic, as well
-        // as loading/saving values to/from local storage.
-        var app = new Vue({
-          el: '#app',
-          data: {
-            purchaseName: '',
-            purchasePrice: null,
-            purchaseBuyer: null,
-
-            liquidationDescr: '',
-            liquidationAmount: null,
-            liquidationCreditor: null,
-            liquidationDebtor: null,
-          },
-          watch: {
-            liquidationCreditor: function(newVal, oldVal) {
-              var vm = this;
-              if (vm.liquidationDebtor === newVal) {
-                vm.liquidationDebtor = null;
-              }
-            },
-            liquidationDebtor: function(newVal, oldVal) {
-              var vm = this;
-              if (vm.liquidationCreditor === newVal) {
-                vm.liquidationCreditor = null;
-              }
-            },
-          },
-          computed: {
-            isPurchaseValid: function() {
-              var vm = this;
-              var validName = Boolean(vm.purchaseName.trim());
-              var validPrice = vm.purchasePrice > 0;
-              var validBuyer = Boolean(vm.purchaseBuyer);
-              return validName && validPrice && validBuyer;
-            },
-            isLiquidationValid: function() {
-              var vm = this;
-              var validDescr = Boolean(vm.liquidationDescr.trim());
-              var validAmount = vm.liquidationAmount > 0;
-              var validCreditor = Boolean(vm.liquidationCreditor);
-              var validDebtor = Boolean(vm.liquidationDebtor);
-              return validDescr && validAmount && validCreditor && validDebtor;
-            },
-          },
-          mounted: function() {
+          liquidationDescr: '',
+          liquidationAmount: null,
+          liquidationCreditor: null,
+          liquidationDebtor: null,
+        },
+        watch: {
+          liquidationCreditor: function(newVal, oldVal) {
             var vm = this;
-            vm.loadFromStorage();
+            if (vm.liquidationDebtor === newVal) {
+              vm.liquidationDebtor = null;
+            }
           },
-          methods: {
-            loadFromStorage: function() {
-              var vm = this;
-              if (localStorage.lastBuyerId !== undefined) {
-                vm.purchaseBuyer = localStorage.lastBuyerId;
-              }
-              if (localStorage.lastCreditorId !== undefined) {
-                vm.liquidationCreditor = localStorage.lastCreditorId;
-              }
-              if (localStorage.lastDebtorId !== undefined) {
-                vm.liquidationDebtor = localStorage.lastDebtorId;
-              }
-            },
-            saveToStorage: function() {
-              var vm = this;
-              if (vm.purchaseBuyer !== null) {
-                localStorage.lastBuyerId = vm.purchaseBuyer;
-              }
-              if (vm.liquidationCreditor !== null) {
-
-                localStorage.lastCreditorId = vm.liquidationCreditor;
-              }
-              if (vm.liquidationDebtor !== null) {
-                localStorage.lastDebtorId = vm.liquidationDebtor;
-              }
-            },
-            swapActors: function() {
-              var vm = this;
-              var debtor = vm.liquidationDebtor;
-              vm.liquidationDebtor = vm.liquidationCreditor;
-              vm.liquidationCreditor = debtor;
-            },
-            submitPurchase: function() {
-              var vm = this;
-              vm.saveToStorage();
-            },
-            submitLiquidation: function() {
-              var vm = this;
-              vm.saveToStorage();
-            },
+          liquidationDebtor: function(newVal, oldVal) {
+            var vm = this;
+            if (vm.liquidationCreditor === newVal) {
+              vm.liquidationCreditor = null;
+            }
           },
-        });
+        },
+        computed: {
+          isPurchaseValid: function() {
+            var vm = this;
+            var validName = Boolean(vm.purchaseName.trim());
+            var validPrice = vm.purchasePrice > 0;
+            var validBuyer = Boolean(vm.purchaseBuyer);
+            return validName && validPrice && validBuyer;
+          },
+          isLiquidationValid: function() {
+            var vm = this;
+            var validDescr = Boolean(vm.liquidationDescr.trim());
+            var validAmount = vm.liquidationAmount > 0;
+            var validCreditor = Boolean(vm.liquidationCreditor);
+            var validDebtor = Boolean(vm.liquidationDebtor);
+            return validDescr && validAmount && validCreditor && validDebtor;
+          },
+        },
+        mounted: function() {
+          var vm = this;
+          vm.loadFromStorage();
+        },
+        methods: {
+          loadFromStorage: function() {
+            var vm = this;
+            if (localStorage.lastBuyerId !== undefined) {
+              vm.purchaseBuyer = localStorage.lastBuyerId;
+            }
+            if (localStorage.lastCreditorId !== undefined) {
+              vm.liquidationCreditor = localStorage.lastCreditorId;
+            }
+            if (localStorage.lastDebtorId !== undefined) {
+              vm.liquidationDebtor = localStorage.lastDebtorId;
+            }
+          },
+          saveToStorage: function() {
+            var vm = this;
+            if (vm.purchaseBuyer !== null) {
+              localStorage.lastBuyerId = vm.purchaseBuyer;
+            }
+            if (vm.liquidationCreditor !== null) {
 
-        // We use jQuery to send AJAX requests to delete items.
-        //
-        // http://stackoverflow.com/questions/10730362
-        function getCookie(name) {
-          var value = '; ' + document.cookie;
-          var parts = value.split('; ' + name + '=');
-          if (parts.length == 2) return parts.pop().split(';').shift();
+              localStorage.lastCreditorId = vm.liquidationCreditor;
+            }
+            if (vm.liquidationDebtor !== null) {
+              localStorage.lastDebtorId = vm.liquidationDebtor;
+            }
+          },
+          swapActors: function() {
+            var vm = this;
+            var debtor = vm.liquidationDebtor;
+            vm.liquidationDebtor = vm.liquidationCreditor;
+            vm.liquidationCreditor = debtor;
+          },
+          submitPurchase: function() {
+            var vm = this;
+            vm.saveToStorage();
+          },
+          submitLiquidation: function() {
+            var vm = this;
+            vm.saveToStorage();
+          },
+        },
+      });
+
+      // We use jQuery to send AJAX requests to delete items.
+      //
+      // http://stackoverflow.com/questions/10730362
+      function getCookie(name) {
+        var value = '; ' + document.cookie;
+        var parts = value.split('; ' + name + '=');
+        if (parts.length == 2) return parts.pop().split(';').shift();
+      }
+
+      $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        },
+      });
+
+      $('.delete-icon').click(function(event) {
+        var el = $(this);
+        var collective = el.data('collective');
+        var typ = el.data('typ');
+        var id = el.data('id');
+        var confirmed = confirm('Really delete this ' + typ + '?');
+        if (confirmed) {
+          var url = '/' + typ + '/delete/' + id + '/';
+          $.post(url, {'collective': collective}, function(html) {
+            // Reload page.
+            window.location.replace(window.location.href);
+          });
         }
-
-        $.ajaxSetup({
-          beforeSend: function (xhr, settings) {
-            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
-          },
-        });
-
-        $('.delete-icon').click(function(event) {
-          var el = $(this);
-          var collective = el.data('collective');
-          var typ = el.data('typ');
-          var id = el.data('id');
-          var confirmed = confirm('Really delete this ' + typ + '?');
-          if (confirmed) {
-            var url = '/' + typ + '/delete/' + id + '/';
-            $.post(url, {'collective': collective}, function(html) {
-              // Reload page.
-              window.location.replace(window.location.href);
-            });
-          }
-        });
-
-      })();
-    </script>>
+      });
+    </script>
+  </body>
+  {% endif %}
 </html>

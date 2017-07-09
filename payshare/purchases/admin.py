@@ -11,7 +11,7 @@ from payshare.purchases.models import Liquidation
 
 class CollectiveAdmin(admin.ModelAdmin):
     readonly_fields = ("key",)
-    list_display = ("name", "key", "id",)
+    list_display = ("name", "key", "password", "id",)
 
 
 class PurchaseAdmin(admin.ModelAdmin):

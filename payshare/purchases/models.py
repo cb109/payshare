@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 import uuid
 
+from django.contrib.auth.hashers import make_password
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils import timezone
-
 from djmoney.models.fields import MoneyField
 
 
@@ -41,6 +41,15 @@ class Collective(TimestampMixin, models.Model):
     """A collective groups users that want to share payments."""
     name = models.CharField(max_length=100)
     key = models.UUIDField(default=uuid.uuid4, editable=False)
+    password = models.CharField(max_length=128)
+
+    def save(self, *args, **kwargs):
+        """Make sure to save changed password hashes, not as plain text."""
+        if self.id:
+            password_in_db = Collective.objects.get(id=self.id)
+            if password_in_db != self.password:
+                self.password = make_password(self.password)
+        return super(Collective, self).save(*args, **kwargs)
 
     def is_member(self, user):
         try:
