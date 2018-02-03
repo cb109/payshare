@@ -1,0 +1,16 @@
+[Unit]
+Description=Payshare
+
+[Service]
+User=root
+WorkingDirectory=/opt/payshare/
+ExecStart=/~/.virtualenvs/payshare/bin/gunicorn payshare.wsgi:application \
+          --workers 2 \
+          --bind 127.0.0.1:1234 \
+          --log-level debug \
+          --access-logfile /var/log/payshare-access.log \
+          --error-logfile /var/log/payshare-error.log
+
+[Install]
+WantedBy=multi-user.target
+Alias=payshare.service
