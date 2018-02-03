@@ -13,9 +13,44 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
+from rest_framework.routers import DefaultRouter
+
+from payshare.purchases import views
+
+
+router = DefaultRouter()
+router.register(
+    "collectives",
+    views.CollectiveViewSet,
+    base_name="collectives",
+)
+router.register(
+    "liquidations",
+    views.LiquidationViewSet,
+    base_name="liquidations",
+)
+router.register(
+    "purchases",
+    views.PurchaseViewSet,
+    base_name="purchases",
+)
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r"^admin/", admin.site.urls),
+    url(r"^api-auth/", include("rest_framework.urls",
+                               namespace="rest_framework")),
+    url(r"^api/v1/", include(router.urls)),
+
+    url(r"^purchase/create/$", views.purchase_create, name="purchase-create"),
+    url(r"^purchase/delete/(?P<pk>[0-9]+)/$", views.purchase_delete,
+        name="purchase-delete"),
+
+    url(r"^liquidation/create/$", views.liquidation_create,
+        name="liquidation-create"),
+    url(r"^liquidation/delete/(?P<pk>[0-9]+)/$", views.liquidation_delete,
+        name="liquidation-delete"),
+
+    url(r"^(?P<uuid>[a-f0-9-]{36})/$", views.index, name="index"),
 ]

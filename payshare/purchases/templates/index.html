@@ -1,0 +1,576 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+    <title>Payshare</title>
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <!-- Vue -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.3/vue.min.js"></script>
+    <!-- Open Sans -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Open Sans', sans-serif;
+        background-color: #EEE;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .jumbotron {
+        background-color: white;
+      }
+
+      .container-fluid {
+        display: flex;
+        flex-flow: column wrap;
+        padding: 0;
+      }
+
+      .stats {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+      }
+
+      .stat {
+        opacity: 0.5;
+        margin: 0 5px 0 5px;
+      }
+
+      .card-container {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+      }
+
+      .card {
+        display: flex;
+        justify-content: space-around;
+        margin: 1em;
+        transition: all .3s ease-in-out;
+      }
+
+      .card.member {
+        width: 200px;
+      }
+
+      @media (max-width: 599px) {
+        .card.member {
+          width: 100%;
+        }
+      }
+
+      .purchase-overall {
+        margin-bottom: 1em;
+        font-weight: bold;
+        font-size: 2em;
+        color: #9AC8EF;
+        text-align: center;
+      }
+
+      .transaction-list {
+        display: flex;
+        flex-flow: column wrap;
+        align-items: center;
+      }
+
+      .purchase-price {
+        font-weight: bold;
+        font-size: 1.5em;
+        /*opacity: 0.4;*/
+        color: #9AC8EF;
+      }
+
+      .purchase-date {
+        opacity: 0.7;
+      }
+
+      .card.purchase {
+        width: 90%;
+        margin: 3px 10px 3px 10px;
+        box-shadow: none;
+        border-color: #DDD;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+      }
+
+      @media (orientation: portrait) {
+        .toolbar {
+          justify-content: flex-start;
+        }
+      }
+
+      .toolbar .btn {
+        margin: 5px;
+        min-width: 200px;
+      }
+
+      .outcome {
+        font-size: 2em;
+        font-weight: bold;
+      }
+
+      .green {
+        color: #00CC00;
+      }
+
+      .red {
+        color: #CC0000;
+      }
+
+      .gray {
+        opacity: 0.5;
+      }
+
+      .delete-icon {
+        display: flex;
+        justify-content: flex-end;
+        color: #e00000;
+        opacity: 0.5;
+        font-size: 1.5em;
+        margin: 10px;
+      }
+
+      .to-end {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .login-box {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  {% if not authenticated %}
+  <body>
+    <div class="login-box">
+      <div class="container col-md-4">
+        <div class="jumbotron">
+          <div class="display-4">
+            PAYSHARE
+          </div>
+          <div class="lead text-muted">
+            {{ collective.name }}
+          </div>
+        </div>
+        <form id="login-form" method="post" action="{{ collective_url }}">
+          {% csrf_token %}
+          <div class="form-group {% if wrong_password %}has-danger{% endif %}">
+            <div style="display: flex">
+              <input id="id_password" name="password" placeholder="Password..."
+                     type="password" class="form-control" autofocus
+                     style="margin-right: .5em" required>
+              <button type="submit" class="btn btn-primary pull-right">
+                <i class="fa fa-fw fa-sign-in" title="Login"></i>
+              </button>
+            </div>
+            {% if wrong_password %}
+            <div class="form-control-feedback form-control-danger">
+              Wrong password. Please try again.
+            </div>
+            {% endif %}
+          </div>
+          <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+      </div>
+    </div>
+  </body>
+  {% else %}
+  <body>
+    {% load humanize %}
+
+    {% load bootstrap %}
+
+    <div class="container-fluid" id="app">
+
+      <div class="jumbotron">
+        <h1><a href="/{{ collective.key }}">{{ collective.name }}</a></h1>
+        <div class="stats">
+          <div class="lead stat">Created at {{ collective.created_at|date }}</div>
+          <div class="lead stat">{{ collective.membership_set.count|apnumber|capfirst }} Users</div>
+          <div class="lead stat">{{ collective.purchase_set.count|apnumber|capfirst }} Purchases</div>
+          <div class="lead stat">{{ collective.liquidation_set.count|apnumber|capfirst }} Liquidations</div>
+          <div class="toolbar">
+            <button type="button" class="btn btn-lg btn-outline-primary"
+                    data-toggle="modal" data-target="#new-purchase-modal"
+                    @click="loadFromStorage()">
+              Add Purchase
+            </button>
+            <button type="button" class="btn btn-lg btn-outline-info"
+                    data-toggle="modal" data-target="#new-liquidation-modal"
+                    @click="loadFromStorage()">
+              Add Liquidation
+            </button>
+            <form method="post" action="{{ collective_url }}">
+              {% csrf_token %}
+              <input type="hidden" name="logout" value="true">
+              <button type="submit"
+                      class="btn btn-secondary" title="Logout"
+                      style="min-width: 60px; height: 50px">
+                <i class="fa fa-fw fa-sign-out"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+        <hr class="my-4">
+        <div class="purchase-overall">
+          {{ overall_purchased }} spent overall
+        </div>
+        <div class="card-container">
+          {% for member in members %}
+          <div class="card member">
+<!--             <img class="card-img-top"
+                 src="https://api.adorable.io/avatars/200/{{ member.username }}.png"
+                 alt="{{ member.username }}"> -->
+            <div class="card-block">
+              <h2 class="card-title">{{ member.username }}</h2>
+              <p class="card-text">
+                {% for user, balance in member_summary.items %}
+                  {% if user == member %}
+                  <span class="outcome float-right">
+                    <span class="{% if balance < 0 %}red{% elif balance > 0 %}green{% else %}gray{% endif %}">
+                      {{ balance|floatformat:2 }}
+                    </span>
+                  <span>
+                  {% endif %}
+                {% endfor %}
+                </span>
+              </p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div id="new-purchase-modal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form id="purchase-form" action="/purchase/create/" method="post">
+              <div class="modal-header">
+                <h5 class="modal-title">Add new Purchase</h5>
+                <span class="gray">
+                  A member buys something and the price will be shared.
+                </span>
+              </div>
+              <div class="modal-body">
+                {% csrf_token %}
+                <div class="form-group row">
+                  <label class="col-4 col-form-label" for="id_name">Name</label>
+                  <div class="col-8">
+                    <input type="text" name="name" id="id_name" required class="form-control" maxlength="100"
+                           v-model="purchaseName"/>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-4 col-form-label" for="id_price">Price</label>
+                  <div class="col-8">
+                    <input type="number" name="price_0" min="0" step="any" required class=" form-control" id="id_price_0"
+                           v-model.number="purchasePrice"/>
+                    <select name="price_1" required class="form-control hidden" id="id_price_1">
+                      <option value="EUR" selected>Euro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-6 col-form-label" for="id_buyer">Bought by</label>
+                  <div class="col-6">
+                    <select name="buyer" required class="form-control" id="id_buyer"
+                            v-model="purchaseBuyer">
+                      <option value="" selected>---------</option>
+                      {% for member in members %}
+                      <option value="{{ member.id }}">
+                        {{ member.username }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <input class="hidden" name="collective" value="{{ collective.id }}" />
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success"
+                        @click="submitPurchase()"
+                        :disabled="!isPurchaseValid">Purchase</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div id="new-liquidation-modal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form id="liquidation-form" action="/liquidation/create/" method="post">
+              <div class="modal-header">
+                <h5 class="modal-title">Add new Liquidation</h5>
+                <span class="gray">
+                  A member gives money to another member.
+                </span>
+              </div>
+              <div class="modal-body">
+                {% csrf_token %}
+                <div class="form-group row">
+                  <label class="col-4 control-label" for="id_description">Description</label>
+                  <div class="col-8">
+                    <input type="text" name="description" id="id_description" required class="form-control" maxlength="100"
+                           v-model="liquidationDescr"/>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-4 control-label" for="id_amount">Amount</label>
+                  <div class="col-8">
+                    <input type="number" name="amount_0" min="0" step="any" required class=" form-control" id="id_amount_0"
+                           v-model.number="liquidationAmount"/>
+                    <select name="amount_1" required class="form-control hidden" id="id_amount_1" disabled>
+                      <option value="EUR" selected>Euro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-6 control-label" for="id_creditor">Given from</label>
+                  <div class="col-6">
+                    <select name="creditor" required class="form-control" id="id_creditor"
+                            v-model="liquidationCreditor">
+                      <option class="none" value="" selected>---------</option>
+                      {% for member in members %}
+                      <option value="{{ member.id }}">
+                        {{ member.username }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-6 control-label" for="id_debtor">to</label>
+                  <div class="col-6">
+                    <select name="debtor" required class="form-control" id="id_debtor"
+                            v-model="liquidationDebtor">
+                      <option class="none" value="" selected>---------</option>
+                      {% for member in members %}
+                      <option value="{{ member.id }}">
+                        {{ member.username }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="to-end">
+                  <button id="btn-swap" type="button" class="btn btn-default"
+                          @click="swapActors()">Swap</button>
+                </div>
+                <input class="hidden" name="collective" value="{{ collective.id }}" />
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success"
+                        @click="submitLiquidation()"
+                        :disabled="!isLiquidationValid">Liquidate</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="transaction-list">
+        {% for typ, transaction in transactions %}
+        {% if typ == 'purchase' %}
+        <div class="card purchase">
+          <div class="card-block">
+            <!-- <img src="https://api.adorable.io/avatars/30/{{ transaction.buyer.username }}.png"
+                 alt="{{ transaction.buyer.username }}"
+                 style="margin: 10px"> -->
+            <span class="transaction-description">
+              {{ transaction.buyer }} paid for <strong>{{ transaction.name }}</strong>
+            </span>
+            <span class="purchase-date">
+              {{ transaction.created_at|naturaltime }}
+            </span>
+            <span class="purchase-price float-right">
+              {{ transaction.price }}
+            </span>
+          </div>
+          <div class="delete-icon" title="Remove this"
+               data-collective="{{ collective.id }}"
+               data-typ="{{ typ }}"
+               data-id="{{ transaction.id }}">
+            <i class="fa fa-times"></i>
+          </div>
+        </div>
+        {% elif typ == 'liquidation' %}
+        <div class="card purchase">
+          <div class="card-block">
+<!--             <img src="https://api.adorable.io/avatars/30/{{ transaction.creditor.username }}.png"
+                 alt="{{ transaction.creditor.username }}"
+                 style="margin: 10px"> -->
+            <span class="transaction-description">
+              {{ transaction.creditor }} gave to {{ transaction.debtor }}
+            </span>
+<!--             <img src="https://api.adorable.io/avatars/30/{{ transaction.debtor.username }}.png"
+                 alt="{{ transaction.debtor.username }}"
+                 style="margin: 10px"> -->
+            <span class="purchase-date">
+              {{ transaction.created_at|naturaltime }}
+            </span>
+            <div>
+                {{ transaction.description }}
+            </div>
+            <span class="purchase-price float-right">
+              {{ transaction.amount }}
+            </span>
+          </div>
+          <div class="delete-icon" title="Remove this"
+               data-collective="{{ collective.id }}"
+               data-typ="{{ typ }}"
+               data-id="{{ transaction.id }}">
+            <i class="fa fa-times"></i>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+    </div>
+    <script>
+      // The Vue app handles basic form validation and logic, as well
+      // as loading/saving values to/from local storage.
+      var app = new Vue({
+        el: '#app',
+        data: {
+          purchaseName: '',
+          purchasePrice: null,
+          purchaseBuyer: null,
+
+          liquidationDescr: '',
+          liquidationAmount: null,
+          liquidationCreditor: null,
+          liquidationDebtor: null,
+        },
+        watch: {
+          liquidationCreditor: function(newVal, oldVal) {
+            var vm = this;
+            if (vm.liquidationDebtor === newVal) {
+              vm.liquidationDebtor = null;
+            }
+          },
+          liquidationDebtor: function(newVal, oldVal) {
+            var vm = this;
+            if (vm.liquidationCreditor === newVal) {
+              vm.liquidationCreditor = null;
+            }
+          },
+        },
+        computed: {
+          isPurchaseValid: function() {
+            var vm = this;
+            var validName = Boolean(vm.purchaseName.trim());
+            var validPrice = vm.purchasePrice > 0;
+            var validBuyer = Boolean(vm.purchaseBuyer);
+            return validName && validPrice && validBuyer;
+          },
+          isLiquidationValid: function() {
+            var vm = this;
+            var validDescr = Boolean(vm.liquidationDescr.trim());
+            var validAmount = vm.liquidationAmount > 0;
+            var validCreditor = Boolean(vm.liquidationCreditor);
+            var validDebtor = Boolean(vm.liquidationDebtor);
+            return validDescr && validAmount && validCreditor && validDebtor;
+          },
+        },
+        mounted: function() {
+          var vm = this;
+          vm.loadFromStorage();
+        },
+        methods: {
+          loadFromStorage: function() {
+            var vm = this;
+            if (localStorage.lastBuyerId !== undefined) {
+              vm.purchaseBuyer = localStorage.lastBuyerId;
+            }
+            if (localStorage.lastCreditorId !== undefined) {
+              vm.liquidationCreditor = localStorage.lastCreditorId;
+            }
+            if (localStorage.lastDebtorId !== undefined) {
+              vm.liquidationDebtor = localStorage.lastDebtorId;
+            }
+          },
+          saveToStorage: function() {
+            var vm = this;
+            if (vm.purchaseBuyer !== null) {
+              localStorage.lastBuyerId = vm.purchaseBuyer;
+            }
+            if (vm.liquidationCreditor !== null) {
+
+              localStorage.lastCreditorId = vm.liquidationCreditor;
+            }
+            if (vm.liquidationDebtor !== null) {
+              localStorage.lastDebtorId = vm.liquidationDebtor;
+            }
+          },
+          swapActors: function() {
+            var vm = this;
+            var debtor = vm.liquidationDebtor;
+            vm.liquidationDebtor = vm.liquidationCreditor;
+            vm.liquidationCreditor = debtor;
+          },
+          submitPurchase: function() {
+            var vm = this;
+            vm.saveToStorage();
+          },
+          submitLiquidation: function() {
+            var vm = this;
+            vm.saveToStorage();
+          },
+        },
+      });
+
+      // We use jQuery to send AJAX requests to delete items.
+      //
+      // http://stackoverflow.com/questions/10730362
+      function getCookie(name) {
+        var value = '; ' + document.cookie;
+        var parts = value.split('; ' + name + '=');
+        if (parts.length == 2) return parts.pop().split(';').shift();
+      }
+
+      $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        },
+      });
+
+      $('.delete-icon').click(function(event) {
+        var el = $(this);
+        var collective = el.data('collective');
+        var typ = el.data('typ');
+        var id = el.data('id');
+        var confirmed = confirm('Really delete this ' + typ + '?');
+        if (confirmed) {
+          var url = '/' + typ + '/delete/' + id + '/';
+          $.post(url, {'collective': collective}, function(html) {
+            // Reload page.
+            window.location.replace(window.location.href);
+          });
+        }
+      });
+    </script>
+  </body>
+  {% endif %}
+</html>

@@ -1,1 +1,4 @@
 django
+django-bootstrap-form
+django-money
+djangorestframework
