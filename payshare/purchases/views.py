@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from moneyed import Money, EUR
-from rest_framework import viewsets
 
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Purchase
@@ -19,21 +18,6 @@ from payshare.purchases.serializers import PurchaseSerializer
 
 
 CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
-
-
-class CollectiveViewSet(viewsets.ModelViewSet):
-    queryset = Collective.objects.all()
-    serializer_class = CollectiveSerializer
-
-
-class LiquidationViewSet(viewsets.ModelViewSet):
-    queryset = Liquidation.objects.all()
-    serializer_class = LiquidationSerializer
-
-
-class PurchaseViewSet(viewsets.ModelViewSet):
-    queryset = Purchase.objects.all()
-    serializer_class = PurchaseSerializer
 
 
 def index(request, uuid):

@@ -21,21 +21,6 @@ from payshare.purchases import views
 
 
 router = DefaultRouter()
-router.register(
-    "collectives",
-    views.CollectiveViewSet,
-    base_name="collectives",
-)
-router.register(
-    "liquidations",
-    views.LiquidationViewSet,
-    base_name="liquidations",
-)
-router.register(
-    "purchases",
-    views.PurchaseViewSet,
-    base_name="purchases",
-)
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
