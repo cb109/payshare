@@ -8,11 +8,14 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from moneyed import Money, EUR
+from rest_framework.decorators import api_view
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
 
 from payshare.purchases.models import Collective
-from payshare.purchases.models import Purchase
 from payshare.purchases.models import Liquidation
-from payshare.purchases.serializers import CollectiveSerializer
+from payshare.purchases.models import Purchase
 from payshare.purchases.serializers import LiquidationSerializer
 from payshare.purchases.serializers import PurchaseSerializer
 
@@ -201,3 +204,23 @@ def liquidation_delete(request, pk):
     liquidation.delete()
 
     return redirect(get_collective_url(liquidation.collective))
+
+
+@api_view(("GET",))
+@permission_classes((IsAdminUser,))
+def list_transfers_for_collective(request, collective_id):
+    collective = Collective.objects.get(id=collective_id)
+
+    purchases = collective.purchase_set.filter(
+        deleted=False).order_by("modified_at")
+    liquidations = collective.liquidation_set.filter(
+        deleted=False).order_by("modified_at")
+
+    serialized_purchases = PurchaseSerializer(purchases, many=True).data
+    serialized_liquidations = LiquidationSerializer(liquidations,
+                                                    many=True).data
+    all_transfers = serialized_purchases + serialized_liquidations
+    all_transfers.sort(key=lambda transfer: transfer["modified_at"],
+                       reverse=True)
+
+    return Response(all_transfers)

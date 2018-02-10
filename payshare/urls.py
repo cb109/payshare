@@ -15,18 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from rest_framework.routers import DefaultRouter
 
 from payshare.purchases import views
 
-
-router = DefaultRouter()
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
     url(r"^api-auth/", include("rest_framework.urls",
                                namespace="rest_framework")),
-    url(r"^api/v1/", include(router.urls)),
+
+    url(r"^api/v1/transfers/(?P<collective_id>[0-9]+)$", views.list_transfers_for_collective),  # noqa
 
     url(r"^purchase/create/$", views.purchase_create, name="purchase-create"),
     url(r"^purchase/delete/(?P<pk>[0-9]+)/$", views.purchase_delete,
