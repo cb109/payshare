@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import uuid
 
 from django.contrib.auth.hashers import make_password
@@ -64,8 +63,9 @@ class Collective(TimestampMixin, models.Model):
 
 class Membership(TimestampMixin, models.Model):
     """A membership is a mapping of a user to a collective."""
-    member = models.ForeignKey("auth.User")
-    collective = models.ForeignKey("purchases.Collective")
+    member = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    collective = models.ForeignKey("purchases.Collective",
+                                   on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ("member", "collective")
@@ -81,9 +81,10 @@ class Purchase(TimestampMixin, models.Model):
     description = models.TextField(blank=True, null=True)
     price = MoneyField(max_digits=10,
                        decimal_places=2,
-                       default_currency='EUR')
-    buyer = models.ForeignKey("auth.User")
-    collective = models.ForeignKey("purchases.Collective")
+                       default_currency="EUR")
+    buyer = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    collective = models.ForeignKey("purchases.Collective",
+                                   on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
     def __unicode__(self):
@@ -109,10 +110,13 @@ class Liquidation(TimestampMixin, models.Model):
     description = models.TextField(blank=True, null=True)
     amount = MoneyField(max_digits=10,
                         decimal_places=2,
-                        default_currency='EUR')
-    debtor = models.ForeignKey("auth.User", related_name="debtor")
-    creditor = models.ForeignKey("auth.User", related_name="creditor")
-    collective = models.ForeignKey("purchases.Collective")
+                        default_currency="EUR")
+    debtor = models.ForeignKey("auth.User", related_name="debtor",
+                               on_delete=models.CASCADE)
+    creditor = models.ForeignKey("auth.User", related_name="creditor",
+                                 on_delete=models.CASCADE)
+    collective = models.ForeignKey("purchases.Collective",
+                                   on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
     def __unicode__(self):

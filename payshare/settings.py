@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
-    'bootstrapform',
     'rest_framework',
 
     'payshare.purchases',
