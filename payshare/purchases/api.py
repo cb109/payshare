@@ -10,21 +10,26 @@ from __future__ import unicode_literals
 # from rest_framework import viewsets
 # from rest_framework.decorators import permission_classes
 # from rest_framework.permissions import IsAdminUser
-# from rest_framework.response import Response
+from rest_framework.response import Response
+
+from rest_framework.decorators import api_view
 
 from payshare.purchases.models import Collective
 # from payshare.purchases.models import Liquidation
 # from payshare.purchases.models import Purchase
 # from payshare.purchases.serializers import LiquidationSerializer
 # from payshare.purchases.serializers import PurchaseSerializer
+from payshare.purchases.serializers import CollectiveSerializer
 
 
 CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
 
 
+@api_view(("GET",))
 def collective(request, collective_key):
     collective = Collective.objects.get(key=collective_key)
-    return collective
+    serialized_collective = CollectiveSerializer(collective).data
+    return Response(serialized_collective)
 
 
 # def transfers(request):

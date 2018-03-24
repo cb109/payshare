@@ -12,4 +12,8 @@ def collective(db):
 def test_collective(collective, client):
     url = "/api/v1/{}".format(collective.key)
     response = client.get(url, follow=True)
-    assert response.status == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.data["id"] == collective.id
+    assert response.data["name"] == collective.name
+    assert response.data["key"] == str(collective.key)

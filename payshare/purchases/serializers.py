@@ -1,8 +1,20 @@
 from moneyed import Money
 from rest_framework import serializers
 
+from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
+
+
+class CollectiveSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Collective
+        fields = (
+            "id",
+            "name",
+            "key",
+        )
 
 
 class MoneyField(serializers.Field):

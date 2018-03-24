@@ -48,7 +48,7 @@ def index(request, uuid):
     members = [ms.member for ms in collective.membership_set.all()]
     members = sorted(members, key=lambda m: m.username)
 
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         password = request.POST.get("password", None)
         if password is not None:
             if not check_password(password, collective.password):
@@ -108,7 +108,7 @@ def index(request, uuid):
     ]
 
     return render(request, "index.html", {
-        "authenticated": request.user.is_authenticated(),
+        "authenticated": request.user.is_authenticated,
         "collective": collective,
         "next": collective_url,
         "members": members,
