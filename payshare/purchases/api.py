@@ -1,33 +1,31 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-# from django.contrib.auth import login
-# from django.contrib.auth.hashers import check_password
-# from django.contrib.auth.models import User
-
-# from moneyed import Money, EUR
-# from rest_framework import mixins
-# from rest_framework import viewsets
-# from rest_framework.decorators import permission_classes
-# from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
-
+from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import api_view
-
-# from payshare.purchases.models import Liquidation
-# from payshare.purchases.models import Purchase
-# from payshare.purchases.serializers import LiquidationSerializer
-# from payshare.purchases.serializers import PurchaseSerializer
+from rest_framework.response import Response
+from rest_framework.exceptions import AuthenticationFailed
 
 from payshare.purchases.models import Collective
-
 from payshare.purchases.serializers import CollectiveSerializer
 
 
 CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
 
 
+def is_collective_password_correct(view):
+    def wrapper(request, collective_key, *args, **kwargs):
+        password = get_authorization_header(request)
+        collective = Collective.objects.get(key=collective_key)
+        if not collective.check_password(password):
+            raise AuthenticationFailed
+        response = view(request, collective_key, *args, **kwargs)
+        return response
+    return wrapper
+
+
 @api_view(("GET",))
+@is_collective_password_correct
 def collective(request, collective_key):
     collective = Collective.objects.get(key=collective_key)
     serialized_collective = CollectiveSerializer(collective).data

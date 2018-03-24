@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import uuid
 
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db import models
@@ -43,12 +44,20 @@ class Collective(TimestampMixin, models.Model):
     key = models.UUIDField(default=uuid.uuid4, editable=False)
     password = models.CharField(max_length=128)
 
+    def set_password(self, password):
+        self.password = make_password(password)
+
+    def check_password(self, password):
+        return check_password(password, self.password)
+
     def save(self, *args, **kwargs):
         """Make sure to save changed password hashes, not as plain text."""
-        if self.id:
+        if not self.id:
+            self.set_password(self.password)
+        else:
             password_in_db = Collective.objects.get(id=self.id).password
             if password_in_db != self.password:
-                self.password = make_password(self.password)
+                self.set_password(self.password)
         return super(Collective, self).save(*args, **kwargs)
 
     def is_member(self, user):

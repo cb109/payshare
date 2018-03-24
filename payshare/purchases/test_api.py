@@ -12,8 +12,17 @@ def test_collective_password_not_saved_as_plain_test(db):
     assert check_password("foobar", collective.password)
 
 
-def test_collective_add_member(db):
-    collective = mommy.make("purchases.Collective")
+@pytest.fixture
+def collective(db):
+    collective = mommy.make("purchases.Collective", password="foobar")
+    return collective
+
+
+def test_collective_check_password(collective):
+    assert collective.check_password("foobar")
+
+
+def test_collective_add_member(collective):
     user = mommy.make("auth.User")
     assert not collective.is_member(user)
 
@@ -25,8 +34,7 @@ def test_collective_add_member(db):
 
 
 @pytest.fixture
-def collective_with_members(db):
-    collective = mommy.make("purchases.Collective")
+def collective_with_members(collective):
     user_1 = mommy.make("auth.User", username="user_1")
     user_2 = mommy.make("auth.User", username="user_2")
     collective.add_member(user_1)
@@ -45,7 +53,7 @@ def test_collective(collective_with_members, client):
     collective, user_1, user_2 = collective_with_members
 
     url = "/api/v1/{}".format(collective.key)
-    response = client.get(url, follow=True)
+    response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_200_OK
 
     assert response.data["id"] == collective.id
