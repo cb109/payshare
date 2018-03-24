@@ -46,7 +46,7 @@ class Collective(TimestampMixin, models.Model):
     def save(self, *args, **kwargs):
         """Make sure to save changed password hashes, not as plain text."""
         if self.id:
-            password_in_db = Collective.objects.get(id=self.id)
+            password_in_db = Collective.objects.get(id=self.id).password
             if password_in_db != self.password:
                 self.password = make_password(self.password)
         return super(Collective, self).save(*args, **kwargs)

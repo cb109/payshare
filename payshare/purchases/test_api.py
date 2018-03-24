@@ -1,6 +1,15 @@
 import pytest
+from django.contrib.auth.hashers import check_password
 from model_mommy import mommy
 from rest_framework import status
+
+
+def test_collective_password_not_saved_as_plain_test(db):
+    collective = mommy.make("purchases.Collective")
+    collective.password = "foobar"
+    collective.save()
+    assert collective.password != "foobar"
+    assert check_password("foobar", collective.password)
 
 
 def test_collective_add_member(db):
