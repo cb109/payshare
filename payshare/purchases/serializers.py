@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from moneyed import Money
 from rest_framework import serializers
 
@@ -6,7 +7,19 @@ from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+        )
+
+
 class CollectiveSerializer(serializers.ModelSerializer):
+    members = UserSerializer(many=True)
 
     class Meta:
         model = Collective
@@ -14,6 +27,7 @@ class CollectiveSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "key",
+            "members",
         )
 
 

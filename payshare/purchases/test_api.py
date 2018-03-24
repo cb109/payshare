@@ -33,7 +33,7 @@ def test_collective_members(collective_with_members):
 
 
 def test_collective(collective_with_members, client):
-    collective, _, _ = collective_with_members
+    collective, user_1, user_2 = collective_with_members
 
     url = "/api/v1/{}".format(collective.key)
     response = client.get(url, follow=True)
@@ -42,3 +42,8 @@ def test_collective(collective_with_members, client):
     assert response.data["id"] == collective.id
     assert response.data["name"] == collective.name
     assert response.data["key"] == str(collective.key)
+
+    assert len(response.data["members"]) == 2
+    member_ids = [member["id"] for member in response.data["members"]]
+    assert user_1.id in member_ids
+    assert user_2.id in member_ids

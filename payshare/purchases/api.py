@@ -14,11 +14,13 @@ from rest_framework.response import Response
 
 from rest_framework.decorators import api_view
 
-from payshare.purchases.models import Collective
 # from payshare.purchases.models import Liquidation
 # from payshare.purchases.models import Purchase
 # from payshare.purchases.serializers import LiquidationSerializer
 # from payshare.purchases.serializers import PurchaseSerializer
+
+from payshare.purchases.models import Collective
+
 from payshare.purchases.serializers import CollectiveSerializer
 
 
