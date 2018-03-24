@@ -3,13 +3,38 @@ from model_mommy import mommy
 from rest_framework import status
 
 
-@pytest.fixture
-def collective(db):
+def test_collective_add_member(db):
     collective = mommy.make("purchases.Collective")
-    return collective
+    user = mommy.make("auth.User")
+    assert not collective.is_member(user)
+
+    collective.add_member(user)
+    assert collective.is_member(user)
+
+    collective.add_member(user)
+    assert collective.is_member(user)
 
 
-def test_collective(collective, client):
+@pytest.fixture
+def collective_with_members(db):
+    collective = mommy.make("purchases.Collective")
+    user_1 = mommy.make("auth.User", username="user_1")
+    user_2 = mommy.make("auth.User", username="user_2")
+    collective.add_member(user_1)
+    collective.add_member(user_2)
+    return collective, user_1, user_2
+
+
+def test_collective_members(collective_with_members):
+    collective, user_1, user_2 = collective_with_members
+    assert len(collective.members) == 2
+    assert user_1 in collective.members
+    assert user_2 in collective.members
+
+
+def test_collective(collective_with_members, client):
+    collective, _, _ = collective_with_members
+
     url = "/api/v1/{}".format(collective.key)
     response = client.get(url, follow=True)
     assert response.status_code == status.HTTP_200_OK

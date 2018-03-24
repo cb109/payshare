@@ -2,6 +2,7 @@
 import uuid
 
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -57,7 +58,15 @@ class Collective(TimestampMixin, models.Model):
         except Membership.DoesNotExist:
             return False
 
-    def __unicode__(self):
+    def add_member(self, user):
+        if not self.is_member(user):
+            Membership.objects.create(collective=self, member=user)
+
+    @property
+    def members(self):
+        return User.objects.filter(membership__collective__id=self.id)
+
+    def __str__(self):
         return u"{}".format(self.name)
 
 
@@ -70,7 +79,7 @@ class Membership(TimestampMixin, models.Model):
     class Meta:
         unique_together = ("member", "collective")
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} in {}".format(self.member.username,
                                   self.collective.name)
 
@@ -87,7 +96,7 @@ class Purchase(TimestampMixin, models.Model):
                                    on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} for {} by {} in {}".format(self.price,
                                                self.name,
                                                self.buyer.username,
@@ -119,7 +128,7 @@ class Liquidation(TimestampMixin, models.Model):
                                    on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{} from {} to {} in {}".format(self.amount,
                                                 self.creditor.username,
                                                 self.debtor.username,
