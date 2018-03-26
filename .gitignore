@@ -1,2 +1,3 @@
 *.py[cod]
 db.sqlite3
+.pytest_cache/
