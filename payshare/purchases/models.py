@@ -111,6 +111,10 @@ class Purchase(TimestampMixin, models.Model):
                                                self.buyer.username,
                                                self.collective.name)
 
+    @property
+    def kind(self):
+        return "purchase"
+
     def delete(self):
         self.deleted = True
         self.save()
@@ -142,6 +146,10 @@ class Liquidation(TimestampMixin, models.Model):
                                                 self.creditor.username,
                                                 self.debtor.username,
                                                 self.collective.name)
+
+    @property
+    def kind(self):
+        return "liquidation"
 
     def delete(self):
         self.deleted = True

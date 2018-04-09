@@ -45,7 +45,6 @@ class MoneyField(serializers.Field):
 
 
 class LiquidationSerializer(serializers.ModelSerializer):
-    kind = serializers.SerializerMethodField()
     amount = MoneyField()
 
     class Meta:
@@ -61,12 +60,8 @@ class LiquidationSerializer(serializers.ModelSerializer):
             "kind",
         )
 
-    def get_kind(self, obj):
-        return "liquidation"
-
 
 class PurchaseSerializer(serializers.ModelSerializer):
-    kind = serializers.SerializerMethodField()
     price = MoneyField()
 
     class Meta:
@@ -81,6 +76,3 @@ class PurchaseSerializer(serializers.ModelSerializer):
             "modified_at",
             "kind",
         )
-
-    def get_kind(self, obj):
-        return "purchase"

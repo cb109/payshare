@@ -11,7 +11,8 @@ urlpatterns = [
     url(r"^api-auth/", include("rest_framework.urls",
                                namespace="rest_framework")),
 
-    path(r"api/v1/<uuid:collective_key>", api.collective),
+    path(r"api/v1/<uuid:key>", api.collective),
+    path(r"api/v1/<uuid:key>/transfers", api.transfers),
 
     # url(r"^api/v1/transfers/(?P<collective_id>[0-9]+)$", views.list_transfers_for_collective),  # noqa
 

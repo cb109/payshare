@@ -49,7 +49,16 @@ def test_collective_members(collective_with_members):
     assert user_2 in collective.members
 
 
-def test_collective(collective_with_members, client):
+def test_api_list_collective_needs_password(
+        collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+
+    url = "/api/v1/{}".format(collective.key)
+    response = client.get(url, follow=True)  # No password via header.
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_api_list_collective(collective_with_members, client):
     collective, user_1, user_2 = collective_with_members
 
     url = "/api/v1/{}".format(collective.key)
@@ -61,6 +70,46 @@ def test_collective(collective_with_members, client):
     assert response.data["key"] == str(collective.key)
 
     assert len(response.data["members"]) == 2
-    member_ids = [member["id"] for member in response.data["members"]]
-    assert user_1.id in member_ids
-    assert user_2.id in member_ids
+    member_identifiers = [
+        (member["username"], member["id"])
+        for member in response.data["members"]
+    ]
+    assert (user_1.username, user_1.id) in member_identifiers
+    assert (user_2.username, user_2.id) in member_identifiers
+
+
+@pytest.fixture
+def transfers(collective_with_members):
+    collective, user_1, user_2 = collective_with_members
+    purchase = mommy.make("purchases.Purchase",
+                          collective=collective,
+                          buyer=user_1)
+    liquidation = mommy.make("purchases.Liquidation",
+                             collective=collective,
+                             debtor=user_1,
+                             creditor=user_2)
+    return purchase, liquidation
+
+
+def test_api_list_transfers_needs_password(
+        collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+
+    url = "/api/v1/{}/transfers".format(collective.key)
+    response = client.get(url, follow=True)  # No password via header.
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_api_list_transfers(collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    url = "/api/v1/{}/transfers".format(collective.key)
+    response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    transfers = response.data
+    assert len(transfers) == 2
+    transfer_identifiers = [(obj["kind"], obj["id"]) for obj in transfers]
+    assert (purchase.kind, purchase.id) in transfer_identifiers
+    assert (liquidation.kind, liquidation.id) in transfer_identifiers

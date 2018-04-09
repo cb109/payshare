@@ -8,28 +8,49 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from payshare.purchases.models import Collective
 from payshare.purchases.serializers import CollectiveSerializer
+from payshare.purchases.serializers import PurchaseSerializer
+from payshare.purchases.serializers import LiquidationSerializer
 
 
 CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
 
 
+def collective_from_key(key):
+    return Collective.objects.get(key=key)
+
+
 def is_collective_password_correct(view):
-    def wrapper(request, collective_key, *args, **kwargs):
+    def wrapper(request, key, *args, **kwargs):
         password = get_authorization_header(request)
-        collective = Collective.objects.get(key=collective_key)
+        collective = collective_from_key(key)
         if not collective.check_password(password):
             raise AuthenticationFailed
-        response = view(request, collective_key, *args, **kwargs)
+        response = view(request, key, *args, **kwargs)
         return response
     return wrapper
 
 
 @api_view(("GET",))
 @is_collective_password_correct
-def collective(request, collective_key):
-    collective = Collective.objects.get(key=collective_key)
+def collective(request, key):
+    collective = collective_from_key(key)
     serialized_collective = CollectiveSerializer(collective).data
     return Response(serialized_collective)
+
+
+@api_view(("GET",))
+@is_collective_password_correct
+def transfers(request, key):
+    collective = collective_from_key(key)
+    serialized_purchases = PurchaseSerializer(
+        collective.purchase_set.all(),
+        many=True).data
+    serialized_liquidations = LiquidationSerializer(
+        collective.liquidation_set.all(),
+        many=True).data
+    transfers = serialized_purchases + serialized_liquidations
+    transfers.sort(key=lambda obj: obj["created_at"], reverse=True)
+    return Response(transfers)
 
 
 # def transfers(request):
