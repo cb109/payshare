@@ -14,6 +14,7 @@
     "register-service-worker": "^1.0.0",
     "vue": "^2.5.13",
     "vue-router": "^3.0.1",
+    "vuetify": "^1.0.6",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
@@ -28,6 +29,7 @@
     "babel-jest": "^22.0.4",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
+    "vue-cli-plugin-vuetify": "^0.1.0",
     "vue-template-compiler": "^2.5.13"
   },
   "browserslist": [
