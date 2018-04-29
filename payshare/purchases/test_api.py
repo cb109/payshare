@@ -4,7 +4,7 @@ from model_mommy import mommy
 from rest_framework import status
 
 
-def test_collective_password_not_saved_as_plain_test(db):
+def test_collective_password_not_saved_as_plain_text(db):
     collective = mommy.make("purchases.Collective")
     collective.password = "foobar"
     collective.save()
@@ -20,6 +20,15 @@ def collective(db):
 
 def test_collective_check_password(collective):
     assert collective.check_password("foobar")
+
+
+def test_collective_token_changes_on_password_changed(collective):
+    old_token = collective.token
+    assert old_token is not None
+
+    collective.set_password("some_other_password")
+    collective.save()
+    assert collective.token != old_token
 
 
 def test_collective_add_member(collective):

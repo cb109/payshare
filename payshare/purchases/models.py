@@ -39,13 +39,21 @@ class TimestampMixin(models.Model):
 
 
 class Collective(TimestampMixin, models.Model):
-    """A collective groups users that want to share payments."""
+    """A collective groups users that want to share payments.
+
+    Its key is used as an identifier e.g. in URLs. Its token is used to
+    authenticate as a User for this Collective instead of having to
+    provide key and password everytime. The token updates when the
+    password is changed.
+    """
     name = models.CharField(max_length=100)
     key = models.UUIDField(default=uuid.uuid4, editable=False)
     password = models.CharField(max_length=128)
+    token = models.UUIDField(default=uuid.uuid4, editable=False)
 
     def set_password(self, password):
         self.password = make_password(password)
+        self.token = uuid.uuid4()
 
     def check_password(self, password):
         return check_password(password, self.password)

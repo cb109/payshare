@@ -27,6 +27,7 @@ class CollectiveSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "key",
+            "token",
             "members",
         )
 
