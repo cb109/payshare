@@ -1,9 +1,10 @@
 <template>
-  <v-app dark>
+  <v-app :dark="dark">
     <v-navigation-drawer app
                          fixed
                          clipped
-                         v-model="drawer">
+                         v-model="drawer"
+                         v-if="uuid">
       <v-list>
         <v-list-tile @click=""
                      v-for="(menuItem, i) in menuItems"
@@ -25,6 +26,7 @@
                fixed
                clipped-left>
       <v-toolbar-side-icon
+        v-if="uuid"
         @click.stop="drawer = !drawer">
       </v-toolbar-side-icon>
       <v-toolbar-title>
@@ -33,8 +35,7 @@
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-content>
-      {{ uuid }}
-      <router-view/>
+      <router-view />
     </v-content>
   </v-app>
 </template>
@@ -45,7 +46,8 @@ export default {
   name: 'App',
   data () {
     return {
-      drawer: true,
+      drawer: false,
+      dark: true,
       title: 'Payshare',
       menuItems: [
         {
@@ -62,13 +64,24 @@ export default {
     }
   },
   methods: {
+    setInitialDrawerState() {
+      if (this.$vuetify.breakpoint.smAndUp) {
+        this.drawer = true
+      }
+    },
+    checkUrl() {
+      if (!this.uuid) {
+        this.$router.push('/unknown')
+      }
+    },
     isUUID(key) {
       const pattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
       return pattern.test(key)
     },
-    fetchCollective(key) {
-      // yarn add axios etc.
-    },
-  }
+  },
+  mounted() {
+    this.setInitialDrawerState()
+    this.checkUrl()
+  },
 }
 </script>
