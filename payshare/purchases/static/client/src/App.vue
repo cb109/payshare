@@ -42,8 +42,13 @@
 
 <script>
 
+import uuid from '@/mixins/uuid'
+
 export default {
   name: 'App',
+  mixins: [
+    uuid,
+  ],
   data () {
     return {
       drawer: false,

@@ -4,11 +4,17 @@ import axios from 'axios'
 
 Vue.use(Vuex)
 
+// TODO: Get this from the process.env
 const apiBaseUrl = 'http://localhost:8000'
 
 export default new Vuex.Store({
   state: {
     collective: null,
+  },
+  getters: {
+    isLoggedIn(state) {
+      return state.collective !== null
+    },
   },
   mutations: {
     SET_COLLECTIVE(state, collective) {
