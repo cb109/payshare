@@ -7,6 +7,7 @@
 django-money==0.11.2
 django==2.0.3
 djangorestframework==3.6.3
+django-cors-headers==2.2.0
 py-moneyed==0.7.0         # via django-money
 pytest-django==3.1.2
 pytest==3.4.2

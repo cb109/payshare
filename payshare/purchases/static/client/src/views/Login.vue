@@ -39,11 +39,10 @@ export default {
       return pattern.test(key)
     },
     loginWithCredentials(uuid, password) {
-      console.log(uuid, password)
-      // get collective
-      // store its token in localStorage
-      // next time, allow logging in automatically just via token, dont show login
-      // add logout to clear this data
+      this.$store.dispatch('RETRIEVE_COLLECTIVE_USING_CREDENTIALS', {
+        'uuid': uuid,
+        'password': password,
+      }).then(() => this.password = null)
     },
   },
 }

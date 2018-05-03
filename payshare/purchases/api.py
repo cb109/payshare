@@ -19,7 +19,7 @@ def collective_from_key(key):
     return Collective.objects.get(key=key)
 
 
-def is_collective_password_correct(view):
+def header_authentication(view):
     def wrapper(request, key, *args, **kwargs):
         password = get_authorization_header(request)
         collective = collective_from_key(key)
@@ -31,7 +31,7 @@ def is_collective_password_correct(view):
 
 
 @api_view(("GET",))
-@is_collective_password_correct
+@header_authentication
 def collective(request, key):
     collective = collective_from_key(key)
     serialized_collective = CollectiveSerializer(collective).data
@@ -39,7 +39,7 @@ def collective(request, key):
 
 
 @api_view(("GET",))
-@is_collective_password_correct
+@header_authentication
 def transfers(request, key):
     collective = collective_from_key(key)
     serialized_purchases = PurchaseSerializer(
