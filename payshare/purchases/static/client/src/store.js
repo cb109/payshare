@@ -17,16 +17,32 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    LOAD_COLLECTIVE_FROM_LOCALSTORAGE(state) {
+      const collectiveString = localStorage.getItem('collective')
+      if (collectiveString) {
+        const collective = JSON.parse(collectiveString)
+        if (collective) {
+          state.collective = collective
+        }
+      }
+    },
     SET_COLLECTIVE(state, collective) {
       state.collective = collective
+      localStorage.setItem('collective', JSON.stringify(collective))
+    },
+    UNSET_COLLECTIVE(state) {
+      state.collective = null
+      localStorage.removeItem('collective')
     },
   },
   actions: {
     RETRIEVE_COLLECTIVE_USING_CREDENTIALS(context, opts) {
       const url = `${apiBaseUrl}/api/v1/${opts.uuid}`
-      const config = {'headers': {
-        'authorization': opts.password,
-      }}
+      const config = {
+        'headers': {
+          'authorization': opts.password,
+        },
+      }
       return axios.get(url, config).then(response => {
         const collective = response.data
         context.commit('SET_COLLECTIVE', collective)

@@ -4,38 +4,71 @@
                          fixed
                          clipped
                          v-model="drawer"
-                         v-if="uuid">
-      <v-list>
-        <v-list-tile @click=""
-                     v-for="(menuItem, i) in menuItems"
-                     :key="i">
-          <v-list-tile-action>
-            <v-icon>
-              {{ menuItem.icon }}
-            </v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>
-              {{ menuItem.title }}
+                         v-if="$store.getters.isLoggedIn">
+      <v-layout column
+                fill-height>
+        <v-list>
+          <v-list-tile @click=""
+                       v-for="(menuItem, i) in menuItems"
+                       :key="i">
+            <v-list-tile-action>
+              <v-icon>
+                {{ menuItem.icon }}
+              </v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>
+                {{ menuItem.title }}
+                </v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list>
+        <v-spacer></v-spacer>
+        <!-- Logout -->
+        <v-list>
+          <v-list-tile @click="logout()">
+            <v-list-tile-action>
+              <v-icon>
+                exit_to_app
+              </v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>
+                Logout
               </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list>
+      </v-layout>
     </v-navigation-drawer>
     <v-toolbar app
                fixed
                clipped-left>
       <v-toolbar-side-icon
-        v-if="uuid"
+        v-if="$store.getters.isLoggedIn"
         @click.stop="drawer = !drawer">
       </v-toolbar-side-icon>
       <v-toolbar-title>
-        {{ title }}
+        <span v-if="!$store.getters.isLoggedIn">
+          {{ title }}<span v-if="uuid">: {{ uuid }}</span>
+        </span>
+        <span v-else>
+          {{ $store.state.collective.name }}
+        </span>
         </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn v-if="$store.getters.isLoggedIn"
+             @click="logout()"
+             icon>
+        <v-icon>exit_to_app</v-icon>
+      </v-btn>
     </v-toolbar>
     <v-content>
-      <router-view />
+      <v-container>
+        <v-slide-y-transition mode="out-in">
+          <router-view />
+        </v-slide-y-transition>
+      </v-container>
     </v-content>
   </v-app>
 </template>
@@ -51,8 +84,8 @@ export default {
   ],
   data () {
     return {
-      drawer: false,
-      dark: true,
+      drawer: true,
+      dark: false,
       title: 'Payshare',
       menuItems: [
         {
@@ -62,16 +95,10 @@ export default {
       ]
     }
   },
-  computed:{
-    uuid() {
-      const key = this.$route.params.key
-      return this.isUUID(key) ? key : null
-    }
-  },
   methods: {
     setInitialDrawerState() {
-      if (this.$vuetify.breakpoint.smAndUp) {
-        this.drawer = true
+      if (this.$vuetify.breakpoint.mdAndDown) {
+        this.drawer = false
       }
     },
     checkUrl() {
@@ -79,14 +106,30 @@ export default {
         this.$router.push('/unknown')
       }
     },
-    isUUID(key) {
-      const pattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-      return pattern.test(key)
+    rememberCollective() {
+      this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
+      if (this.$store.getters.isLoggedIn) {
+        this.$router.push('/transfers')
+      }
+    },
+    logout() {
+      const key = this.$store.state.collective.key
+      this.$store.commit('UNSET_COLLECTIVE')
+      this.$router.push('/' + key)
     },
   },
   mounted() {
     this.setInitialDrawerState()
     this.checkUrl()
+    this.rememberCollective()
   },
 }
 </script>
+
+<style>
+
+.navigation-drawer {
+  padding-bottom: 0;
+}
+
+</style>
