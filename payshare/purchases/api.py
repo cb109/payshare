@@ -20,10 +20,19 @@ def collective_from_key(key):
 
 
 def header_authentication(view):
+    """Allow authenticating through header using either password or token.
+
+    Header name is 'HTTP_AUTHORIZATION'. Its value is either the raw
+    password or a string like 'Token <TOKEN>'.
+
+    """
     def wrapper(request, key, *args, **kwargs):
-        password = get_authorization_header(request)
+        token_or_password = get_authorization_header(request).decode("utf-8")
+        possible_token = token_or_password.replace("Token ", "")
+
         collective = collective_from_key(key)
-        if not collective.check_password(password):
+        if not (str(collective.token) == possible_token or
+                collective.check_password(token_or_password)):
             raise AuthenticationFailed
         response = view(request, key, *args, **kwargs)
         return response
@@ -51,11 +60,6 @@ def transfers(request, key):
     transfers = serialized_purchases + serialized_liquidations
     transfers.sort(key=lambda obj: obj["created_at"], reverse=True)
     return Response(transfers)
-
-
-# def transfers(request):
-#     """Paginated list of Purchases and Liquidations for a Collective."""
-#     pass
 
 
 # class PurchasesView(mixins.CreateModelMixin,

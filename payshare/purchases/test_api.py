@@ -100,13 +100,22 @@ def transfers(collective_with_members):
     return purchase, liquidation
 
 
-def test_api_list_transfers_needs_password(
+def test_api_list_transfers_needs_password_or_token(
         collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
-
     url = "/api/v1/{}/transfers".format(collective.key)
+
     response = client.get(url, follow=True)  # No password via header.
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    response = client.get(
+        url,
+        follow=True,
+        HTTP_AUTHORIZATION="Token {}".format(collective.token))
+    assert response.status_code == status.HTTP_200_OK
 
 
 def test_api_list_transfers(collective_with_members, transfers, client):
