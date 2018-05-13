@@ -77,3 +77,14 @@ class PurchaseSerializer(serializers.ModelSerializer):
             "modified_at",
             "kind",
         )
+
+
+class TransferSerializer(serializers.Serializer):
+    """Accept both Purchase and Liquidation and delegate."""
+
+    def to_representation(self, instance):
+        if instance.__class__ == Purchase:
+            return PurchaseSerializer(instance).data
+        elif instance.__class__ == Liquidation:
+            return LiquidationSerializer(instance).data
+        raise ValueError("Cannot serialize this thing: {}".format(instance))
