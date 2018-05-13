@@ -62,8 +62,8 @@ export default new Vuex.Store({
         },
       }
       return axios.get(url, config).then(response => {
-        const transfers = response.data
-        context.commit('SET_TRANSFERS', transfers)
+        const transfersPage = response.data
+        context.commit('SET_TRANSFERS', transfersPage.results)
       })
     },
   }

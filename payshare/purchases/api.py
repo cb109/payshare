@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.decorators import authentication_classes
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.mixins import ListModelMixin
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -53,10 +54,15 @@ def collective(request, key):
     return Response(serialized_collective)
 
 
+class TransfersPagination(PageNumberPagination):
+    page_size = 20
+
+
 class TransfersViewSet(ListModelMixin, GenericViewSet):
     """Return sorted Purchases and Liquidations for a Collective."""
-    serializer_class = TransferSerializer
     authentication_classes = (HeaderAuthentication,)
+    pagination_class = TransfersPagination
+    serializer_class = TransferSerializer
 
     def get_queryset(self):
         key = self.kwargs["key"]
