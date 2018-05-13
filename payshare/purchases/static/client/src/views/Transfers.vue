@@ -2,6 +2,11 @@
 
 <div>
   Transfers
+  <div v-for="(transfer, transferIndex) in transfers"
+      :key="transferIndex">
+    {{ transfer.created_at }}
+    {{ transfer.name }}
+  </div>
 </div>
 
 </template>
@@ -15,11 +20,13 @@ export default {
 
     }
   },
-  methods: {
-
+  computed: {
+    transfers() {
+      return this.$store.state.transfers
+    },
   },
   mounted() {
-
+    this.$store.dispatch('LIST_TRANSFERS')
   },
 }
 

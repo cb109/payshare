@@ -118,7 +118,10 @@ export default {
       this.$router.push('/' + key)
     },
   },
-  mounted() {
+  // FIXME: Dehydration of state races with created() and mounted() in
+  //   other components and should better be handled explcitly, maybe
+  //   using something like vuex-localstorage.
+  created() {
     this.setInitialDrawerState()
     this.checkUrl()
     this.rememberCollective()
