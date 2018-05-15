@@ -4,7 +4,8 @@
   <v-layout justify-center>
     <v-pagination v-if="numPages > 0"
                   :length="numPages"
-                   v-model="pageIndex"></v-pagination>
+                   v-model="pageIndex">
+    </v-pagination>
   </v-layout>
   <ul>
     <li v-for="(transfer, transferIndex) in transfers"
@@ -48,3 +49,4 @@ export default {
 }
 
 </script>
+
