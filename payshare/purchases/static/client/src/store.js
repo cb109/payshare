@@ -10,7 +10,14 @@ const apiBaseUrl = 'http://localhost:8000'
 export default new Vuex.Store({
   state: {
     collective: null,
-    transfers: [],
+    transfersPageIndex: 1,
+    transfersPage: {
+      num_pages: 0,
+      count: 0,
+      previous: null,
+      next: null,
+      results: [],
+    },
   },
   getters: {
     isLoggedIn(state) {
@@ -35,8 +42,11 @@ export default new Vuex.Store({
       state.collective = null
       localStorage.removeItem('collective')
     },
-    SET_TRANSFERS(state, transfers) {
-      state.transfers = transfers
+    SET_TRANSFERS_PAGE(state, transfersPage) {
+      state.transfersPage = transfersPage
+    },
+    SET_TRANSFERS_PAGE_INDEX(state, index) {
+      state.transfersPageIndex = index
     },
   },
   actions: {
@@ -60,11 +70,18 @@ export default new Vuex.Store({
         'headers': {
           'authorization': 'Token ' + token,
         },
+        'params': {
+          'page': context.state.transfersPageIndex,
+        }
       }
       return axios.get(url, config).then(response => {
         const transfersPage = response.data
-        context.commit('SET_TRANSFERS', transfersPage.results)
+        context.commit('SET_TRANSFERS_PAGE', transfersPage)
       })
+    },
+    UPDATE_TRANSFERS_PAGE_INDEX(context, index) {
+      context.commit('SET_TRANSFERS_PAGE_INDEX', index)
+      context.dispatch('LIST_TRANSFERS')
     },
   }
 })
