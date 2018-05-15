@@ -126,7 +126,7 @@ def test_api_list_transfers(collective_with_members, transfers, client):
     response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_200_OK
 
-    transfers = response.data
+    transfers = response.data["results"]
     assert len(transfers) == 2
     transfer_identifiers = [(obj["kind"], obj["id"]) for obj in transfers]
     assert (purchase.kind, purchase.id) in transfer_identifiers
