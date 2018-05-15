@@ -57,6 +57,12 @@ def collective(request, key):
 class TransfersPagination(PageNumberPagination):
     page_size = 20
 
+    def get_paginated_response(self, data):
+        response = super(TransfersPagination,
+                         self).get_paginated_response(data)
+        response.data["num_pages"] = self.page.paginator.num_pages
+        return response
+
 
 class TransfersViewSet(ListModelMixin, GenericViewSet):
     """Return sorted Purchases and Liquidations for a Collective."""
