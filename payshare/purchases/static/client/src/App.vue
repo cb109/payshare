@@ -84,7 +84,7 @@ export default {
   ],
   data () {
     return {
-      drawer: true,
+      drawer: false,
       dark: false,
       title: 'Payshare',
       menuItems: [
@@ -97,8 +97,8 @@ export default {
   },
   methods: {
     setInitialDrawerState() {
-      if (this.$vuetify.breakpoint.mdAndDown) {
-        this.drawer = false
+      if (this.$vuetify.breakpoint.lgAndUp) {
+        this.drawer = true
       }
     },
     checkUrl() {
@@ -122,9 +122,11 @@ export default {
   //   other components and should better be handled explcitly, maybe
   //   using something like vuex-localstorage.
   created() {
-    this.setInitialDrawerState()
     this.checkUrl()
     this.rememberCollective()
+  },
+  mounted() {
+    this.setInitialDrawerState()
   },
 }
 </script>
