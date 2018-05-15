@@ -43,6 +43,8 @@
     </v-navigation-drawer>
     <v-toolbar app
                fixed
+               dark
+               color="primary"
                clipped-left>
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
@@ -57,6 +59,8 @@
         </span>
         </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-progress-circular v-if="busy"
+                           indeterminate></v-progress-circular>
       <v-btn v-if="$store.getters.isLoggedIn"
              @click="logout()"
              icon>
@@ -94,6 +98,11 @@ export default {
         },
       ]
     }
+  },
+  computed: {
+    busy() {
+      return this.$store.state.busy
+    },
   },
   methods: {
     setInitialDrawerState() {

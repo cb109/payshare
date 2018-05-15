@@ -7,8 +7,9 @@ Vue.use(Vuex)
 // TODO: Get this from the process.env
 const apiBaseUrl = 'http://localhost:8000'
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
+    busy: false,
     collective: null,
     transfersPageIndex: 1,
     transfersPage: {
@@ -48,6 +49,9 @@ export default new Vuex.Store({
     SET_TRANSFERS_PAGE_INDEX(state, index) {
       state.transfersPageIndex = index
     },
+    SET_BUSY(state, busy) {
+      state.busy = busy
+    },
   },
   actions: {
     RETRIEVE_COLLECTIVE_USING_CREDENTIALS(context, opts) {
@@ -85,3 +89,26 @@ export default new Vuex.Store({
     },
   }
 })
+
+axios.interceptors.request.use(function (config) {
+    // Do something before request is sent
+    store.commit('SET_BUSY', true)
+    return config;
+  }, function (error) {
+    // Do something with request error
+    store.commit('SET_BUSY', false)
+    return Promise.reject(error);
+  });
+
+// Add a response interceptor
+axios.interceptors.response.use(function (response) {
+    // Do something with response data
+    store.commit('SET_BUSY', false)
+    return response;
+  }, function (error) {
+    // Do something with response error
+    store.commit('SET_BUSY', false)
+    return Promise.reject(error);
+  });
+
+export default store

@@ -6,7 +6,11 @@ import './registerServiceWorker'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 
-Vue.use(Vuetify)
+Vue.use(Vuetify, {
+  theme: {
+    primary: '#0000d6',
+  },
+})
 
 Vue.config.productionTip = false
 
