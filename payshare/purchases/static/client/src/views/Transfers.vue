@@ -4,7 +4,8 @@
   <v-layout justify-center>
     <v-pagination v-if="numPages > 0"
                   :length="numPages"
-                   v-model="pageIndex">
+                   v-model="pageIndex"
+                   :disabled="busy">
     </v-pagination>
   </v-layout>
   <ul>
@@ -28,6 +29,9 @@ export default {
     }
   },
   computed: {
+    busy() {
+      return this.$store.state.busy
+    },
     numPages() {
       return this.$store.state.transfersPage.num_pages
     },
