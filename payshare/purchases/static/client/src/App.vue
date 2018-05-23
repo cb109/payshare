@@ -61,6 +61,10 @@
       <v-spacer></v-spacer>
       <v-progress-circular v-if="busy"
                            indeterminate></v-progress-circular>
+      <v-btn @click="reloadPage()"
+             icon>
+        <v-icon>refresh</v-icon>
+      </v-btn>
       <v-btn v-if="$store.getters.isLoggedIn"
              @click="logout()"
              icon>
@@ -125,6 +129,9 @@ export default {
       const key = this.$store.state.collective.key
       this.$store.commit('UNSET_COLLECTIVE')
       this.$router.push('/' + key)
+    },
+    reloadPage() {
+      location.reload()
     },
   },
   // FIXME: Dehydration of state races with created() and mounted() in
