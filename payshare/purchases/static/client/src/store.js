@@ -7,8 +7,8 @@ Vue.use(Vuex)
 // TODO: Get this from the process.env
 const apiBaseUrl = 'http://localhost:8000'
 
-const store = new Vuex.Store({
-  state: {
+const getInitialState = () => {
+  return {
     busy: false,
     collective: null,
     transfersPageIndex: 1,
@@ -19,7 +19,11 @@ const store = new Vuex.Store({
       next: null,
       results: [],
     },
-  },
+  }
+}
+
+const store = new Vuex.Store({
+  state: getInitialState(),
   getters: {
     isLoggedIn(state) {
       return state.collective !== null
@@ -51,6 +55,12 @@ const store = new Vuex.Store({
     },
     SET_BUSY(state, busy) {
       state.busy = busy
+    },
+    RESET_ALL(state) {
+      const initial = getInitialState()
+      Object.keys(initial).forEach(key => {
+        state[key] = initial[key]
+      })
     },
   },
   actions: {

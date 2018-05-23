@@ -60,6 +60,7 @@
         </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-progress-circular v-if="busy"
+                           size="20"
                            indeterminate></v-progress-circular>
       <v-btn @click="reloadPage()"
              icon>
@@ -127,7 +128,7 @@ export default {
     },
     logout() {
       const key = this.$store.state.collective.key
-      this.$store.commit('UNSET_COLLECTIVE')
+      this.$store.commit('RESET_ALL')
       this.$router.push('/' + key)
     },
     reloadPage() {
