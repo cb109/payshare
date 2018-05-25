@@ -34,7 +34,7 @@
             </v-list-tile-action>
             <v-list-tile-content>
               <v-list-tile-title>
-                Logout
+                {{ $t('logout') }}
               </v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
@@ -99,7 +99,7 @@ export default {
       menuItems: [
         {
           icon: 'add',
-          title: 'Add Purchase',
+          title: this.$t('addPurchase'),
         },
       ]
     }

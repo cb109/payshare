@@ -1,11 +1,12 @@
 <template>
 
 <v-layout column
-          align-center>
+          align-center
+          justify-center>
   <v-flex xs12>
     <v-text-field
       ref="password"
-      label="Password"
+      :label="$t('password')"
       type="password"
       v-model="password"
       @keyup.native.enter="loginWithCredentials(uuid, password)"
@@ -16,7 +17,7 @@
     <v-btn @click="loginWithCredentials(uuid, password)"
            :loading="loading"
            style="align-self: flex-end">
-      Login
+      {{ $t('login') }}
     </v-btn>
   </v-flex>
 </v-layout>
