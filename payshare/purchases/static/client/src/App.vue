@@ -18,14 +18,32 @@
             </v-list-tile-action>
             <v-list-tile-content>
               <v-list-tile-title>
-                {{ menuItem.title }}
+                {{ $t(menuItem.title) }}
                 </v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <!-- Language -->
+          <v-list-tile>
+            <v-list-tile-action>
+              <v-icon>
+                language
+              </v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-select
+                :label="$t('language')"
+                v-model="$i18n.locale"
+                :items="languages"
+                item-value="locale"
+                item-text="name">
+              </v-select>
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
         <v-spacer></v-spacer>
-        <!-- Logout -->
         <v-list>
+        <v-divider></v-divider>
+          <!-- Logout -->
           <v-list-tile @click="logout()">
             <v-list-tile-action>
               <v-icon>
@@ -99,7 +117,7 @@ export default {
       menuItems: [
         {
           icon: 'add',
-          title: this.$t('addPurchase'),
+          title: 'addPurchase',
         },
       ]
     }
@@ -107,6 +125,17 @@ export default {
   computed: {
     busy() {
       return this.$store.state.busy
+    },
+    languages() {
+      const locales = Object.keys(this.$i18n.messages)
+      locales.sort()
+      const languages = locales.map(locale => {
+        return {
+          locale: locale,
+          name: this.$t(locale),
+        }
+      })
+      return languages
     },
   },
   methods: {
