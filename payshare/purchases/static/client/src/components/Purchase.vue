@@ -3,20 +3,24 @@
 <div>
   <v-card class="my-2">
     <v-card-text class="pb-0">
-      <v-layout justify-space-between
+      <v-layout v-bind="layout"
                 align-baseline
                 fill-height>
         <div class="text">
           <div class="description">
-            {{ buyerName }} {{ $t('payedFor') }} <br>
+            <strong>{{ buyerName }}</strong>
+            {{ $t('payedFor') }} <br>
           </div>
           <div class="name">
             {{ purchase.name }}
             </div>
         </div>
+        <v-spacer></v-spacer>
         <div class="pl-5 price primary--text">
           {{ price }}
-          {{ currency }}
+          <span class="currency">
+            {{ currency }}
+          </span>
         </div>
       </v-layout>
     </v-card-text>
@@ -36,6 +40,12 @@ export default {
     },
   },
   computed: {
+    layout() {
+      if (this.$vuetify.breakpoint.xsOnly) {
+        return {column: true}
+      }
+      return {row: true}
+    },
     buyerName() {
       const collective = this.$store.state.collective
       const member = collective.members.filter(
@@ -73,6 +83,24 @@ export default {
   font-weight: bold;
   align-self: flex-end;
   white-space: nowrap;
+}
+
+@media (max-width: 599px) {
+  .description {
+    font-size: 1.5em;
+  }
+
+  .name {
+    font-size: 2em;
+  }
+
+  .price {
+    font-size: 4em;
+  }
+}
+
+.currency {
+  opacity: 0.25;
 }
 
 </style>
