@@ -184,3 +184,15 @@ export default {
 }
 
 </style>
+
+<style>
+
+.dbg {
+  border: 1px solid red;
+}
+
+.dbg * {
+  border: 1px solid red;
+}
+
+</style>

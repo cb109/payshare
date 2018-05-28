@@ -74,8 +74,8 @@ class TransfersViewSet(ListModelMixin, GenericViewSet):
         key = self.kwargs["key"]
         collective = collective_from_key(key)
         transfers = (
-            list(collective.purchase_set.all()) +
-            list(collective.liquidation_set.all())
+            list(collective.purchase_set.filter(deleted=False)) +
+            list(collective.liquidation_set.filter(deleted=False))
         )
         transfers.sort(key=lambda obj: obj.created_at, reverse=True)
         return transfers

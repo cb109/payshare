@@ -7,6 +7,7 @@ const messages = {
     login: 'Login',
     logout: 'Logout',
     password: 'Password',
+    payedFor: 'payed for',
   },
   'de': {
     addPurchase: 'Ausgabe eintragen',
@@ -16,6 +17,7 @@ const messages = {
     login: 'Anmelden',
     logout: 'Abmelden',
     password: 'Passwort',
+    payedFor: 'bezahlte für',
   }
 }
 

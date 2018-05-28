@@ -8,25 +8,31 @@
                    :disabled="busy">
     </v-pagination>
   </v-layout>
-  <ul>
+  <v-layout column>
+    <purchase v-for="(purchase, purchaseIndex) in purchases"
+              :key="purchaseIndex"
+              :purchase="purchase">
+    </purchase>
+  </v-layout>
+<!--   <ul>
     <li v-for="(transfer, transferIndex) in transfers"
         :key="transferIndex">
       {{ transfer.created_at }}
       {{ transfer.name }}
     </li>
-  </ul>
+  </ul> -->
 </div>
 
 </template>
 
 <script>
 
+import Purchase from '@/components/Purchase'
+
 export default {
   name: 'Transfers',
-  data() {
-    return {
-
-    }
+  components: {
+    Purchase,
   },
   computed: {
     busy() {
@@ -46,6 +52,9 @@ export default {
     transfers() {
       return this.$store.state.transfersPage.results
     },
+    purchases() {
+      return this.transfers.filter(transfer => transfer.kind === 'purchase')
+    },
   },
   mounted() {
     this.$store.dispatch('LIST_TRANSFERS')
@@ -53,4 +62,3 @@ export default {
 }
 
 </script>
-

@@ -131,3 +131,32 @@ def test_api_list_transfers(collective_with_members, transfers, client):
     transfer_identifiers = [(obj["kind"], obj["id"]) for obj in transfers]
     assert (purchase.kind, purchase.id) in transfer_identifiers
     assert (liquidation.kind, liquidation.id) in transfer_identifiers
+
+
+@pytest.fixture
+def softdeleted_transfers(collective_with_members):
+    collective, user_1, user_2 = collective_with_members
+    purchase = mommy.make("purchases.Purchase",
+                          collective=collective,
+                          buyer=user_1,
+                          deleted=True)
+    liquidation = mommy.make("purchases.Liquidation",
+                             collective=collective,
+                             debtor=user_1,
+                             creditor=user_2,
+                             deleted=True)
+    return purchase, liquidation
+
+
+def test_api_list_transfers_skips_softdeleted(collective_with_members,
+                                              softdeleted_transfers,
+                                              client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = softdeleted_transfers
+
+    url = "/api/v1/{}/transfers".format(collective.key)
+    response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    transfers = response.data["results"]
+    assert len(transfers) == 0
