@@ -79,7 +79,7 @@ export default {
 }
 
 .price {
-  font-size: 6em;
+  font-size: 4em;
   font-weight: bold;
   align-self: flex-end;
   white-space: nowrap;
@@ -95,7 +95,7 @@ export default {
   }
 
   .price {
-    font-size: 4em;
+    font-size: 2.5em;
   }
 }
 
