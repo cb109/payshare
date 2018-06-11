@@ -23,6 +23,7 @@
             </v-list-tile-content>
           </v-list-tile>
           <!-- Language -->
+          <v-list-tile></v-list-tile>
           <v-list-tile>
             <v-list-tile-action>
               <v-icon>
@@ -42,7 +43,7 @@
         </v-list>
         <v-spacer></v-spacer>
         <v-list>
-        <v-divider></v-divider>
+          <v-divider></v-divider>
           <!-- Logout -->
           <v-list-tile @click="logout()">
             <v-list-tile-action>
