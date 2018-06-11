@@ -46,7 +46,7 @@ class UserProfile(models.Model):
                                 on_delete=models.CASCADE,
                                 related_name="profile")
 
-    avatar_image_url = models.CharField(max_length=300, null=True, blank=True)
+    avatar_image_url = models.CharField(max_length=1024, null=True, blank=True)
 
     def __str__(self):
         return u"Profile for {} ".format(self.user)
