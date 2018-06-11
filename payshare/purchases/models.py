@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -36,6 +37,26 @@ class TimestampMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class UserProfile(models.Model):
+    """A model to attach additional data to a Django User."""
+
+    user = models.OneToOneField("auth.User",
+                                on_delete=models.CASCADE,
+                                related_name="profile")
+
+    avatar_image_url = models.CharField(max_length=300, null=True, blank=True)
+
+    def __str__(self):
+        return u"Profile for {} ".format(self.user)
+
+
+@receiver(post_save, sender=User)
+def create_userprofile_when_user_created(
+        sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
 
 
 class Collective(TimestampMixin, models.Model):
