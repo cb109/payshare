@@ -3,25 +3,33 @@
 <div>
   <v-card class="my-2">
     <v-card-text class="pb-0">
-      <v-layout v-bind="layout"
-                align-baseline
-                fill-height>
-        <div class="text">
-          <div class="description">
-            <strong>{{ buyerName }}</strong>
-            {{ $t('payedFor') }} <br>
-          </div>
-          <div class="name">
-            {{ purchase.name }}
+      <v-layout row
+                align-center>
+        <div v-if="buyer.avatar"
+             class="avatar mr-3 mt-1 mb-4">
+          <img :src="buyer.avatar"
+               class="avatar">
+        </div>
+        <v-layout v-bind="layout"
+                  align-baseline
+                  fill-height>
+          <div class="text">
+            <div class="description">
+              <strong>{{ buyer.username }}</strong>
+              {{ $t('payedFor') }} <br>
             </div>
-        </div>
-        <v-spacer></v-spacer>
-        <div class="pl-5 price primary--text">
-          {{ price }}
-          <span class="currency">
-            {{ currency }}
-          </span>
-        </div>
+            <div class="name">
+              {{ purchase.name }}
+              </div>
+          </div>
+          <v-spacer></v-spacer>
+          <div class="pl-5 price primary--text">
+            {{ price }}
+            <span class="currency">
+              {{ currency }}
+            </span>
+          </div>
+        </v-layout>
       </v-layout>
     </v-card-text>
   </v-card>
@@ -46,11 +54,11 @@ export default {
       }
       return {row: true}
     },
-    buyerName() {
+    buyer() {
       const collective = this.$store.state.collective
       const member = collective.members.filter(
         user => user.id === this.purchase.buyer)[0]
-      return member.username
+      return member
     },
     price() {
       return Number(this.purchase.price.amount).toFixed(2)
@@ -85,6 +93,11 @@ export default {
   white-space: nowrap;
 }
 
+.avatar {
+  max-width: 100px;
+  max-height: 100px;
+}
+
 @media (max-width: 599px) {
   .description {
     font-size: 1.5em;
@@ -96,6 +109,11 @@ export default {
 
   .price {
     font-size: 2.5em;
+  }
+
+  .avatar {
+    max-width: 72px;
+    max-height: 72px;
   }
 }
 

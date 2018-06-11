@@ -8,6 +8,8 @@ from payshare.purchases.models import Purchase
 
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
@@ -15,7 +17,11 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "first_name",
             "last_name",
+            "avatar",
         )
+
+    def get_avatar(self, user):
+        return user.profile.avatar_image_url
 
 
 class CollectiveSerializer(serializers.ModelSerializer):
