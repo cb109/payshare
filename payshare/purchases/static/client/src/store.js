@@ -57,6 +57,8 @@ const store = new Vuex.Store({
       state.busy = busy
     },
     RESET_ALL(state) {
+      this.commit('UNSET_COLLECTIVE')
+
       const initial = getInitialState()
       Object.keys(initial).forEach(key => {
         state[key] = initial[key]
