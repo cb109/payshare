@@ -1,6 +1,7 @@
 <template>
   <v-app :dark="dark">
     <v-navigation-drawer app
+                         :dark="dark"
                          fixed
                          v-model="drawer"
                          v-if="$store.getters.isLoggedIn">
@@ -24,7 +25,7 @@
                 v-model="selectedMember"
                 :items="members"
                 item-value="id"
-                item-text="full_name"
+                item-text="username"
                 return-object>
                 <template slot="item"
                           slot-scope="data">
@@ -99,12 +100,15 @@
     <v-toolbar app
                fixed
                dark
-               color="primary">
+               :color="!isLoginPage ? 'primary' : null"
+               :class="{'light': isLoginPage}"
+               :flat="isLoginPage">
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
         @click.stop="drawer = !drawer">
       </v-toolbar-side-icon>
-      <v-toolbar-title>
+      <v-spacer v-if="isLoginPage"></v-spacer>
+      <v-toolbar-title :class="{'black--text': isLoginPage}">
         <span v-if="!$store.getters.isLoggedIn">
           {{ title }}<span v-if="uuid">: {{ uuid }}</span>
         </span>
@@ -161,6 +165,9 @@ export default {
     }
   },
   computed: {
+    isLoginPage() {
+      return this.$route.name === 'login'
+    },
     collective() {
       return this.$store.state.collective
     },
@@ -234,6 +241,10 @@ export default {
 </style>
 
 <style>
+
+.light {
+  background: #FAFAFA !important;
+}
 
 .dbg {
   border: 1px solid red;

@@ -16,7 +16,7 @@
     </v-text-field>
     <v-btn @click="loginWithCredentials(uuid, password)"
            :loading="loading"
-           style="align-self: flex-end">
+           block>
       {{ $t('login') }}
     </v-btn>
   </v-flex>
