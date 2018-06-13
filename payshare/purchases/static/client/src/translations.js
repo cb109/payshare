@@ -1,6 +1,7 @@
 const messages = {
   'en': {
     addPurchase: 'Add Purchase',
+    chooseMember: 'Who are you?',
     de: 'Deutsch',
     en: 'English',
     language: 'Language',
@@ -13,6 +14,7 @@ const messages = {
   },
   'de': {
     addPurchase: 'Ausgabe eintragen',
+    chooseMember: 'Wer bist du?',
     de: 'Deutsch',
     en: 'English',
     language: 'Sprache',

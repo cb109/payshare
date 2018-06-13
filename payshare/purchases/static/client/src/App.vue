@@ -9,41 +9,7 @@
                 fill-height>
         <v-list>
           <!-- Selected User -->
-          <v-list-tile>
-            <v-list-tile-action>
-            <v-avatar v-if="selectedMember">
-              <img :src="selectedMember.avatar"
-                   style="position: relative; left: -12px">
-            </v-avatar>
-              <v-icon v-else>
-                person
-              </v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-select
-                :label="$t('whoAreYou')"
-                v-model="selectedMember"
-                :items="members"
-                item-value="id"
-                item-text="username"
-                return-object>
-                <template slot="item"
-                          slot-scope="data">
-                  <v-list-tile-avatar>
-                    <img :src="data.item.avatar">
-                  </v-list-tile-avatar>
-                  <v-list-tile-content>
-                    <v-list-tile-title>
-                      {{ data.item.first_name || data.item.username }}
-                    </v-list-tile-title>
-                    <v-list-tile-sub-title>
-                      {{ data.item.last_name || '' }}
-                    </v-list-tile-sub-title>
-                  </v-list-tile-content>
-                </template>
-              </v-select>
-            </v-list-tile-content>
-          </v-list-tile>
+          <selected-member-list-tile></selected-member-list-tile>
           <!-- Language -->
           <v-list-tile>
             <v-list-tile-action>
@@ -137,6 +103,34 @@
         </v-slide-y-transition>
       </v-container>
     </v-content>
+    <!-- Global Dialogs -->
+    <v-dialog persistent
+              max-width="480px"
+              v-model="showSelectMemberDialog">
+      <v-card>
+      <v-toolbar flat
+                 color="primary"
+                 dark>
+        <v-toolbar-title>
+          <h3 class="headline">{{ $t('chooseMember') }}</h3>
+        </v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn icon
+               large
+               @click="showSelectMemberDialog = false; logout()"
+               :title="$t('logout')">
+          <v-icon>
+            exit_to_app
+          </v-icon>
+        </v-btn>
+      </v-toolbar>
+        <v-card-text>
+          <selected-member-list-tile
+            @selected="(() => showSelectMemberDialog = false)">
+            </selected-member-list-tile>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -145,12 +139,17 @@
 import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
+import SelectedMemberListTile from '@/components/SelectedMemberListTile'
+
 export default {
   name: 'App',
   mixins: [
     selectedMember,
     uuid,
   ],
+  components: {
+    SelectedMemberListTile,
+  },
   data () {
     return {
       drawer: false,
@@ -162,6 +161,7 @@ export default {
           title: 'addPurchase',
         },
       ],
+      showSelectMemberDialog: false,
     }
   },
   computed: {
@@ -204,6 +204,11 @@ export default {
     rememberCollective() {
       this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
     },
+    checkIfWeNeedToChooseMember() {
+      if (!this.selectedMember) {
+        this.showSelectMemberDialog = true
+      }
+    },
     logout() {
       const key = this.$store.state.collective.key
       this.$store.commit('RESET_ALL')
@@ -228,6 +233,9 @@ export default {
   },
   mounted() {
     this.setInitialDrawerState()
+    this.checkIfWeNeedToChooseMember()
+
+    this.$bus.$on('logged-in', this.checkIfWeNeedToChooseMember)
   },
 }
 </script>

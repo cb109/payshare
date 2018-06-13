@@ -56,6 +56,7 @@ export default {
         this.errorMessages = []
 
         this.rememberSelectedMember()
+        this.$bus.$emit('logged-in')
 
         this.password = null
         this.$router.push('/transfers')

@@ -15,6 +15,9 @@ Vue.use(Vuetify, {
 })
 Vue.config.productionTip = false
 
+/* Setup a global event bus. */
+Vue.prototype.$bus = new Vue({})
+
 const app = new Vue({
   router,
   store,

@@ -1,5 +1,12 @@
 export default {
   computed: {
+    collective() {
+      return this.$store.state.collective
+    },
+    members() {
+      const users = this.collective.members.concat()
+      return users.sort((u1, u2) => u1.username > u2.username)
+    },
     selectedMember: {
       get() {
         return this.$store.state.selectedMember
