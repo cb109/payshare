@@ -12,6 +12,9 @@ from django.utils import timezone
 from djmoney.models.fields import MoneyField
 
 
+DEFAULT_AVATAR_URL = "https://avataaars.io/?avatarStyle=Circle&topType=NoHair&accessoriesType=Blank&facialHairType=Blank&clotheType=ShirtCrewNeck&clotheColor=Black&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"  # noqa
+
+
 class PayShareError(Exception):
     pass
 
@@ -46,7 +49,10 @@ class UserProfile(models.Model):
                                 on_delete=models.CASCADE,
                                 related_name="profile")
 
-    avatar_image_url = models.CharField(max_length=1024, null=True, blank=True)
+    avatar_image_url = models.CharField(max_length=1024,
+                                        null=True,
+                                        blank=True,
+                                        default=DEFAULT_AVATAR_URL)
 
     def __str__(self):
         return u"Profile for {} ".format(self.user)
