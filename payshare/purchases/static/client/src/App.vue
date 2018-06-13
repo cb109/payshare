@@ -2,7 +2,6 @@
   <v-app :dark="dark">
     <v-navigation-drawer app
                          fixed
-                         clipped
                          v-model="drawer"
                          v-if="$store.getters.isLoggedIn">
       <v-layout column
@@ -100,8 +99,7 @@
     <v-toolbar app
                fixed
                dark
-               color="primary"
-               clipped-left>
+               color="primary">
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
         @click.stop="drawer = !drawer">
