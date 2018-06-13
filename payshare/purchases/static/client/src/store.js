@@ -11,6 +11,7 @@ const getInitialState = () => {
   return {
     busy: false,
     collective: null,
+    selectedMember: null,
     transfersPageIndex: 1,
     transfersPage: {
       num_pages: 0,
@@ -46,6 +47,22 @@ const store = new Vuex.Store({
     UNSET_COLLECTIVE(state) {
       state.collective = null
       localStorage.removeItem('collective')
+    },
+    LOAD_SELECTED_MEMBER_FROM_LOCALSTORAGE(state) {
+      const selectedMemberString = localStorage.getItem('selectedMember')
+      console.log(selectedMemberString)
+      if (selectedMemberString) {
+        const selectedMember = JSON.parse(selectedMemberString)
+        console.log(selectedMember)
+        if (selectedMember) {
+          state.selectedMember = selectedMember
+          console.log(state.selectedMember)
+        }
+      }
+    },
+    SET_SELECTED_MEMBER(state, member) {
+      state.selectedMember = member
+      localStorage.setItem('selectedMember', JSON.stringify(member))
     },
     SET_TRANSFERS_PAGE(state, transfersPage) {
       state.transfersPage = transfersPage

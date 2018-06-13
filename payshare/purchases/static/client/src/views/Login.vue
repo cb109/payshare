@@ -26,11 +26,13 @@
 
 <script>
 
+import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
 export default {
   name: 'Login',
   mixins: [
+    selectedMember,
     uuid,
   ],
   data() {
@@ -52,6 +54,8 @@ export default {
         this.loading = false
         this.failed = false
         this.errorMessages = []
+
+        this.rememberSelectedMember()
 
         this.password = null
         this.$router.push('/transfers')

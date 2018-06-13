@@ -8,22 +8,39 @@
       <v-layout column
                 fill-height>
         <v-list>
-          <v-list-tile @click=""
-                       v-for="(menuItem, i) in menuItems"
-                       :key="i">
+          <!-- Selected User -->
+          <v-list-tile>
             <v-list-tile-action>
-              <v-icon>
-                {{ menuItem.icon }}
+            <v-avatar v-if="selectedMember">
+              <img :src="selectedMember.avatar"
+                   style="position: relative; left: -12px">
+            </v-avatar>
+              <v-icon v-else>
+                person
               </v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
-              <v-list-tile-title>
-                {{ $t(menuItem.title) }}
-                </v-list-tile-title>
+              <v-select
+                :label="$t('whoAreYou')"
+                v-model="selectedMember"
+                :items="members"
+                item-value="id"
+                item-text="username"
+                return-object>
+                <template slot="item"
+                          slot-scope="data">
+                  <v-list-tile-avatar>
+                    <img :src="data.item.avatar">
+                  </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title v-html="data.item.username"></v-list-tile-title>
+                    <!-- <v-list-tile-sub-title></v-list-tile-sub-title> -->
+                  </v-list-tile-content>
+                </template>
+              </v-select>
             </v-list-tile-content>
           </v-list-tile>
           <!-- Language -->
-          <v-list-tile></v-list-tile>
           <v-list-tile>
             <v-list-tile-action>
               <v-icon>
@@ -38,6 +55,22 @@
                 item-value="locale"
                 item-text="name">
               </v-select>
+            </v-list-tile-content>
+          </v-list-tile>
+          <!-- Actionable menu items -->
+          <v-divider></v-divider>
+          <v-list-tile @click=""
+                       v-for="(menuItem, i) in menuItems"
+                       :key="i">
+            <v-list-tile-action>
+              <v-icon>
+                {{ menuItem.icon }}
+              </v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>
+                {{ $t(menuItem.title) }}
+                </v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
@@ -103,11 +136,13 @@
 
 <script>
 
+import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
 export default {
   name: 'App',
   mixins: [
+    selectedMember,
     uuid,
   ],
   data () {
@@ -120,10 +155,17 @@ export default {
           icon: 'add',
           title: 'addPurchase',
         },
-      ]
+      ],
     }
   },
   computed: {
+    collective() {
+      return this.$store.state.collective
+    },
+    members() {
+      const users = this.collective.members.concat()
+      return users.sort((u1, u2) => u1.username > u2.username)
+    },
     busy() {
       return this.$store.state.busy
     },
@@ -152,9 +194,6 @@ export default {
     },
     rememberCollective() {
       this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
-      if (this.$store.getters.isLoggedIn) {
-        this.$router.push('/transfers')
-      }
     },
     logout() {
       const key = this.$store.state.collective.key
@@ -170,7 +209,13 @@ export default {
   //   using something like vuex-localstorage.
   created() {
     this.checkUrl()
+
     this.rememberCollective()
+    this.rememberSelectedMember()
+
+    if (this.$store.getters.isLoggedIn) {
+      this.$router.push('/transfers')
+    }
   },
   mounted() {
     this.setInitialDrawerState()

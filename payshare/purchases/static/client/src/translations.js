@@ -8,6 +8,7 @@ const messages = {
     logout: 'Logout',
     password: 'Password',
     payedFor: 'payed for',
+    whoAreYou: 'That\'s me',
   },
   'de': {
     addPurchase: 'Ausgabe eintragen',
@@ -18,6 +19,7 @@ const messages = {
     logout: 'Abmelden',
     password: 'Passwort',
     payedFor: 'bezahlte für',
+    whoAreYou: 'Das bin ich',
   }
 }
 
