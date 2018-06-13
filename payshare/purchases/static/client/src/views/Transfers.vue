@@ -1,6 +1,7 @@
 <template>
 
 <div>
+  <!-- Upper pagination controls -->
   <v-layout justify-center>
     <v-pagination v-if="numPages > 0"
                   :length="numPages"
@@ -14,13 +15,14 @@
               :purchase="purchase">
     </purchase>
   </v-layout>
-<!--   <ul>
-    <li v-for="(transfer, transferIndex) in transfers"
-        :key="transferIndex">
-      {{ transfer.created_at }}
-      {{ transfer.name }}
-    </li>
-  </ul> -->
+  <!-- Lower pagination controls -->
+  <v-layout justify-center>
+    <v-pagination v-if="numPages > 0 && purchases.length > 6"
+                  :length="numPages"
+                   v-model="pageIndex"
+                   :disabled="busy">
+    </v-pagination>
+  </v-layout>
 </div>
 
 </template>
