@@ -25,7 +25,7 @@
                 v-model="selectedMember"
                 :items="members"
                 item-value="id"
-                item-text="username"
+                item-text="full_name"
                 return-object>
                 <template slot="item"
                           slot-scope="data">
@@ -33,8 +33,12 @@
                     <img :src="data.item.avatar">
                   </v-list-tile-avatar>
                   <v-list-tile-content>
-                    <v-list-tile-title v-html="data.item.username"></v-list-tile-title>
-                    <!-- <v-list-tile-sub-title></v-list-tile-sub-title> -->
+                    <v-list-tile-title>
+                      {{ data.item.first_name || data.item.username }}
+                    </v-list-tile-title>
+                    <v-list-tile-sub-title>
+                      {{ data.item.last_name || '' }}
+                    </v-list-tile-sub-title>
                   </v-list-tile-content>
                 </template>
               </v-select>

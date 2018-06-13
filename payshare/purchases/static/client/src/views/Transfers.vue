@@ -9,6 +9,7 @@
                    :disabled="busy">
     </v-pagination>
   </v-layout>
+  <!-- Transfers list of current Page-->
   <v-layout column>
     <purchase v-for="(purchase, purchaseIndex) in purchases"
               :key="purchaseIndex"

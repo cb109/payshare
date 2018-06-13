@@ -50,13 +50,10 @@ const store = new Vuex.Store({
     },
     LOAD_SELECTED_MEMBER_FROM_LOCALSTORAGE(state) {
       const selectedMemberString = localStorage.getItem('selectedMember')
-      console.log(selectedMemberString)
       if (selectedMemberString) {
         const selectedMember = JSON.parse(selectedMemberString)
-        console.log(selectedMember)
         if (selectedMember) {
           state.selectedMember = selectedMember
-          console.log(state.selectedMember)
         }
       }
     },

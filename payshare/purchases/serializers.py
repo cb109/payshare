@@ -9,19 +9,24 @@ from payshare.purchases.models import Purchase
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
-            "id",
-            "username",
-            "first_name",
-            "last_name",
             "avatar",
+            "first_name",
+            "full_name",
+            "id",
+            "last_name",
+            "username",
         )
 
     def get_avatar(self, user):
         return user.profile.avatar_image_url
+
+    def get_full_name(self, user):
+        return user.get_full_name()
 
 
 class CollectiveSerializer(serializers.ModelSerializer):

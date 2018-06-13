@@ -63,7 +63,7 @@ export default {
       .catch(error => {
         this.loading = false
         this.failed = true
-        this.errorMessages = [error.response.data.detail]
+        this.errorMessages = [this.$t(error.response.data.detail)]
       })
     },
   },
