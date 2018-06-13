@@ -78,22 +78,18 @@ class Collective(TimestampMixin, models.Model):
     password = models.CharField(max_length=128)
     token = models.UUIDField(default=uuid.uuid4, editable=False)
 
-    def set_password(self, password):
-        self.password = make_password(password)
-        self.token = uuid.uuid4()
-
-    def check_password(self, password):
-        return check_password(password, self.password)
-
     def save(self, *args, **kwargs):
         """Make sure to save changed password hashes, not as plain text."""
         if not self.id:
-            self.set_password(self.password)
+            self._set_password(self.password)
         else:
             password_in_db = Collective.objects.get(id=self.id).password
             if password_in_db != self.password:
-                self.set_password(self.password)
+                self._set_password(self.password)
         return super(Collective, self).save(*args, **kwargs)
+
+    def check_password(self, password):
+        return check_password(password, self.password)
 
     def is_member(self, user):
         try:
@@ -112,6 +108,11 @@ class Collective(TimestampMixin, models.Model):
 
     def __str__(self):
         return u"{}".format(self.name)
+
+    def _set_password(self, password):
+        """Convert plain text password to a salted hash and rotate token."""
+        self.password = make_password(password)
+        self.token = uuid.uuid4()
 
 
 class Membership(TimestampMixin, models.Model):

@@ -22,11 +22,18 @@ def test_collective_check_password(collective):
     assert collective.check_password("foobar")
 
 
+def test_collective_change_password(collective):
+    assert collective.check_password("foobar")
+    collective.password = "test"
+    collective.save()
+    assert collective.check_password("test")
+
+
 def test_collective_token_changes_on_password_changed(collective):
     old_token = collective.token
     assert old_token is not None
 
-    collective.set_password("some_other_password")
+    collective.password = "some_other_password"
     collective.save()
     assert collective.token != old_token
 
