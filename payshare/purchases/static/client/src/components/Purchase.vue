@@ -6,7 +6,7 @@
       <v-layout row
                 align-center>
         <div v-if="buyer.avatar"
-             class="avatar mr-2">
+             class="avatar mr-2 mb-2">
           <img :src="buyer.avatar"
                class="avatar">
         </div>
