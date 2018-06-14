@@ -6,7 +6,9 @@
     <v-pagination v-if="numPages > 0"
                   :length="numPages"
                    v-model="pageIndex"
-                   :disabled="busy">
+                   :disabled="busy"
+                   class="custom-pagination-controls"
+                   :total-visible="maxVisiblePaginationItems">
     </v-pagination>
   </v-layout>
   <!-- Transfers list of current Page-->
@@ -27,6 +29,7 @@
   <!-- Lower pagination controls -->
   <v-layout justify-center>
     <v-pagination v-if="numPages > 0 && purchases.length > 6"
+                   class="custom-pagination-controls"
                   :length="numPages"
                    v-model="pageIndex"
                    :disabled="busy">
@@ -48,6 +51,14 @@ export default {
     Purchase,
   },
   computed: {
+    maxVisiblePaginationItems() {
+      // See Vuetify source: src/components/VPagination/VPagination.js:items()
+      // The default logic does not use available width in an optimal way,
+      // resulting often just two buttons being shown. This improves
+      // that a bit, which makes it easier to use on small devices.
+      const numItems = Math.floor((this.$vuetify.breakpoint.width - 96) / 30);
+      return numItems;
+    },
     busy() {
       return this.$store.state.busy
     },
@@ -75,3 +86,20 @@ export default {
 }
 
 </script>
+
+<style lang="stylus">
+
+$smaller-margin = 2px
+
+@media(max-width: 599px)
+  .custom-pagination-controls .pagination__item
+    width: 1.75rem
+    height: 2rem
+    margin-left: $smaller-margin
+    margin-right: $smaller-margin
+
+  .custom-pagination-controls .pagination__navigation
+    margin-left: $smaller-margin
+    margin-right: $smaller-margin
+
+</style>
