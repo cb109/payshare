@@ -2,7 +2,7 @@
 
 <div>
   <v-card class="my-2">
-    <v-card-text class="pb-0">
+    <v-card-text class="px-2 pt-2 pb-0">
       <v-layout row
                 align-center>
         <div v-if="buyer.avatar"
@@ -20,7 +20,7 @@
             </div>
             <div class="name">
               {{ purchase.name }}
-              </div>
+            </div>
           </div>
           <v-spacer></v-spacer>
           <div class="pl-5 price primary--text">
@@ -54,9 +54,11 @@ export default {
       }
       return {row: true}
     },
+    collective() {
+      return this.$store.state.collective
+    },
     buyer() {
-      const collective = this.$store.state.collective
-      const member = collective.members.filter(
+      const member = this.collective.members.filter(
         user => user.id === this.purchase.buyer)[0]
       return member
     },
@@ -79,41 +81,41 @@ export default {
 }
 
 .description {
-  font-size: 2em;
+  font-size: 1.5em;
 }
 
 .name {
-  font-size: 3em;
+  font-size: 2.5em;
 }
 
 .price {
-  font-size: 4em;
+  font-size: 3em;
   font-weight: bold;
   align-self: flex-end;
   white-space: nowrap;
 }
 
 .avatar {
-  max-width: 100px;
-  max-height: 100px;
+  max-width: 72px;
+  max-height: 72px;
 }
 
 @media (max-width: 599px) {
   .description {
-    font-size: 1.5em;
+    font-size: 1.15em;
   }
 
   .name {
-    font-size: 2em;
+    font-size: 1.5em;
   }
 
   .price {
-    font-size: 2.5em;
+    font-size: 1.75em;
   }
 
   .avatar {
-    max-width: 72px;
-    max-height: 72px;
+    max-width: 64px;
+    max-height: 64px;
   }
 }
 

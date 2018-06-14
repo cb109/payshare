@@ -10,11 +10,19 @@
     </v-pagination>
   </v-layout>
   <!-- Transfers list of current Page-->
-  <v-layout column>
-    <purchase v-for="(purchase, purchaseIndex) in purchases"
-              :key="purchaseIndex"
-              :purchase="purchase">
-    </purchase>
+  <v-layout justify-center>
+    <v-flex xs12>
+    <template v-for="(transfer, transferIndex) in transfers">
+      <purchase v-if="transfer.kind === 'purchase'"
+                :key="transferIndex"
+                :purchase="transfer">
+      </purchase>
+      <liquidation v-if="transfer.kind === 'liquidation'"
+                   :key="transferIndex"
+                   :liquidation="transfer">
+      </liquidation>
+    </template>
+    </v-flex>
   </v-layout>
   <!-- Lower pagination controls -->
   <v-layout justify-center>
@@ -30,11 +38,13 @@
 
 <script>
 
+import Liquidation from '@/components/Liquidation'
 import Purchase from '@/components/Purchase'
 
 export default {
   name: 'Transfers',
   components: {
+    Liquidation,
     Purchase,
   },
   computed: {
