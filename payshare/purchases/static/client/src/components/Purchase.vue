@@ -6,7 +6,7 @@
       <v-layout row
                 align-center>
         <div v-if="buyer.avatar"
-             class="avatar mr-3 mt-1 mb-4">
+             class="avatar mr-2">
           <img :src="buyer.avatar"
                class="avatar">
         </div>
@@ -15,7 +15,9 @@
                   fill-height>
           <div class="text">
             <div class="description">
-              <strong>{{ buyer.username }}</strong>
+              <strong :class="{'primary--text': isBuyer}">
+                {{ buyer.username }}
+              </strong>
               {{ $t('payedFor') }} <br>
             </div>
             <div class="name">
@@ -23,7 +25,7 @@
             </div>
           </div>
           <v-spacer></v-spacer>
-          <div class="pl-5 price primary--text">
+          <div class="pl-5 price default--text">
             {{ price }}
             <span class="currency">
               {{ currency }}
@@ -39,8 +41,13 @@
 
 <script>
 
+import selectedMember from '@/mixins/selectedMember'
+
 export default {
   name: 'purchase',
+  mixins: [
+    selectedMember,
+  ],
   props: {
     'purchase': {
       type: Object,
@@ -68,6 +75,12 @@ export default {
     currency() {
       const currency = this.purchase.price.currency
       return currency === 'EUR' ? '€' : currency
+    },
+    isBuyer() {
+      if (!this.selectedMember) {
+        return false
+      }
+      return this.selectedMember.id === this.buyer.id
     },
   },
 }

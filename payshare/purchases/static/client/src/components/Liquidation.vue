@@ -5,16 +5,22 @@
     <v-card-text class="px-2 pt-2 pb-0">
       <v-layout row
                 align-center>
-        <v-layout row
-                  class="no-grow mr-3 mt-1 mb-4">
+        <v-layout v-bind="layout"
+                  align-center
+                  justify-center
+                  class="no-grow mr-2 mb-2">
           <div v-if="creditor.avatar"
                class="avatar">
             <img :src="creditor.avatar"
                  class="avatar">
           </div>
-          <v-icon class="pa-0 liquidation-arrow primary--text"
-                  color="default">
+          <v-icon class="pa-0 liquidation-arrow"
+                  v-if="$vuetify.breakpoint.smAndUp">
             arrow_right
+          </v-icon>
+          <v-icon class="pa-0 liquidation-arrow"
+                  v-else>
+            arrow_drop_down
           </v-icon>
           <div v-if="debtor.avatar"
                class="avatar">
@@ -27,19 +33,22 @@
                   fill-height>
           <div class="text">
             <div class="description">
-              <strong>{{ creditor.username }}</strong>
+              <strong :class="{'primary--text': isCreditor}">
+                {{ creditor.username }}
+              </strong>
               {{ $t('gaveMoneyTo') }}
-              {{ debtor.username }}
+              <strong :class="{'primary--text': isDebtor}">
+                {{ debtor.username }}
+              </strong>
               {{ $t('for') }} <br>
             </div>
             <div class="name">
               {{ liquidation.description }}
             </div>
           </div>
-
           <v-spacer></v-spacer>
           <div class="pl-5 amount"
-               :class="{'primary--text': !isCreditor && !isDebtor,
+               :class="{'secondary--text': !isCreditor && !isDebtor,
                         'red--text': isDebtor,
                         'green--text': isCreditor}">
             {{ amount }}
@@ -168,6 +177,7 @@ export default {
 .liquidation-arrow {
   font-size: 5em;
   max-width: 24px;
+  max-height: 24px;
 }
 
 </style>
