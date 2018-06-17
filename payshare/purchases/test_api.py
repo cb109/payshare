@@ -167,3 +167,22 @@ def test_api_list_transfers_skips_softdeleted(collective_with_members,
 
     transfers = response.data["results"]
     assert len(transfers) == 0
+
+
+def test_api_create_puchase(collective_with_members, client):
+    collective, user_1, user_2 = collective_with_members
+
+    url = "/api/v1/{}/purchase".format(collective.key)
+    payload = {
+        "name": "Groceries",
+        "buyer": user_1.id,
+        "price": 15.38,
+    }
+    response = client.post(url,
+                           payload,
+                           follow=True,
+                           HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    purchase = response.data
+    assert purchase["name"] == payload["name"]

@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import User
+from moneyed import Money, EUR
+
 from rest_framework import authentication
 from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import api_view
 from rest_framework.decorators import authentication_classes
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import ListModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from payshare.purchases.models import Collective
+from payshare.purchases.models import Purchase
 from payshare.purchases.serializers import CollectiveSerializer
+from payshare.purchases.serializers import PurchaseSerializer
 from payshare.purchases.serializers import TransferSerializer
 
 
+USER_MUST_BE_MEMBER = "User must be member of Collective"
 CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
 
 
@@ -79,3 +86,45 @@ class TransfersViewSet(ListModelMixin, GenericViewSet):
         )
         transfers.sort(key=lambda obj: obj.created_at, reverse=True)
         return transfers
+
+
+@api_view(("POST",))
+@authentication_classes((HeaderAuthentication,))
+def create_purchase(request, key):
+    """Create a new Purchase and return it in a seriailzed representation.
+
+    URL Args:
+        key (str): Collective key
+
+    POST Args:
+        name (str)
+        buyer (int): User id
+        price (float)
+
+    Returns:
+        Serialized Purchase
+
+    """
+    name = request.data["name"]
+    buyer_id = request.data["buyer"]
+
+    collective = collective_from_key(key)
+
+    buyer = User.objects.get(id=buyer_id)
+    if not collective.is_member(buyer):
+        raise ValidationError(USER_MUST_BE_MEMBER)
+
+    # FIXME: Either don't allow something else than euro or handle here.
+    price_value = float(request.data["price"])
+    if price_value <= 0:
+        raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+    price = Money(price_value, EUR)
+
+    purchase = Purchase.objects.create(
+        name=name,
+        price=price,
+        collective=collective,
+        buyer=buyer,
+    )
+    serialized_purchase = PurchaseSerializer(purchase).data
+    return Response(serialized_purchase)
