@@ -10,21 +10,13 @@
         <v-list>
           <!-- Selected User -->
           <selected-member-list-tile></selected-member-list-tile>
-          <!-- Language -->
+          <!-- Financial Status -->
           <v-list-tile>
-            <v-list-tile-action>
-              <v-icon>
-                language
-              </v-icon>
-            </v-list-tile-action>
+            <v-list-tile-action></v-list-tile-action>
             <v-list-tile-content>
-              <v-select
-                :label="$t('language')"
-                v-model="$i18n.locale"
-                :items="languages"
-                item-value="locale"
-                item-text="name">
-              </v-select>
+              <strong class="red--text headline">
+                -&nbsp;132.56 $
+              </strong>
             </v-list-tile-content>
           </v-list-tile>
           <!-- Actionable menu items -->
@@ -46,6 +38,24 @@
         </v-list>
         <v-spacer></v-spacer>
         <v-list>
+          <v-divider></v-divider>
+          <!-- Language -->
+          <v-list-tile>
+            <v-list-tile-action>
+              <v-icon>
+                language
+              </v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-select
+                :label="$t('language')"
+                v-model="$i18n.locale"
+                :items="languages"
+                item-value="locale"
+                item-text="name">
+              </v-select>
+            </v-list-tile-content>
+          </v-list-tile>
           <v-divider></v-divider>
           <!-- Logout -->
           <v-list-tile @click="logout()">

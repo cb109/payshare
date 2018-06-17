@@ -25,12 +25,19 @@
             </div>
           </div>
           <v-spacer></v-spacer>
-          <div class="pl-5 price default--text">
-            {{ price }}
-            <span class="currency">
-              {{ currency }}
-            </span>
-          </div>
+          <v-layout column
+                    :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : initial}"
+                    fill-height>
+            <div class="text-xs-right">
+              {{ createdAgo }}
+            </div>
+            <div class="pl-5 price default--text">
+              {{ price }}
+              <span class="currency">
+                {{ currency }}
+              </span>
+            </div>
+          </v-layout>
         </v-layout>
       </v-layout>
     </v-card-text>
@@ -40,6 +47,8 @@
 </template>
 
 <script>
+
+import moment from 'moment'
 
 import selectedMember from '@/mixins/selectedMember'
 
@@ -55,6 +64,10 @@ export default {
     },
   },
   computed: {
+    createdAgo() {
+      return moment(
+        this.purchase.created_at).locale(this.$i18n.locale).fromNow()
+    },
     layout() {
       if (this.$vuetify.breakpoint.xsOnly) {
         return {column: true}
