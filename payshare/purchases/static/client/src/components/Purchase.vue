@@ -3,6 +3,11 @@
 <div>
   <v-card class="my-2">
     <v-card-text class="px-2 pt-2 pb-0">
+      <v-icon color="grey lighten-3"
+              class="transfer-delete-btn"
+              @click="softdelete(purchase.name, purchase)">
+        close
+      </v-icon>
       <v-layout row
                 align-center>
         <div v-if="buyer.avatar"
@@ -51,11 +56,13 @@
 import moment from 'moment'
 
 import selectedMember from '@/mixins/selectedMember'
+import softdelete from '@/mixins/softdelete'
 
 export default {
   name: 'purchase',
   mixins: [
     selectedMember,
+    softdelete,
   ],
   props: {
     'purchase': {

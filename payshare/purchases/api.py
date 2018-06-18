@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from moneyed import Money, EUR
 
 from rest_framework import authentication
+from rest_framework import status
 from rest_framework.authentication import get_authorization_header
 from rest_framework.decorators import api_view
 from rest_framework.decorators import authentication_classes
@@ -16,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from payshare.purchases.models import Collective
+from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
 from payshare.purchases.serializers import CollectiveSerializer
 from payshare.purchases.serializers import PurchaseSerializer
@@ -128,3 +130,30 @@ def create_purchase(request, key):
     )
     serialized_purchase = PurchaseSerializer(purchase).data
     return Response(serialized_purchase)
+
+
+@api_view(("DELETE",))
+@authentication_classes((HeaderAuthentication,))
+def softdelete_transfer(request, key, kind, pk):
+    """Softdeletes given Purchase or Liquidation.
+
+    URL Args:
+        key (str): Collective key
+        kind (str): 'purchase' or 'liquidation'
+        pk (int)
+
+    """
+    collective = collective_from_key(key)
+
+    if kind == "purchase":
+        cls = Purchase
+    elif kind == "liquidation":
+        cls = Liquidation
+
+    transfer = cls.objects.get(pk=pk)
+    if not transfer.collective.id == collective.id:
+        raise ValidationError("Object to delete is not from given Collective")
+
+    transfer.deleted = True
+    transfer.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)

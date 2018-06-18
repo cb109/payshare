@@ -111,6 +111,22 @@ const store = new Vuex.Store({
         context.dispatch('LIST_TRANSFERS')
       })
     },
+    DELETE_TRANSFER(context, opts) {
+      if (!opts.kind && opts.id) {
+        throw('Need kind and id')
+      }
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/${opts.kind}/${opts.id}`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      return axios.delete(url, config).then(response => {
+        context.dispatch('LIST_TRANSFERS')
+      })
+    },
     RETRIEVE_COLLECTIVE_USING_CREDENTIALS(context, opts) {
       const url = `${apiBaseUrl}/api/v1/${opts.uuid}`
       const config = {

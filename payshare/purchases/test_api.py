@@ -1,7 +1,12 @@
+import json
+
 import pytest
 from django.contrib.auth.hashers import check_password
 from model_mommy import mommy
 from rest_framework import status
+
+from payshare.purchases.models import Purchase
+from payshare.purchases.models import Liquidation
 
 
 def test_collective_password_not_saved_as_plain_text(db):
@@ -169,7 +174,7 @@ def test_api_list_transfers_skips_softdeleted(collective_with_members,
     assert len(transfers) == 0
 
 
-def test_api_create_puchase(collective_with_members, client):
+def test_api_create_purchase(collective_with_members, client):
     collective, user_1, user_2 = collective_with_members
 
     url = "/api/v1/{}/purchase".format(collective.key)
@@ -179,10 +184,24 @@ def test_api_create_puchase(collective_with_members, client):
         "price": 15.38,
     }
     response = client.post(url,
-                           payload,
+                           json.dumps(payload),
+                           content_type="application/json",
                            follow=True,
                            HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_200_OK
 
     purchase = response.data
     assert purchase["name"] == payload["name"]
+
+
+def test_api_softdelete_purchase(collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    url = "/api/v1/{}/{}/{}".format(collective.key,
+                                    purchase.kind,
+                                    purchase.id)
+    response = client.delete(url,
+                             follow=True,
+                             HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_204_NO_CONTENT
