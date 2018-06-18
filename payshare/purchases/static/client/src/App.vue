@@ -9,7 +9,9 @@
                 fill-height>
         <v-list>
           <!-- Selected User -->
-          <selected-member-list-tile></selected-member-list-tile>
+          <selected-member-list-tile
+            :label="$t('whoAreYou')">
+          </selected-member-list-tile>
           <!-- Financial Status -->
           <v-list-tile>
             <v-list-tile-action></v-list-tile-action>
@@ -21,17 +23,17 @@
           </v-list-tile>
           <!-- Actionable menu items -->
           <v-divider></v-divider>
-          <v-list-tile @click=""
-                       v-for="(menuItem, i) in menuItems"
-                       :key="i">
+          <v-list-tile v-for="(item, i) in menuItems"
+                       :key="i"
+                       @click="item.action ? item.action() : null">
             <v-list-tile-action>
               <v-icon>
-                {{ menuItem.icon }}
+                {{ item.icon }}
               </v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
               <v-list-tile-title>
-                {{ $t(menuItem.title) }}
+                {{ $t(item.title) }}
                 </v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
@@ -89,7 +91,7 @@
           {{ title }}<span v-if="uuid">: {{ uuid }}</span>
         </span>
         <span v-else>
-          {{ $store.state.collective.name }}
+          {{ collective.name }}
         </span>
         </v-toolbar-title>
       <v-spacer></v-spacer>
@@ -113,34 +115,39 @@
         </v-slide-y-transition>
       </v-container>
     </v-content>
-    <!-- Global Dialogs -->
+    <!-- Show Select Member Dialog-->
     <v-dialog persistent
               max-width="480px"
               v-model="showSelectMemberDialog">
       <v-card>
-      <v-toolbar flat
-                 color="primary"
-                 dark>
-        <v-toolbar-title>
-          <h3 class="headline">{{ $t('chooseMember') }}</h3>
-        </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon
-               large
-               @click="showSelectMemberDialog = false; logout()"
-               :title="$t('logout')">
-          <v-icon>
-            exit_to_app
-          </v-icon>
-        </v-btn>
-      </v-toolbar>
+        <v-toolbar flat
+                   color="primary"
+                   dark>
+          <v-toolbar-title>
+            <h3 class="headline">{{ $t('chooseMember') }}</h3>
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon
+                 large
+                 @click="showSelectMemberDialog = false; logout()"
+                 :title="$t('logout')">
+            <v-icon>
+              exit_to_app
+            </v-icon>
+          </v-btn>
+        </v-toolbar>
         <v-card-text>
           <selected-member-list-tile
+            :label="$t('whoAreYou')"
             @selected="(() => showSelectMemberDialog = false)">
-            </selected-member-list-tile>
+          </selected-member-list-tile>
         </v-card-text>
       </v-card>
     </v-dialog>
+    <!-- Create Purchase Dialog-->
+    <create-purchase-dialog
+      :show.sync="showCreatePurchaseDialog"
+    ></create-purchase-dialog>
   </v-app>
 </template>
 
@@ -149,6 +156,7 @@
 import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
+import CreatePurchaseDialog from '@/components/CreatePurchaseDialog'
 import SelectedMemberListTile from '@/components/SelectedMemberListTile'
 
 export default {
@@ -158,9 +166,11 @@ export default {
     uuid,
   ],
   components: {
+    CreatePurchaseDialog,
     SelectedMemberListTile,
   },
   data () {
+    const vm = this
     return {
       drawer: false,
       dark: false,
@@ -169,9 +179,13 @@ export default {
         {
           icon: 'add',
           title: 'addPurchase',
+          action() {
+            vm.showCreatePurchaseDialog = true
+          },
         },
       ],
       showSelectMemberDialog: false,
+      showCreatePurchaseDialog: false,
     }
   },
   computed: {
@@ -180,10 +194,6 @@ export default {
     },
     collective() {
       return this.$store.state.collective
-    },
-    members() {
-      const users = this.collective.members.concat()
-      return users.sort((u1, u2) => u1.username > u2.username)
     },
     busy() {
       return this.$store.state.busy
@@ -220,7 +230,7 @@ export default {
       }
     },
     logout() {
-      const key = this.$store.state.collective.key
+      const key = this.collective.key
       this.$store.commit('RESET_ALL')
       this.$router.push('/' + key)
     },

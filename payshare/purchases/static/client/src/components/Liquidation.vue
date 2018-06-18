@@ -48,7 +48,7 @@
           </div>
           <v-spacer></v-spacer>
           <v-layout column
-                    :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : initial}"
+                    :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : 'initial'}"
                     fill-height>
             <div class="text-xs-right">
               {{ createdAgo }}
@@ -59,7 +59,7 @@
                           'green--text': isCreditor}">
               {{ amount }}
               <span class="currency">
-                {{ currency }}
+                {{ $t(currency) }}
               </span>
             </div>
           </v-layout>
@@ -114,8 +114,7 @@ export default {
       return Number(this.liquidation.amount.amount).toFixed(2)
     },
     currency() {
-      const currency = this.liquidation.amount.currency
-      return currency === 'EUR' ? '€' : currency
+      return this.liquidation.amount.currency
     },
     isCreditor() {
       if (!this.selectedMember) {

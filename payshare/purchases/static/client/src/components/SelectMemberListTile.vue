@@ -3,8 +3,8 @@
 <div v-if="members">
   <v-list-tile>
     <v-list-tile-action>
-    <v-avatar v-if="selectedMember">
-      <img :src="selectedMember.avatar"
+    <v-avatar v-if="member">
+      <img :src="member.avatar"
            style="position: relative; left: -12px">
     </v-avatar>
       <v-icon v-else>
@@ -14,7 +14,8 @@
     <v-list-tile-content>
       <v-select
         :label="label"
-        v-model="selectedMember"
+        :value="member"
+        @input="((user) => $emit('update:member', user))"
         :items="members"
         item-value="id"
         item-text="username"
@@ -42,16 +43,19 @@
 
 <script>
 
-import selectedMember from '@/mixins/selectedMember'
-
 export default {
-  name: 'selected-member-list-tile',
-  mixins: [
-    selectedMember,
-  ],
+  name: 'select-member-list-tile',
   props: {
     label: {
       type: String,
+      required: true,
+    },
+    member: {
+      type: null|Object,
+      required: true,
+    },
+    members: {
+      type: Array[Object],
       required: true,
     },
   },

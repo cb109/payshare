@@ -31,6 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CollectiveSerializer(serializers.ModelSerializer):
     members = UserSerializer(many=True)
+    # TODO: add current collective financial status for each member
 
     class Meta:
         model = Collective

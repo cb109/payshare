@@ -77,6 +77,7 @@ class Collective(TimestampMixin, models.Model):
     key = models.UUIDField(default=uuid.uuid4, editable=False)
     password = models.CharField(max_length=128)
     token = models.UUIDField(default=uuid.uuid4, editable=False)
+    # TODO: Allow changing the currency through the collective
 
     def save(self, *args, **kwargs):
         """Make sure to save changed password hashes, not as plain text."""

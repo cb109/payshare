@@ -26,7 +26,7 @@
           </div>
           <v-spacer></v-spacer>
           <v-layout column
-                    :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : initial}"
+                    :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : 'initial'}"
                     fill-height>
             <div class="text-xs-right">
               {{ createdAgo }}
@@ -34,7 +34,7 @@
             <div class="pl-5 price default--text">
               {{ price }}
               <span class="currency">
-                {{ currency }}
+                {{ $t(currency) }}
               </span>
             </div>
           </v-layout>
@@ -86,8 +86,7 @@ export default {
       return Number(this.purchase.price.amount).toFixed(2)
     },
     currency() {
-      const currency = this.purchase.price.currency
-      return currency === 'EUR' ? '€' : currency
+      return this.purchase.price.currency
     },
     isBuyer() {
       if (!this.selectedMember) {
