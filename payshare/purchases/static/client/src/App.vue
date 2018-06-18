@@ -80,14 +80,17 @@
                fixed
                dark
                :color="!isLoginPage ? 'primary' : null"
-               :class="{'light': isLoginPage}"
+               :class="{'light': isLoginPage,
+                        'auto-height': isLoginPage}"
                :flat="isLoginPage">
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
+        :class="{'drawer--open': drawer}"
         @click.stop="drawer = !drawer">
       </v-toolbar-side-icon>
       <v-spacer v-if="isLoginPage"></v-spacer>
-      <v-toolbar-title :class="{'black--text': isLoginPage}">
+      <v-toolbar-title :class="{'black--text': isLoginPage,
+                                'text--wrap': isLoginPage}">
         <span v-if="!$store.getters.isLoggedIn">
           {{ title }}<span v-if="uuid">: {{ uuid }}</span>
         </span>
@@ -283,12 +286,26 @@ export default {
   border: 1px solid red;
 }
 
+.auto-height .toolbar__content {
+  padding-top: 8px;
+  height: auto !important;
+}
+
+.text--wrap {
+  white-space: normal;
+}
+
 .transfer-delete-btn {
   position: absolute;
   top: 2px;
   left: 2px;
   font-size: 1em;
   cursor: pointer;
+}
+
+.toolbar__side-icon.btn.btn--icon.drawer--open .btn__content i {
+  transform: rotate(90deg);
+  transition: transform 100ms ease-in;
 }
 
 </style>

@@ -3,6 +3,12 @@
 <v-layout column
           align-center
           justify-center>
+  <v-layout justify-center
+            class="mt-5 mb-3"
+            style="min-width: 100px;
+                   min-height: 100px;">
+    <img src="https://png.icons8.com/dusk/100/000000/payroll.png">
+  </v-layout>
   <v-flex xs12>
     <v-text-field
       ref="password"
@@ -16,7 +22,8 @@
     </v-text-field>
     <v-btn @click="loginWithCredentials(uuid, password)"
            :loading="loading"
-           block>
+           block
+           outline>
       {{ $t('login') }}
     </v-btn>
   </v-flex>

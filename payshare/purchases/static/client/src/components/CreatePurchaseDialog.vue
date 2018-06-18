@@ -17,11 +17,17 @@
       </v-toolbar>
       <v-card-text>
         <select-member-list-tile
-          class="mb-2"
+          class="mb-4"
           :label="$t('buyer')"
           :members="members"
           :member.sync="buyer"
         ></select-member-list-tile>
+        <v-text-field
+          required
+          :label="$t('name')"
+          :placeholder="$t('placeholderPurchaseName')"
+          v-model="name"
+        ></v-text-field>
         <v-text-field
           required
           type="number"
@@ -29,12 +35,6 @@
           append-icon="euro_symbol"
           :label="$t('price')"
           class="price"
-        ></v-text-field>
-        <v-text-field
-          required
-          :label="$t('name')"
-          :placeholder="$t('placeholderPurchaseName')"
-          v-model="name"
         ></v-text-field>
       </v-card-text>
       <v-card-actions>
