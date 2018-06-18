@@ -32,7 +32,8 @@
                    class="custom-pagination-controls"
                   :length="numPages"
                    v-model="pageIndex"
-                   :disabled="busy">
+                   :disabled="busy"
+                   :total-visible="maxVisiblePaginationItems">
     </v-pagination>
   </v-layout>
 </div>
