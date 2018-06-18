@@ -4,6 +4,7 @@
                          :dark="dark"
                          fixed
                          v-model="drawer"
+                         :width="$vuetify.breakpoint.width <= 320 ? 260 : 300"
                          v-if="$store.getters.isLoggedIn">
       <v-layout column
                 fill-height>
