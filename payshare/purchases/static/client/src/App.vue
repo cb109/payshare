@@ -225,7 +225,7 @@ export default {
       this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
     },
     checkIfWeNeedToChooseMember() {
-      if (!this.selectedMember) {
+      if (this.$store.getters.isLoggedIn && !this.selectedMember) {
         this.showSelectMemberDialog = true
       }
     },
