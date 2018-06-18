@@ -25,7 +25,7 @@ SECRET_KEY = 'k4f%dddo44p-ad4q4f#!fq=-1a-7axw9iml+utej%a4z_^%ynu'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -55,6 +55,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Comment next line out if you are not using it, since any middleware
+    # may possibly interfer with exceptions bubbling up etc. unwanted.
+    # 'payshare.purchases.middleware.debugging_middleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True

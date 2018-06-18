@@ -7,6 +7,9 @@ Vue.use(Vuex)
 // TODO: Get this from the process.env
 const apiBaseUrl = 'http://localhost:8000'
 
+axios.defaults.xsrfCookieName = 'csrftoken'
+axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+
 const getInitialState = () => {
   return {
     busy: false,
@@ -49,10 +52,20 @@ const store = new Vuex.Store({
       localStorage.removeItem('collective')
     },
     LOAD_SELECTED_MEMBER_FROM_LOCALSTORAGE(state) {
+      if (!state.collective) {
+        return
+      }
       const selectedMemberString = localStorage.getItem('selectedMember')
       if (selectedMemberString) {
         const selectedMember = JSON.parse(selectedMemberString)
         if (selectedMember) {
+          const collectiveMemberIds = state.collective.members.map(m => m.id)
+          if (!collectiveMemberIds.includes(selectedMember.id)) {
+            // Stored member is possibly from another collective,
+            // make sure to reset it.
+            state.selectedMember = null
+            return;
+          }
           state.selectedMember = selectedMember
         }
       }
@@ -80,11 +93,29 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    CREATE_PURCHASE(context, opts) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/purchase`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      const payload = {
+        buyer: opts.buyerId,
+        price: opts.price,
+        name: opts.name,
+      }
+      return axios.post(url, payload, config).then(response => {
+        context.dispatch('LIST_TRANSFERS')
+      })
+    },
     RETRIEVE_COLLECTIVE_USING_CREDENTIALS(context, opts) {
       const url = `${apiBaseUrl}/api/v1/${opts.uuid}`
       const config = {
-        'headers': {
-          'authorization': opts.password,
+        headers: {
+          authorization: opts.password,
         },
       }
       return axios.get(url, config).then(response => {
@@ -97,11 +128,11 @@ const store = new Vuex.Store({
       const token = context.state.collective.token
       const url = `${apiBaseUrl}/api/v1/${uuid}/transfers`
       const config = {
-        'headers': {
-          'authorization': 'Token ' + token,
+        headers: {
+          authorization: 'Token ' + token,
         },
-        'params': {
-          'page': context.state.transfersPageIndex,
+        params: {
+          page: context.state.transfersPageIndex,
         }
       }
       return axios.get(url, config).then(response => {

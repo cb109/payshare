@@ -59,11 +59,6 @@ export default {
       required: true,
     },
   },
-  watch: {
-    selectedMember: function(val) {
-      this.$emit('selected', val)
-    }
-  },
 }
 
 </script>
