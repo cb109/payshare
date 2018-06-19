@@ -278,6 +278,10 @@ export default {
 
 <style>
 
+.clickable {
+  cursor: pointer;
+}
+
 .light {
   background: #FAFAFA !important;
 }

@@ -19,11 +19,11 @@
             <img :src="creditor.avatar"
                  class="avatar">
           </div>
-          <v-icon class="pa-0 liquidation-arrow"
+          <v-icon class="pa-0 liquidation-arrow grey--text"
                   v-if="$vuetify.breakpoint.smAndUp">
             arrow_right
           </v-icon>
-          <v-icon class="pa-0 liquidation-arrow"
+          <v-icon class="pa-0 liquidation-arrow grey--text"
                   v-else>
             arrow_drop_down
           </v-icon>
@@ -55,8 +55,9 @@
           <v-layout column
                     :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : 'initial'}"
                     fill-height>
-            <div class="text-xs-right">
-              {{ createdAgo }}
+            <div class="text-xs-right clickable"
+                 @click="onCreatedDateClicked()">
+              {{ showAgoInsteadOfDate ? createdDateAgo : createdDateFormatted }}
             </div>
             <div class="pl-5 amount"
                  :class="{'secondary--text': !isCreditor && !isDebtor,
@@ -78,13 +79,13 @@
 
 <script>
 
-import moment from 'moment'
-
+import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
 import softdelete from '@/mixins/softdelete'
 
 export default {
   mixins: [
+    createdDate,
     selectedMember,
     softdelete,
   ],
@@ -96,9 +97,8 @@ export default {
     },
   },
   computed: {
-    createdAgo() {
-      return moment(
-        this.liquidation.created_at).locale(this.$i18n.locale).fromNow()
+    transfer() {
+      return this.liquidation
     },
     layout() {
       if (this.$vuetify.breakpoint.xsOnly) {

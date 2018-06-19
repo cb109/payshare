@@ -33,8 +33,9 @@
           <v-layout column
                     :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : 'initial'}"
                     fill-height>
-            <div class="text-xs-right">
-              {{ createdAgo }}
+            <div class="text-xs-right clickable"
+                 @click="onCreatedDateClicked()">
+              {{ showAgoInsteadOfDate ? createdDateAgo : createdDateFormatted }}
             </div>
             <div class="pl-5 price default--text">
               {{ price }}
@@ -53,14 +54,14 @@
 
 <script>
 
-import moment from 'moment'
-
+import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
 import softdelete from '@/mixins/softdelete'
 
 export default {
   name: 'purchase',
   mixins: [
+    createdDate,
     selectedMember,
     softdelete,
   ],
@@ -71,9 +72,8 @@ export default {
     },
   },
   computed: {
-    createdAgo() {
-      return moment(
-        this.purchase.created_at).locale(this.$i18n.locale).fromNow()
+    transfer() {
+      return this.purchase
     },
     layout() {
       if (this.$vuetify.breakpoint.xsOnly) {

@@ -16,11 +16,11 @@
     <v-flex xs12>
     <template v-for="(transfer, transferIndex) in transfers">
       <purchase v-if="transfer.kind === 'purchase'"
-                :key="transferIndex"
+                :key="transfer.kind + pageIndex + transferIndex"
                 :purchase="transfer">
       </purchase>
       <liquidation v-if="transfer.kind === 'liquidation'"
-                   :key="transferIndex"
+                   :key="transfer.kind + pageIndex + transferIndex"
                    :liquidation="transfer">
       </liquidation>
     </template>
