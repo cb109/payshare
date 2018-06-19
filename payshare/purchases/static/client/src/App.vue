@@ -121,9 +121,6 @@
         </span>
         </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-progress-circular v-if="busy"
-                           size="20"
-                           indeterminate></v-progress-circular>
       <v-btn @click="reloadPage()"
              icon>
         <v-icon>refresh</v-icon>
@@ -134,6 +131,14 @@
         <v-icon>exit_to_app</v-icon>
       </v-btn>
     </v-toolbar>
+    <v-progress-linear
+      v-if="busy"
+      color="accent"
+      style="position: fixed;
+             margin: 0.5rem 0"
+      :style="{'top': $vuetify.breakpoint.xsOnly ? '48px' : '56px'}"
+      indeterminate
+    ></v-progress-linear>
     <v-content>
       <v-container>
         <v-slide-y-transition mode="out-in">

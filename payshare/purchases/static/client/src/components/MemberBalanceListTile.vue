@@ -17,7 +17,7 @@
       </v-list-tile-title>
     </v-list-tile-content>
     <v-list-tile-action
-      class="title"
+      class="subheading"
       :class="{'red--text': balance < 0,
                'default--text': balance == 0,
                'green--text': balance > 0}">
