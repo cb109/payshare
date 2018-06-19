@@ -2,7 +2,7 @@ const messages = {
   'en': {
     'Incorrect authentication credentials.': 'Incorrect authentication credentials.',
     abort: 'Abort',
-    addPurchase: 'Add Purchase',
+    addPurchase: 'New Purchase',
     buyer: 'Buyer',
     chooseMember: 'Who are you?',
     confirm: 'Confirm',
@@ -19,13 +19,15 @@ const messages = {
     payedFor: 'payed for',
     placeholderPurchaseName: 'Yummy things and some booze',
     price: 'Price',
+    ranking: 'Ranking',
     save: 'Save',
+    usesIconsFrom: 'Uses icons from',
     whoAreYou: 'That\'s me',
   },
   'de': {
     'Incorrect authentication credentials.': 'Login fehlgeschlagen, bitte Daten prüfen.',
     abort: 'Abbrechen',
-    addPurchase: 'Einkauf eintragen',
+    addPurchase: 'Neuer Einkauf',
     buyer: 'Käufer',
     chooseMember: 'Wer bist du?',
     confirm: 'Bestätigen',
@@ -42,7 +44,9 @@ const messages = {
     payedFor: 'bezahlte für',
     placeholderPurchaseName: 'Lecker Sachen und ne Buddel Rum',
     price: 'Preis',
+    ranking: 'Rangfolge',
     save: 'Speichern',
+    usesIconsFrom: 'Nutzt Icons von',
     whoAreYou: 'Das bin ich',
   }
 }

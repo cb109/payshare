@@ -38,7 +38,8 @@
         ></v-text-field>
       </v-card-text>
       <v-card-actions>
-        <v-layout justify-center>
+        <v-layout :justify-center="$vuetify.breakpoint.xsOnly"
+                  :justify-end="$vuetify.breakpoint.smAndUp">
           <v-btn color="error"
                  flat
                  @click="abort()">

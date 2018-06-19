@@ -3,7 +3,7 @@
 <div>
   <!-- Upper pagination controls -->
   <v-layout justify-center>
-    <v-pagination v-if="numPages > 0"
+    <v-pagination v-if="numPages > 1"
                   :length="numPages"
                    v-model="pageIndex"
                    :disabled="busy"
@@ -28,7 +28,7 @@
   </v-layout>
   <!-- Lower pagination controls -->
   <v-layout justify-center>
-    <v-pagination v-if="numPages > 0 && purchases.length > 6"
+    <v-pagination v-if="numPages > 1 && purchases.length > 6"
                    class="custom-pagination-controls"
                   :length="numPages"
                    v-model="pageIndex"

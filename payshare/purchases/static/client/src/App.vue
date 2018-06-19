@@ -16,7 +16,7 @@
           <!-- Financial Status -->
           <v-list-tile>
             <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-content>
+            <v-list-tile-title>
               <span class="headline"
                     :class="{'red--text': selectedMemberBalance < 0,
                              'default--text': selectedMemberBalance == 0,
@@ -24,8 +24,29 @@
                 {{ selectedMemberBalance }}
                 {{ collective.currency_symbol }}
               </span>
-            </v-list-tile-content>
+            </v-list-tile-title>
           </v-list-tile>
+          <!-- Ranking -->
+          <v-divider></v-divider>
+          <v-list-group v-if="selectedMember&& sortedBalanceObjects"
+                        dense
+                        v-model="expandRanking">
+            <v-list-tile slot="activator">
+              <v-list-tile-content>
+                <v-list-tile-title>
+                  {{ $t('ranking') }}
+                </v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <template v-for="obj in sortedBalanceObjects">
+              <member-balance-list-tile
+                :key="obj.memberId"
+                :member-id="obj.memberId"
+                :highlight="obj.memberId === selectedMember.id"
+                :balance="obj.balance"
+              ></member-balance-list-tile>
+            </template>
+          </v-list-group>
           <!-- Actionable menu items -->
           <v-divider></v-divider>
           <v-list-tile v-for="(item, i) in menuItems"
@@ -36,11 +57,9 @@
                 {{ item.icon }}
               </v-icon>
             </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>
-                {{ $t(item.title) }}
-                </v-list-tile-title>
-            </v-list-tile-content>
+            <v-list-tile-title>
+              {{ $t(item.title) }}
+              </v-list-tile-title>
           </v-list-tile>
         </v-list>
         <v-spacer></v-spacer>
@@ -89,7 +108,6 @@
                :flat="isLoginPage">
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
-        :class="{'drawer--open': drawer}"
         @click.stop="drawer = !drawer">
       </v-toolbar-side-icon>
       <v-spacer v-if="isLoginPage"></v-spacer>
@@ -165,6 +183,7 @@ import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
 import CreatePurchaseDialog from '@/components/CreatePurchaseDialog'
+import MemberBalanceListTile from '@/components/MemberBalanceListTile'
 import SelectedMemberListTile from '@/components/SelectedMemberListTile'
 
 export default {
@@ -175,6 +194,7 @@ export default {
   ],
   components: {
     CreatePurchaseDialog,
+    MemberBalanceListTile,
     SelectedMemberListTile,
   },
   data () {
@@ -194,6 +214,7 @@ export default {
       ],
       showSelectMemberDialog: false,
       showCreatePurchaseDialog: false,
+      expandRanking: false,
     }
   },
   computed: {
@@ -216,6 +237,23 @@ export default {
         }
       })
       return languages
+    },
+    /**
+     * Cast list of tuples to list objects with same ordering.
+     */
+    sortedBalanceObjects() {
+      if (!this.collective) {
+        return []
+      }
+      const objs = []
+      const balances = this.collective.stats.sorted_balances
+      for (var i = 0; i < balances.length; i++) {
+        objs.push({
+          memberId: balances[i][0],
+          balance: balances[i][1],
+        })
+      }
+      return objs
     },
   },
   methods: {
@@ -309,11 +347,6 @@ export default {
   left: 2px;
   font-size: 1em;
   cursor: pointer;
-}
-
-.toolbar__side-icon.btn.btn--icon.drawer--open .btn__content i {
-  transform: rotate(90deg);
-  transition: transform 100ms ease-in;
 }
 
 </style>
