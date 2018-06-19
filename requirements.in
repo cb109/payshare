@@ -5,3 +5,4 @@ django-cors-headers
 
 pytest
 pytest-django
+model_mommy
