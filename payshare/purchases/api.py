@@ -157,3 +157,10 @@ def softdelete_transfer(request, key, kind, pk):
     transfer.deleted = True
     transfer.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(("GET",))
+@authentication_classes((HeaderAuthentication,))
+def financial_stats(request, key):
+    collective = collective_from_key(key)
+    return Response(collective.stats)

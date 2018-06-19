@@ -64,7 +64,7 @@
                           'green--text': isCreditor}">
               {{ amount }}
               <span class="currency">
-                {{ $t(currency) }}
+                {{ collective.currency_symbol }}
               </span>
             </div>
           </v-layout>
@@ -119,9 +119,6 @@ export default {
     },
     amount() {
       return Number(this.liquidation.amount.amount).toFixed(2)
-    },
-    currency() {
-      return this.liquidation.amount.currency
     },
     isCreditor() {
       if (!this.selectedMember) {

@@ -1,6 +1,5 @@
 const messages = {
   'en': {
-    'EUR': '€',
     'Incorrect authentication credentials.': 'Incorrect authentication credentials.',
     abort: 'Abort',
     addPurchase: 'Add Purchase',
@@ -24,7 +23,6 @@ const messages = {
     whoAreYou: 'That\'s me',
   },
   'de': {
-    'EUR': '€',
     'Incorrect authentication credentials.': 'Login fehlgeschlagen, bitte Daten prüfen.',
     abort: 'Abbrechen',
     addPurchase: 'Einkauf eintragen',

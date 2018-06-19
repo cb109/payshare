@@ -5,9 +5,6 @@ from django.contrib.auth.hashers import check_password
 from model_mommy import mommy
 from rest_framework import status
 
-from payshare.purchases.models import Purchase
-from payshare.purchases.models import Liquidation
-
 
 def test_collective_password_not_saved_as_plain_text(db):
     collective = mommy.make("purchases.Collective")
@@ -69,6 +66,42 @@ def test_collective_members(collective_with_members):
     assert user_1 in collective.members
     assert user_2 in collective.members
 
+    user_1.is_active = False
+    user_1.save()
+    assert len(collective.members) == 1
+    assert user_2 in collective.members
+
+
+@pytest.fixture
+def transfers(collective_with_members):
+    collective, user_1, user_2 = collective_with_members
+    purchase = mommy.make("purchases.Purchase",
+                          collective=collective,
+                          buyer=user_1,
+                          price=45.50)
+    liquidation = mommy.make("purchases.Liquidation",
+                             collective=collective,
+                             creditor=user_2,
+                             debtor=user_1,
+                             amount=350.0)
+    return purchase, liquidation
+
+
+def test_collective_purchases(collective_with_members, transfers):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    assert collective.purchases.count() == 1
+    assert purchase in collective.purchases
+
+
+def test_collective_liquidations(collective_with_members, transfers):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    assert collective.liquidations.count() == 1
+    assert liquidation in collective.liquidations
+
 
 def test_api_list_collective_needs_password(
         collective_with_members, transfers, client):
@@ -97,19 +130,6 @@ def test_api_list_collective(collective_with_members, client):
     ]
     assert (user_1.username, user_1.id) in member_identifiers
     assert (user_2.username, user_2.id) in member_identifiers
-
-
-@pytest.fixture
-def transfers(collective_with_members):
-    collective, user_1, user_2 = collective_with_members
-    purchase = mommy.make("purchases.Purchase",
-                          collective=collective,
-                          buyer=user_1)
-    liquidation = mommy.make("purchases.Liquidation",
-                             collective=collective,
-                             debtor=user_1,
-                             creditor=user_2)
-    return purchase, liquidation
 
 
 def test_api_list_transfers_needs_password_or_token(
@@ -205,3 +225,20 @@ def test_api_softdelete_purchase(collective_with_members, transfers, client):
                              follow=True,
                              HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+def test_api_stats(collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    url = "/api/v1/{}/stats".format(collective.key)
+    response = client.get(url,
+                          follow=True,
+                          HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    stats = response.data
+
+    assert stats["overall_purchased"] == 45.50
+    assert stats["sorted_balances"] == [
+        (user_2.id, 327.25), (user_1.id, -327.25)]

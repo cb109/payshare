@@ -39,7 +39,7 @@
             <div class="pl-5 price default--text">
               {{ price }}
               <span class="currency">
-                {{ $t(currency) }}
+                {{ collective.currency_symbol }}
               </span>
             </div>
           </v-layout>
@@ -91,9 +91,6 @@ export default {
     },
     price() {
       return Number(this.purchase.price.amount).toFixed(2)
-    },
-    currency() {
-      return this.purchase.price.currency
     },
     isBuyer() {
       if (!this.selectedMember) {

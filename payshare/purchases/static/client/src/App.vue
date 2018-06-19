@@ -17,9 +17,13 @@
           <v-list-tile>
             <v-list-tile-action></v-list-tile-action>
             <v-list-tile-content>
-              <strong class="red--text headline">
-                -&nbsp;132.56 $
-              </strong>
+              <span class="headline"
+                    :class="{'red--text': selectedMemberBalance < 0,
+                             'default--text': selectedMemberBalance == 0,
+                             'green--text': selectedMemberBalance > 0}">
+                {{ selectedMemberBalance }}
+                {{ collective.currency_symbol }}
+              </span>
             </v-list-tile-content>
           </v-list-tile>
           <!-- Actionable menu items -->

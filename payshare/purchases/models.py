@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -77,7 +78,7 @@ class Collective(TimestampMixin, models.Model):
     key = models.UUIDField(default=uuid.uuid4, editable=False)
     password = models.CharField(max_length=128)
     token = models.UUIDField(default=uuid.uuid4, editable=False)
-    # TODO: Allow changing the currency through the collective
+    currency_symbol = models.CharField(default="€", max_length=3)
 
     def save(self, *args, **kwargs):
         """Make sure to save changed password hashes, not as plain text."""
@@ -105,7 +106,94 @@ class Collective(TimestampMixin, models.Model):
 
     @property
     def members(self):
-        return User.objects.filter(membership__collective__id=self.id)
+        return User.objects.filter(membership__collective__id=self.id,
+                                   is_active=True)
+
+    @property
+    def stats(self):
+        """Calculate financial status for each member of the Collective.
+
+        Returns:
+
+            {
+                'overall_purchased': 603.45,
+                'member_id_to_balance': {
+                    '<member1-id>': -140.23,
+                    '<member2-id>': 67.04,
+                    ...
+                },
+            }
+
+        """
+        collective = self
+
+        members = collective.members
+        num_members = len(members)
+        purchases = collective.purchases
+        liquidations = collective.liquidations
+
+        overall_purchased = sum([
+            float(purchase.price.amount) for purchase in purchases
+        ])
+        per_member = float(overall_purchased) / float(num_members)
+
+        member_id_to_balance = {}
+        for member in collective.members:
+            member_purchased = sum([
+                float(purchase.price.amount) for purchase in purchases
+                if purchase.buyer == member
+            ])
+
+            credit = sum([
+                float(liq.amount.amount) for liq in liquidations
+                if liq.creditor == member
+            ])
+            debt = sum([
+                float(liq.amount.amount) for liq in liquidations
+                if liq.debtor == member
+            ])
+            has_to_pay = (
+                per_member -
+                float(member_purchased) -
+                float(credit) +
+                float(debt)
+            )
+
+            balance = has_to_pay * -1
+            if balance == 0:  # Remove '-' from the display.
+                balance = 0
+            member_id_to_balance[member.id] = balance
+
+        sorted_balances = sorted(
+            member_id_to_balance.items(),
+            key=lambda item: item[1],
+            reverse=True)
+
+        stats = {
+            "overall_purchased": overall_purchased,
+            "sorted_balances": sorted_balances,
+        }
+        return stats
+
+    @property
+    def liquidations(self):
+        """Return Liquidations for all current members."""
+        members = self.members
+        queries = [
+            Q(collective=self, deleted=False),
+            Q(
+                Q(creditor__in=members) |
+                Q(debtor__in=members)
+            ),
+        ]
+        return Liquidation.objects.filter(*queries)
+
+    @property
+    def purchases(self):
+        """Return Purchases for all current members."""
+        return Purchase.objects.filter(collective=self,
+                                       buyer__in=self.members,
+                                       deleted=False)
 
     def __str__(self):
         return u"{}".format(self.name)

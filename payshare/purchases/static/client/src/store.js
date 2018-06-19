@@ -51,6 +51,10 @@ const store = new Vuex.Store({
       state.collective = null
       localStorage.removeItem('collective')
     },
+    SET_FINANCIAL_STATS(state, stats) {
+      state.collective.stats = stats
+      localStorage.setItem('collective', JSON.stringify(state.collective))
+    },
     LOAD_SELECTED_MEMBER_FROM_LOCALSTORAGE(state) {
       if (!state.collective) {
         return
@@ -93,6 +97,19 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    UPDATE_COLLECTIVE_FINANCIAL_STATS(context) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/stats`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      return axios.get(url, config).then(response => {
+        context.commit('SET_FINANCIAL_STATS', response.data)
+      })
+    },
     CREATE_PURCHASE(context, opts) {
       const uuid = context.state.collective.key
       const token = context.state.collective.token
@@ -109,6 +126,7 @@ const store = new Vuex.Store({
       }
       return axios.post(url, payload, config).then(response => {
         context.dispatch('LIST_TRANSFERS')
+        context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
       })
     },
     DELETE_TRANSFER(context, opts) {
@@ -125,6 +143,7 @@ const store = new Vuex.Store({
       }
       return axios.delete(url, config).then(response => {
         context.dispatch('LIST_TRANSFERS')
+        context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
       })
     },
     RETRIEVE_COLLECTIVE_USING_CREDENTIALS(context, opts) {

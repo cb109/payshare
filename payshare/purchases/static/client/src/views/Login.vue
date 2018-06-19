@@ -7,7 +7,7 @@
             class="mt-5 mb-3"
             style="min-width: 100px;
                    min-height: 100px;">
-    <img src="https://png.icons8.com/dusk/100/000000/payroll.png">
+    <img src="/img/payroll.png">
   </v-layout>
   <v-flex xs12>
     <v-text-field
