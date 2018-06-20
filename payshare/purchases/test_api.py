@@ -214,6 +214,27 @@ def test_api_create_purchase(collective_with_members, client):
     assert purchase["name"] == payload["name"]
 
 
+def test_api_create_liquidation(collective_with_members, client):
+    collective, user_1, user_2 = collective_with_members
+
+    url = "/api/v1/{}/liquidation".format(collective.key)
+    payload = {
+        "name": "Rent",
+        "creditor": user_1.id,
+        "debtor": user_2.id,
+        "amount": 200.00,
+    }
+    response = client.post(url,
+                           json.dumps(payload),
+                           content_type="application/json",
+                           follow=True,
+                           HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    purchase = response.data
+    assert purchase["name"] == payload["name"]
+
+
 def test_api_softdelete_purchase(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers

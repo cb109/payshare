@@ -129,6 +129,26 @@ const store = new Vuex.Store({
         context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
       })
     },
+    CREATE_LIQUIDATION(context, opts) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/liquidation`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      const payload = {
+        creditor: opts.creditorId,
+        debtor: opts.debtorId,
+        amount: opts.amount,
+        name: opts.name,
+      }
+      return axios.post(url, payload, config).then(response => {
+        context.dispatch('LIST_TRANSFERS')
+        context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
+      })
+    },
     DELETE_TRANSFER(context, opts) {
       if (!opts.kind && opts.id) {
         throw('Need kind and id')

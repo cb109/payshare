@@ -39,12 +39,14 @@
               </v-list-tile-content>
             </v-list-tile>
             <template v-for="obj in sortedBalanceObjects">
-              <member-balance-list-tile
-                :key="obj.memberId"
-                :member-id="obj.memberId"
-                :highlight="obj.memberId === selectedMember.id"
-                :balance="obj.balance"
-              ></member-balance-list-tile>
+              <v-layout>
+                <member-balance-list-tile
+                  :key="obj.memberId"
+                  :member-id="obj.memberId"
+                  :highlight="obj.memberId === selectedMember.id"
+                  :balance="obj.balance"
+                ></member-balance-list-tile>
+              </v-layout>
             </template>
           </v-list-group>
           <!-- Actionable menu items -->
@@ -176,9 +178,9 @@
       </v-card>
     </v-dialog>
     <!-- Create Purchase Dialog-->
-    <create-purchase-dialog
-      :show.sync="showCreatePurchaseDialog"
-    ></create-purchase-dialog>
+    <create-transfer-dialog
+      :show.sync="showCreateTransferDialog"
+    ></create-transfer-dialog>
   </v-app>
 </template>
 
@@ -187,7 +189,7 @@
 import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
-import CreatePurchaseDialog from '@/components/CreatePurchaseDialog'
+import CreateTransferDialog from '@/components/CreateTransferDialog'
 import MemberBalanceListTile from '@/components/MemberBalanceListTile'
 import SelectedMemberListTile from '@/components/SelectedMemberListTile'
 
@@ -198,7 +200,7 @@ export default {
     uuid,
   ],
   components: {
-    CreatePurchaseDialog,
+    CreateTransferDialog,
     MemberBalanceListTile,
     SelectedMemberListTile,
   },
@@ -211,14 +213,14 @@ export default {
       menuItems: [
         {
           icon: 'add',
-          title: 'addPurchase',
+          title: 'addEntry',
           action() {
-            vm.showCreatePurchaseDialog = true
+            vm.showCreateTransferDialog = true
           },
         },
       ],
       showSelectMemberDialog: false,
-      showCreatePurchaseDialog: false,
+      showCreateTransferDialog: false,
       expandRanking: false,
     }
   },

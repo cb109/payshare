@@ -5,7 +5,7 @@
     <v-card-text class="px-2 pt-2 pb-0">
       <v-icon color="grey lighten-3"
               class="transfer-delete-btn"
-              @click="softdelete(liquidation.description, liquidation)">
+              @click="softdelete(liquidation.name, liquidation)">
         close
       </v-icon>
       <v-layout row
@@ -48,7 +48,7 @@
               {{ $t('for') }} <br>
             </div>
             <div class="name">
-              {{ liquidation.description }}
+              {{ liquidation.name }}
             </div>
           </div>
           <v-spacer></v-spacer>
