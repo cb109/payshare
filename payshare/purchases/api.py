@@ -20,6 +20,7 @@ from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
 from payshare.purchases.serializers import CollectiveSerializer
+from payshare.purchases.serializers import LiquidationSerializer
 from payshare.purchases.serializers import PurchaseSerializer
 from payshare.purchases.serializers import TransferSerializer
 
@@ -130,6 +131,55 @@ def create_purchase(request, key):
     )
     serialized_purchase = PurchaseSerializer(purchase).data
     return Response(serialized_purchase)
+
+
+@api_view(("POST",))
+@authentication_classes((HeaderAuthentication,))
+def create_liquidation(request, key):
+    """Create a new Liquidation and return it in a seriailzed representation.
+
+    URL Args:
+        key (str): Collective key
+
+    POST Args:
+        name (str)
+        creditor (int): User id
+        debtor (int): User id
+        amount (float)
+
+    Returns:
+        Serialized Liquidation
+
+    """
+    name = request.data["name"]
+    creditor_id = request.data["creditor"]
+    debtor_id = request.data["debtor"]
+
+    collective = collective_from_key(key)
+
+    creditor = User.objects.get(id=creditor_id)
+    if not collective.is_member(creditor):
+        raise ValidationError(USER_MUST_BE_MEMBER)
+
+    debtor = User.objects.get(id=debtor_id)
+    if not collective.is_member(debtor):
+        raise ValidationError(USER_MUST_BE_MEMBER)
+
+    # FIXME: Either don't allow something else than euro or handle here.
+    amount_value = float(request.data["amount"])
+    if amount_value <= 0:
+        raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+    amount = Money(amount_value, EUR)
+
+    liquidation = Liquidation.objects.create(
+        name=name,
+        amount=amount,
+        collective=collective,
+        creditor=creditor,
+        debtor=debtor,
+    )
+    serialized_liquidation = LiquidationSerializer(liquidation).data
+    return Response(serialized_liquidation)
 
 
 @api_view(("DELETE",))
