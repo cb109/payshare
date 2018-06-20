@@ -64,14 +64,14 @@ class LiquidationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Liquidation
         fields = (
-            "id",
-            "description",
             "amount",
-            "debtor",
-            "creditor",
             "created_at",
-            "modified_at",
+            "creditor",
+            "debtor",
+            "id",
             "kind",
+            "modified_at",
+            "name",
         )
 
 
@@ -83,7 +83,6 @@ class PurchaseSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
-            "description",
             "price",
             "buyer",
             "created_at",

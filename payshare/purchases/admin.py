@@ -54,7 +54,7 @@ class PurchaseAdmin(admin.ModelAdmin):
 
 
 class LiquidationAdmin(admin.ModelAdmin):
-    list_display = ["description", "deleted", "amount", "creditor", "debtor",
+    list_display = ["name", "deleted", "amount", "creditor", "debtor",
                     "id", "collective"]
 
 

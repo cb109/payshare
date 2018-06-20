@@ -219,9 +219,8 @@ class Membership(TimestampMixin, models.Model):
 
 
 class Purchase(TimestampMixin, models.Model):
-    """A purchase describes a certain payment of a member of a collective."""
+    """A Purchase describes a certain payment of a member of a Collective."""
     name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
     price = MoneyField(max_digits=10,
                        decimal_places=2,
                        default_currency="EUR")
@@ -254,7 +253,7 @@ def purchase_pre_save_ensure_membership(sender, instance, *args, **kwargs):
 
 class Liquidation(TimestampMixin, models.Model):
     """A liquidation describes a repayment of one member to another."""
-    description = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=100)
     amount = MoneyField(max_digits=10,
                         decimal_places=2,
                         default_currency="EUR")
