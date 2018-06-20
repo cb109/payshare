@@ -27,17 +27,42 @@
             </v-list-tile-title>
           </v-list-tile>
           <!-- Ranking -->
-          <v-divider></v-divider>
           <v-list-group v-if="selectedMember&& sortedBalanceObjects"
                         dense
                         v-model="expandRanking">
             <v-list-tile slot="activator">
+              <v-list-tile-action>
+                <v-icon>account_balance</v-icon>
+              </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>
-                  {{ $t('ranking') }}
+                  {{ $t('financialStatus') }}
                 </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
+            <v-list-tile>
+              <v-list-tile-content>
+                <v-list-tile-title>
+                  {{ $t('overallPurchased') }}
+                </v-list-tile-title>
+              </v-list-tile-content>
+              <v-list-tile-action>
+                {{ collective.stats.overall_purchased }}
+                {{ collective.currency_symbol }}
+              </v-list-tile-action>
+            </v-list-tile>
+            <v-list-tile>
+              <v-list-tile-content>
+                <v-list-tile-title>
+                  {{ $t('overallDebt') }}
+                </v-list-tile-title>
+              </v-list-tile-content>
+              <v-list-tile-action>
+                {{ collective.stats.overall_debt }}
+                {{ collective.currency_symbol }}
+              </v-list-tile-action>
+            </v-list-tile>
+            <v-divider inset></v-divider>
             <template v-for="obj in sortedBalanceObjects">
               <v-layout>
                 <member-balance-list-tile

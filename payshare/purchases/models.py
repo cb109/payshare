@@ -117,6 +117,7 @@ class Collective(TimestampMixin, models.Model):
 
             {
                 'overall_purchased': 603.45,
+                'overall_debt': 50.00,
                 'member_id_to_balance': {
                     '<member1-id>': -140.23,
                     '<member2-id>': 67.04,
@@ -134,6 +135,9 @@ class Collective(TimestampMixin, models.Model):
 
         overall_purchased = sum([
             float(purchase.price.amount) for purchase in purchases
+        ])
+        overall_debt = sum([
+            float(liquidation.amount.amount) for liquidation in liquidations
         ])
         per_member = float(overall_purchased) / float(num_members)
 
@@ -170,6 +174,7 @@ class Collective(TimestampMixin, models.Model):
             reverse=True)
 
         stats = {
+            "overall_debt": overall_debt,
             "overall_purchased": overall_purchased,
             "sorted_balances": sorted_balances,
         }

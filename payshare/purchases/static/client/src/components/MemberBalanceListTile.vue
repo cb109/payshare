@@ -1,16 +1,16 @@
 <template>
 
-<div>
+<div v-if="member">
   <v-list-tile :value="highlight">
-    <v-list-tile-action>
-    <v-avatar v-if="member && member.avatar"
-              class="small">
-      <img :src="member.avatar">
-    </v-avatar>
-      <v-icon v-else>
-        person
-      </v-icon>
-    </v-list-tile-action>
+    <v-list-tile-avatar>
+      <v-avatar class="small">
+        <img v-if="member.avatar"
+             :src="member.avatar">
+        <v-icon v-else>
+          person
+        </v-icon>
+      </v-avatar>
+    </v-list-tile-avatar>
     <v-list-tile-content>
       <v-list-tile-title>
         {{ member.first_name || member.username }}
@@ -73,8 +73,8 @@ export default {
 <style>
 
 .small.avatar {
-  width: 36px !important;
-  height: 36px !important;
+  width: 40px !important;
+  height: 40px !important;
 }
 
 </style>

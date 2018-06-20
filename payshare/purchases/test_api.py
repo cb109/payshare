@@ -260,6 +260,7 @@ def test_api_stats(collective_with_members, transfers, client):
 
     stats = response.data
 
+    assert stats["overall_debt"] == 350
     assert stats["overall_purchased"] == 45.50
     assert stats["sorted_balances"] == [
         (user_2.id, 327.25), (user_1.id, -327.25)]
