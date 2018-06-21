@@ -1,5 +1,8 @@
 #!/bin/sh
 
+pip install pip-tools
+pip-sync
+
 cd payshare/purchases/static/client
 yarn install --check-files
 npm run build
