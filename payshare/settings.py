@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+from django.contrib.staticfiles.apps import StaticFilesConfig
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -25,7 +27,7 @@ SECRET_KEY = 'k4f%dddo44p-ad4q4f#!fq=-1a-7axw9iml+utej%a4z_^%ynu'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -36,16 +38,18 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'payshare.settings.CustomizedStaticFilesConfig',  # replaces 'staticfiles'
     'django.contrib.humanize',
 
-    'bootstrapform',
+    'corsheaders',
     'rest_framework',
 
     'payshare.purchases',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,7 +57,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Comment next line out if you are not using it, since any middleware
+    # may possibly interfer with exceptions bubbling up etc. unwanted.
+    # 'payshare.purchases.middleware.debugging_middleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'payshare.urls'
 
@@ -123,9 +133,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+
+class CustomizedStaticFilesConfig(StaticFilesConfig):
+    """Ignore some unnecessary folder during ' collectstatic'."""
+    ignore_patterns = ["node_modules", "cypress"]
+
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(
+        BASE_DIR, "payshare", "purchases", "static", "client", "public"),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
 

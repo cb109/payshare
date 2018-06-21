@@ -1,4 +1,8 @@
-django
-django-bootstrap-form
+Django==2.0.3
 django-money
 djangorestframework
+django-cors-headers
+
+pytest
+pytest-django
+model_mommy
