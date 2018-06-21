@@ -1,12 +1,16 @@
 #!/bin/sh
 
-pip install pip-tools
-pip-sync
+workon payshare &&
 
-cd payshare/purchases/static/client
-yarn install --check-files
-npm run build
+pip install pip-tools &&
+pip-sync &&
 
-cd -
-mkdir -p /public/static/
+cd payshare/purchases/static/client &&
+yarn install --check-files &&
+npm run build &&
+
+cd - &&
+mkdir -p /public/static/ &&
 python manage.py collectstatic --noinput
+
+echo "build finished"
