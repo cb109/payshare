@@ -5,7 +5,7 @@ import axios from 'axios'
 Vue.use(Vuex)
 
 // TODO: Get this from the process.env
-const apiBaseUrl = 'http://localhost:8000'
+const apiBaseUrl = 'http://127.0.0.1:8000'
 
 axios.defaults.xsrfCookieName = 'csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
