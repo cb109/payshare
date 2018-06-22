@@ -70,7 +70,13 @@ ROOT_URLCONF = 'payshare.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            # Allow loading the Vue app dist/index.html as a template,
+            # although it does not reside within an app's templates/
+            # directory. Note: Avoid conflicts with existing app
+            # namespaces.
+            os.path.join(BASE_DIR),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -141,9 +147,12 @@ class CustomizedStaticFilesConfig(StaticFilesConfig):
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
+    # Collect build results, like bundle files and service-worker.
     os.path.join(
-        BASE_DIR, "payshare", "purchases", "static", "client", "public"),
+        BASE_DIR, "payshare", "purchases", "static", "client", "dist")
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # One year.
+
+CLIENT_APP_TEMPLATE = "payshare/purchases/static/client/dist/index.html"

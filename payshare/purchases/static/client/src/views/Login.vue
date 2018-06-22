@@ -7,7 +7,7 @@
             class="mt-5 mb-3"
             style="min-width: 100px;
                    min-height: 100px;">
-    <img src="/img/payroll.png">
+    <img src="/static/img/payroll.png">
   </v-layout>
   <v-flex xs12>
     <v-text-field
