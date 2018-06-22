@@ -28,7 +28,7 @@
   </v-layout>
   <!-- Lower pagination controls -->
   <v-layout justify-center>
-    <v-pagination v-if="numPages > 1 && purchases.length > 6"
+    <v-pagination v-if="numPages > 1 && transfers.length > 6"
                    class="custom-pagination-controls"
                   :length="numPages"
                    v-model="pageIndex"
@@ -76,9 +76,6 @@ export default {
     },
     transfers() {
       return this.$store.state.transfersPage.results
-    },
-    purchases() {
-      return this.transfers.filter(transfer => transfer.kind === 'purchase')
     },
   },
   mounted() {
