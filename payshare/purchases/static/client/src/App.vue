@@ -4,7 +4,7 @@
                          :dark="dark"
                          fixed
                          v-model="drawer"
-                         :width="$vuetify.breakpoint.width <= 320 ? 260 : 300"
+                         :width="$vuetify.breakpoint.width <= 320 ? 280 : 300"
                          v-if="$store.getters.isLoggedIn">
       <v-layout column
                 fill-height>
@@ -45,9 +45,14 @@
                 <v-list-tile-title>
                   {{ $t('overallPurchased') }}
                 </v-list-tile-title>
+                <v-list-tile-sub-title>
+                  x {{ numPurchases }}
+                  ({{ averagePurchasePrice }}
+                  {{ collective.currency_symbol }}/Ø)
+                </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                {{ collective.stats.overall_purchased }}
+                {{ overallPurchased }}
                 {{ collective.currency_symbol }}
               </v-list-tile-action>
             </v-list-tile>
@@ -56,9 +61,14 @@
                 <v-list-tile-title>
                   {{ $t('overallDebt') }}
                 </v-list-tile-title>
+                <v-list-tile-sub-title>
+                  x {{ numLiquidations }}
+                  ({{ averageLiquidationAmount }}
+                  {{ collective.currency_symbol }}/Ø)
+                </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                {{ collective.stats.overall_debt }}
+                {{ overallDebt }}
                 {{ collective.currency_symbol }}
               </v-list-tile-action>
             </v-list-tile>
@@ -211,6 +221,7 @@
 
 <script>
 
+import collectiveStats from '@/mixins/collectiveStats'
 import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
@@ -221,6 +232,7 @@ import SelectedMemberListTile from '@/components/SelectedMemberListTile'
 export default {
   name: 'App',
   mixins: [
+    collectiveStats,
     selectedMember,
     uuid,
   ],

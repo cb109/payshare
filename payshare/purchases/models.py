@@ -130,8 +130,12 @@ class Collective(TimestampMixin, models.Model):
 
         members = collective.members
         num_members = len(members)
+
         purchases = collective.purchases
+        num_purchases = purchases.count()
+
         liquidations = collective.liquidations
+        num_liquidations = liquidations.count()
 
         overall_purchased = sum([
             float(purchase.price.amount) for purchase in purchases
@@ -174,6 +178,8 @@ class Collective(TimestampMixin, models.Model):
             reverse=True)
 
         stats = {
+            "num_liquidations": num_liquidations,
+            "num_purchases": num_purchases,
             "overall_debt": overall_debt,
             "overall_purchased": overall_purchased,
             "sorted_balances": sorted_balances,
