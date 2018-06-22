@@ -1,5 +1,14 @@
 /* eslint-disable no-console */
 
+// FIXME: service worker is currently broken, there are problems running
+//  it: Error during service worker registration: Error: Service worker
+// not found at /static/service-worker.js
+//
+// Even if it would work, we are currently serving it from /static/ so
+// it won't be able to control /, which is what we'd want. We need to
+// find wa way to serve it from root, maye with a Django view serving
+// just that static file.
+
 import { register } from 'register-service-worker'
 
 if (process.env.NODE_ENV === 'production') {
