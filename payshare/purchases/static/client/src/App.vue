@@ -28,7 +28,6 @@
           </v-list-tile>
           <!-- Ranking -->
           <v-list-group v-if="selectedMember&& sortedBalanceObjects"
-                        dense
                         v-model="expandRanking">
             <v-list-tile slot="activator">
               <v-list-tile-action>
@@ -46,9 +45,9 @@
                   {{ $t('overallPurchased') }}
                 </v-list-tile-title>
                 <v-list-tile-sub-title>
-                  x {{ numPurchases }}
-                  ({{ averagePurchasePrice }}
-                  {{ collective.currency_symbol }}/Ø)
+                  {{ numPurchases }}
+                  <!-- {{ averagePurchasePrice }} -->
+                  <!-- {{ collective.currency_symbol }}/Ø -->
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
@@ -62,9 +61,9 @@
                   {{ $t('overallDebt') }}
                 </v-list-tile-title>
                 <v-list-tile-sub-title>
-                  x {{ numLiquidations }}
-                  ({{ averageLiquidationAmount }}
-                  {{ collective.currency_symbol }}/Ø)
+                  {{ numLiquidations }}
+                  <!-- {{ averageLiquidationAmount }} -->
+                  <!-- {{ collective.currency_symbol }}/Ø -->
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
