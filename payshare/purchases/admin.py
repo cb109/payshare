@@ -32,21 +32,34 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "avatar_image_url_link",
+        "avatar_image_url",
         "id",
+    )
+
+    list_editable = (
+        "avatar_image_url",
     )
 
     def avatar_image_url_link(self, obj):
         template = '''
             <image src="{0}"
                    style="max-width: 200px; max-height: 200px"/>
+            <a href="{1}" target="blank_">
+                Edit on https://getavataaars.com
+            </a>
         '''
-        html = template.format(obj.avatar_image_url)
+        image_url = obj.avatar_image_url
+        editor_url = ""
+        if image_url.startswith("https://avataaars.io"):
+            editor_url = image_url.replace("https://avataaars.io",
+                                           "https://getavataaars.com")
+        html = template.format(image_url, editor_url)
         return mark_safe(html)
 
 
 class CollectiveAdmin(admin.ModelAdmin):
     readonly_fields = ("key",)
-    list_display = ("name", "key", "password", "id",)
+    list_display = ("name", "key", "password", "currency_symbol", "id")
 
 
 class PurchaseAdmin(admin.ModelAdmin):
