@@ -3,7 +3,7 @@
     <v-navigation-drawer app
                          :dark="dark"
                          fixed
-                         :clipped="$vuetify.breakpoint.xsOnly"
+                         :clipped="$vuetify.breakpoint.mdAndDown"
                          v-model="drawer"
                          :width="$vuetify.breakpoint.width <= 320 ? 280 : 300"
                          v-if="$store.getters.isLoggedIn">
@@ -14,7 +14,7 @@
           <selected-member-list-tile
             :label="$t('whoAreYou')">
           </selected-member-list-tile>
-          <!-- Financial Status -->
+          <!-- Balance for selected User -->
           <v-list-tile>
             <v-list-tile-action></v-list-tile-action>
             <v-list-tile-title>
@@ -27,6 +27,7 @@
               </span>
             </v-list-tile-title>
           </v-list-tile>
+          <v-divider v-if="!expandRanking"></v-divider>
           <!-- Ranking -->
           <v-list-group v-if="selectedMember&& sortedBalanceObjects"
                         v-model="expandRanking">
@@ -84,24 +85,18 @@
               </v-layout>
             </template>
           </v-list-group>
-          <!-- Actionable menu items -->
-          <v-divider></v-divider>
-          <v-list-tile v-for="(item, i) in menuItems"
-                       :key="i"
-                       @click="item.action ? item.action() : null">
+          <!-- Add new Entry -->
+          <v-list-tile @click="(() => showCreateTransferDialog = true)">
             <v-list-tile-action>
-              <v-icon>
-                {{ item.icon }}
-              </v-icon>
+              <v-icon>add</v-icon>
             </v-list-tile-action>
             <v-list-tile-title>
-              {{ $t(item.title) }}
+              {{ $t('addEntry') }}
               </v-list-tile-title>
           </v-list-tile>
         </v-list>
         <v-spacer></v-spacer>
         <v-list>
-          <v-divider></v-divider>
           <!-- Language -->
           <v-list-tile>
             <v-list-tile-action>
@@ -119,7 +114,6 @@
               </v-select>
             </v-list-tile-content>
           </v-list-tile>
-          <v-divider></v-divider>
           <!-- Logout -->
           <v-list-tile @click="logout()">
             <v-list-tile-action>
@@ -159,13 +153,20 @@
         </span>
         </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn @click="(() => showCreateTransferDialog = true)"
+             icon
+             :title="$t('addEntry')">
+        <v-icon>add</v-icon>
+      </v-btn>
       <v-btn @click="reloadPage()"
-             icon>
+             icon
+             :title="$t('reloadPage')">
         <v-icon>refresh</v-icon>
       </v-btn>
-      <v-btn v-if="$store.getters.isLoggedIn"
+      <v-btn v-if="$store.getters.isLoggedIn && $vuetify.breakpoint.smAndUp"
              @click="logout()"
-             icon>
+             icon
+             :title="$t('logout')">
         <v-icon>exit_to_app</v-icon>
       </v-btn>
     </v-toolbar>
@@ -248,15 +249,6 @@ export default {
       drawer: false,
       dark: false,
       title: 'Payshare',
-      menuItems: [
-        {
-          icon: 'add',
-          title: 'addEntry',
-          action() {
-            vm.showCreateTransferDialog = true
-          },
-        },
-      ],
       showSelectMemberDialog: false,
       showCreateTransferDialog: false,
       expandRanking: false,
