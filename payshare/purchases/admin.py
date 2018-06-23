@@ -15,16 +15,16 @@ from payshare.purchases.models import UserProfile
 class UserAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "first_name",
-        "last_name",
         "username",
         "email",
+        "first_name",
+        "last_name",
     )
     list_editable = (
-        "first_name",
-        "last_name",
         "username",
         "email",
+        "first_name",
+        "last_name",
     )
 
 
