@@ -4,6 +4,9 @@ import uuid
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -229,6 +232,28 @@ class Membership(TimestampMixin, models.Model):
                                   self.collective.name)
 
 
+class Reaction(TimestampMixin, models.Model):
+    """A reaction of a User to something else, e.g. a Purchase."""
+
+    REACTION_POSITIVE = "positive"
+    REACTION_NEUTRAL = "neutral"
+    REACTION_NEGATIVE = "negative"
+
+    REACTION_MEANINGS = (
+        (REACTION_POSITIVE, "Positive"),
+        (REACTION_NEUTRAL, "Neutral"),
+        (REACTION_NEGATIVE, "Negative"),
+    )
+
+    meaning = models.CharField(max_length=64, choices=REACTION_MEANINGS)
+    member = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+
+    # https://simpleisbetterthancomplex.com/tutorial/2016/10/13/how-to-use-generic-relations.html  # noqa
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()
+
+
 class Purchase(TimestampMixin, models.Model):
     """A Purchase describes a certain payment of a member of a Collective."""
     name = models.CharField(max_length=100)
@@ -239,6 +264,8 @@ class Purchase(TimestampMixin, models.Model):
     collective = models.ForeignKey("purchases.Collective",
                                    on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
+
+    reactions = GenericRelation(Reaction)
 
     def __str__(self):
         return u"{} for {} by {} in {}".format(self.price,
@@ -275,6 +302,8 @@ class Liquidation(TimestampMixin, models.Model):
     collective = models.ForeignKey("purchases.Collective",
                                    on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
+
+    reactions = GenericRelation(Reaction)
 
     def __str__(self):
         return u"{} from {} to {} in {}".format(self.amount,
