@@ -43,6 +43,10 @@
                 {{ collective.currency_symbol }}
               </span>
             </div>
+            <reaction-menu
+              :member="selectedMember"
+              :transfer="transfer"
+            ></reaction-menu>
           </v-layout>
         </v-layout>
       </v-layout>
@@ -58,6 +62,8 @@ import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
 import softdelete from '@/mixins/softdelete'
 
+import ReactionMenu from '@/components/ReactionMenu'
+
 export default {
   name: 'purchase',
   mixins: [
@@ -65,6 +71,9 @@ export default {
     selectedMember,
     softdelete,
   ],
+  components: {
+    ReactionMenu,
+  },
   props: {
     'purchase': {
       type: Object,
