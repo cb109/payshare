@@ -149,7 +149,8 @@
       <v-spacer v-if="isLoginPage"></v-spacer>
       <v-toolbar-title :class="{'black--text': isLoginPage,
                                 'text--wrap': isLoginPage}">
-        <span v-if="!$store.getters.isLoggedIn">
+        <span v-if="!$store.getters.isLoggedIn"
+              class="subheading">
           {{ title }}<span v-if="uuid">: {{ uuid }}</span>
         </span>
         <span v-else>

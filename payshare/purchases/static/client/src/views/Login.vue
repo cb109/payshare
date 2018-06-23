@@ -4,13 +4,12 @@
           align-center
           justify-center>
   <v-layout justify-center
-            class="mt-5 mb-3"
-            style="min-width: 100px;
-                   min-height: 100px;">
+            class="mb-3 min-100">
     <img src="/static/img/payroll.png">
   </v-layout>
   <v-flex xs12>
     <v-text-field
+      class="password-input"
       ref="password"
       :label="$t('password')"
       type="password"
@@ -83,3 +82,16 @@ export default {
 }
 
 </script>
+
+<style scoped>
+
+.password-input {
+  width: 200px;
+}
+
+.min-100 {
+  min-width: 100px;
+  min-height: 100px;
+}
+
+</style>
