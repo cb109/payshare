@@ -10,7 +10,7 @@ import './registerServiceWorker'
 
 Vue.use(Vuetify, {
   theme: {
-    primary: '#0000d6',
+    primary: '#3F51B5',
   },
 })
 Vue.config.productionTip = false
