@@ -3,6 +3,7 @@ django-money
 djangorestframework
 django-cors-headers
 
+gunicorn
+model_mommy
 pytest
 pytest-django
-model_mommy

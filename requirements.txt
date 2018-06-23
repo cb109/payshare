@@ -11,12 +11,13 @@ django-cors-headers==2.2.0
 django-money==0.14
 django==2.0.3
 djangorestframework==3.8.2
+gunicorn==19.8.1
 model-mommy==1.6.0
 more-itertools==4.2.0     # via pytest
 pluggy==0.6.0             # via pytest
 py-moneyed==0.7.0         # via django-money
 py==1.5.3                 # via pytest
-pytest-django==3.3.0
-pytest==3.6.1
+pytest-django==3.3.2
+pytest==3.6.2
 pytz==2018.4              # via django
 six==1.11.0               # via model-mommy, more-itertools, pytest
