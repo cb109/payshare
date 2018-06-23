@@ -8,6 +8,8 @@ ExecStart=/~/.virtualenvs/payshare/bin/gunicorn payshare.wsgi:application \
           --workers 2 \
           --bind 127.0.0.1:1234 \
           --log-level debug \
+          --certfile /etc/letsencrypt/live/payshare.com/fullchain.pem \
+          --keyfile /etc/letsencrypt/live/payshare.com/privkey.pem \
           --access-logfile /var/log/payshare-access.log \
           --error-logfile /var/log/payshare-error.log
 
