@@ -39,7 +39,7 @@ const store = new Vuex.Store({
       if (collectiveString) {
         const collective = JSON.parse(collectiveString)
         if (collective) {
-          state.collective = collective
+          this.commit('SET_COLLECTIVE', collective)
         }
       }
     },
@@ -171,6 +171,20 @@ const store = new Vuex.Store({
       const config = {
         headers: {
           authorization: opts.password,
+        },
+      }
+      return axios.get(url, config).then(response => {
+        const collective = response.data
+        context.commit('SET_COLLECTIVE', collective)
+      })
+    },
+    RETRIEVE_COLLECTIVE_USING_TOKEN(context) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
         },
       }
       return axios.get(url, config).then(response => {
