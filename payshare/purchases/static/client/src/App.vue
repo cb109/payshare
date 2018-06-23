@@ -3,6 +3,7 @@
     <v-navigation-drawer app
                          :dark="dark"
                          fixed
+                         :clipped="$vuetify.breakpoint.xsOnly"
                          v-model="drawer"
                          :width="$vuetify.breakpoint.width <= 320 ? 280 : 300"
                          v-if="$store.getters.isLoggedIn">
