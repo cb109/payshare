@@ -43,6 +43,14 @@
             </v-list-tile>
             <v-list-tile>
               <v-list-tile-content>
+                <v-list-tile-sub-title>
+                  {{ $t('founded') }} {{ createdDateAgo }},
+                  {{ collective.members.length }} {{ $t('members') }}
+                </v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile>
+              <v-list-tile-content>
                 <v-list-tile-title>
                   {{ $t('overallPurchased') }}
                 </v-list-tile-title>
@@ -224,6 +232,7 @@
 <script>
 
 import collectiveStats from '@/mixins/collectiveStats'
+import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
@@ -235,6 +244,7 @@ export default {
   name: 'App',
   mixins: [
     collectiveStats,
+    createdDate,
     selectedMember,
     uuid,
   ],
@@ -255,6 +265,11 @@ export default {
     }
   },
   computed: {
+    // FIXME: Reusing date mixin here, but the interface does not match
+    //  this view. Refactor to make it more generic.
+    transfer() {
+      return this.collective
+    },
     isLoginPage() {
       return this.$route.name === 'login'
     },

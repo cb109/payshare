@@ -35,6 +35,7 @@ class CollectiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collective
         fields = (
+            "created_at",
             "currency_symbol",
             "id",
             "key",
