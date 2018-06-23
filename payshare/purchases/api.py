@@ -64,6 +64,13 @@ def collective(request, key):
     return Response(serialized_collective)
 
 
+@api_view(("GET",))
+def version(request):
+    """Return current payshare backend version (!= API version)."""
+    from payshare import __version__  # noqa
+    return Response(__version__)
+
+
 class TransfersPagination(PageNumberPagination):
     page_size = 20
 

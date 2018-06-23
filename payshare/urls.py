@@ -13,6 +13,7 @@ urlpatterns = [
 
     url(r"^(?P<uuid>[a-f0-9-]{36})/$", views.app, name="app"),
 
+    path(r"api/v1/version", api.version),
     path(r"api/v1/<uuid:key>", api.collective),
     path(r"api/v1/<uuid:key>/stats", api.financial_stats),
     path(r"api/v1/<uuid:key>/transfers", api.TransfersViewSet.as_view({'get': 'list'})),  # noqa

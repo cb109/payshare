@@ -264,3 +264,11 @@ def test_api_stats(collective_with_members, transfers, client):
     assert stats["overall_purchased"] == 45.50
     assert stats["sorted_balances"] == [
         (user_2.id, 327.25), (user_1.id, -327.25)]
+
+
+def test_api_version(client):
+    url = "/api/v1/version"
+    response = client.get(url, follow=True)
+    assert response.status_code == status.HTTP_200_OK
+    import payshare  # noqa
+    assert response.data == str(payshare.__version__)
