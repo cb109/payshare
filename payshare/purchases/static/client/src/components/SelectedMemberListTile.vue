@@ -15,7 +15,7 @@
       <v-select
         :label="label"
         v-model="selectedMember"
-        :items="members"
+        :items="sortedMembers"
         item-value="id"
         item-text="username"
         return-object>
@@ -53,6 +53,26 @@ export default {
     label: {
       type: String,
       required: true,
+    },
+  },
+  computed: {
+    /**
+     * Members come in sorted alhpabetically, but we want the current
+     * selected member to be on top to avoid changing it by accident.
+     */
+    sortedMembers() {
+      if (!this.selectedMember) {
+        return this.members
+      }
+      let members = this.members
+      const memberIds = this.members.map(m => m.id)
+      const idx = memberIds.indexOf(this.selectedMember.id)
+      if (idx !== -1) {
+        const selMember = this.members[idx]
+        const rest = this.members.filter(m => m.id !== selMember.id)
+        members = [selMember].concat(rest)
+      }
+      return members
     },
   },
   watch: {
