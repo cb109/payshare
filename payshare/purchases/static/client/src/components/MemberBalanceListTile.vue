@@ -1,7 +1,8 @@
 <template>
 
 <div v-if="member">
-  <v-list-tile :value="highlight">
+  <v-list-tile :value="highlight"
+               :style="{'background': highlight ? '#E8EAF6' : ' initial' }">
     <v-list-tile-avatar>
       <v-avatar class="small">
         <img v-if="member.avatar"

@@ -1,16 +1,10 @@
 <template>
 
 <v-list v-if="selectedMember && sortedBalanceObjects">
-  <v-list-tile slot="activator">
-    <v-list-tile-action>
-      <v-icon>account_balance</v-icon>
-    </v-list-tile-action>
-    <v-list-tile-content>
-      <v-list-tile-title>
-        {{ $t('financialStatus') }}
-      </v-list-tile-title>
-    </v-list-tile-content>
-  </v-list-tile>
+  <h1 class="text-xs-center grey--text text--darken-2">
+    {{ collective.name }}
+  </h1>
+  <v-divider></v-divider>
   <v-list-tile>
     <v-list-tile-content>
       <v-list-tile-sub-title>
