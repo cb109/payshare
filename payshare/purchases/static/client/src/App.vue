@@ -332,9 +332,12 @@ export default {
       }
     },
     logout() {
-      const key = this.collective.key
-      this.$store.commit('RESET_ALL')
-      this.$router.push('/' + key)
+      const confirmed = confirm(this.$t('confirmLogout'))
+      if (confirmed) {
+        const key = this.collective.key
+        this.$store.commit('RESET_ALL')
+        this.$router.push('/' + key)
+      }
     },
     reloadPage() {
       location.reload()
