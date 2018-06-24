@@ -5,6 +5,7 @@ from rest_framework import serializers
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
+from payshare.purchases.models import Reaction
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -59,8 +60,21 @@ class MoneyField(serializers.Field):
         return Money(data["amount"], data["currency"])
 
 
+class ReactionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reaction
+        fields = (
+            "created_at",
+            "id",
+            "meaning",
+            "member",
+        )
+
+
 class LiquidationSerializer(serializers.ModelSerializer):
     amount = MoneyField()
+    reactions = ReactionSerializer(many=True)
 
     class Meta:
         model = Liquidation
@@ -73,22 +87,25 @@ class LiquidationSerializer(serializers.ModelSerializer):
             "kind",
             "modified_at",
             "name",
+            "reactions",
         )
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
     price = MoneyField()
+    reactions = ReactionSerializer(many=True)
 
     class Meta:
         model = Purchase
         fields = (
-            "id",
-            "name",
-            "price",
             "buyer",
             "created_at",
-            "modified_at",
+            "id",
             "kind",
+            "modified_at",
+            "name",
+            "price",
+            "reactions",
         )
 
 
