@@ -39,5 +39,17 @@ export default {
       }
       return Number(this.overallDebt / this.numLiquidations).toFixed(2)
     },
+    medianPurchasePrice() {
+      if (!this.collective) {
+        return 0
+      }
+      return Number(this.collective.stats.median_purchased).toFixed(2)
+    },
+    medianLiquidationAmount() {
+      if (!this.collective) {
+        return 0
+      }
+      return Number(this.collective.stats.median_debt).toFixed(2)
+    },
   },
 }

@@ -26,8 +26,8 @@
       </v-list-tile-title>
       <v-list-tile-sub-title>
         {{ numPurchases }}
-        <!-- {{ averagePurchasePrice }} -->
-        <!-- {{ collective.currency_symbol }}/Ø -->
+        ({{ $t('median') }}: {{ medianPurchasePrice }}
+        {{ collective.currency_symbol }})
       </v-list-tile-sub-title>
     </v-list-tile-content>
     <v-list-tile-action>
@@ -42,8 +42,8 @@
       </v-list-tile-title>
       <v-list-tile-sub-title>
         {{ numLiquidations }}
-        <!-- {{ averageLiquidationAmount }} -->
-        <!-- {{ collective.currency_symbol }}/Ø -->
+        ({{ $t('median') }}: {{ medianLiquidationAmount }}
+        {{ collective.currency_symbol }})
       </v-list-tile-sub-title>
     </v-list-tile-content>
     <v-list-tile-action>
