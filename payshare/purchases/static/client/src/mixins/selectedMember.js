@@ -34,6 +34,13 @@ export default {
     },
   },
   methods: {
+    getMemberForId(id) {
+      const candidates = this.members.filter(m => m.id === id)
+      if (!candidates.length) {
+        return null
+      }
+      return candidates[0]
+    },
     rememberSelectedMember() {
       this.$store.commit('LOAD_SELECTED_MEMBER_FROM_LOCALSTORAGE')
     },

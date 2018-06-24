@@ -3,11 +3,6 @@
 <div>
   <v-card class="my-2">
     <v-card-text class="px-2 pt-2 pb-0">
-      <v-icon color="grey lighten-3"
-              class="transfer-delete-btn"
-              @click="softdelete(purchase.name, purchase)">
-        close
-      </v-icon>
       <v-layout row
                 align-center>
         <div v-if="buyer.avatar"
@@ -46,6 +41,7 @@
           </v-layout>
         </v-layout>
       </v-layout>
+      <transfer-actionbar :transfer="transfer"></transfer-actionbar>
     </v-card-text>
   </v-card>
 </div>
@@ -56,15 +52,18 @@
 
 import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
-import softdelete from '@/mixins/softdelete'
+
+import TransferActionbar from '@/components/TransferActionbar'
 
 export default {
   name: 'purchase',
   mixins: [
     createdDate,
     selectedMember,
-    softdelete,
   ],
+  components: {
+    TransferActionbar,
+  },
   props: {
     'purchase': {
       type: Object,

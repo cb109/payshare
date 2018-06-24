@@ -19,9 +19,11 @@ from rest_framework.viewsets import GenericViewSet
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
+from payshare.purchases.models import Reaction
 from payshare.purchases.serializers import CollectiveSerializer
 from payshare.purchases.serializers import LiquidationSerializer
 from payshare.purchases.serializers import PurchaseSerializer
+from payshare.purchases.serializers import ReactionSerializer
 from payshare.purchases.serializers import TransferSerializer
 
 
@@ -221,3 +223,58 @@ def softdelete_transfer(request, key, kind, pk):
 def financial_stats(request, key):
     collective = collective_from_key(key)
     return Response(collective.stats)
+
+
+@api_view(("POST",))
+@authentication_classes((HeaderAuthentication,))
+def create_reaction(request, key):
+    """Create a Member Reaction to a Purchase or Liquidation.
+
+    If the User already reacted before, that Reaction is replaced by the
+    new one (e.g. if he changed his mind).
+
+    URL Args:
+        key (str): Collective key
+
+    POST Args:
+        transfer_kind (str): 'purchase' or 'liquidation'
+        transfer_id (int): Purchase or Liquidation ID
+        meaning (str): One of Reaction.available_meanings
+        member (int): User ID
+
+    """
+    collective = collective_from_key(key)
+
+    transfer_kind = request.data["transfer_kind"]
+    if transfer_kind == "purchase":
+        cls = Purchase
+    elif transfer_kind == "liquidation":
+        cls = Liquidation
+
+    transfer_id = request.data["transfer_id"]
+    transfer = cls.objects.get(id=transfer_id)
+    if not transfer.collective.id == collective.id:
+        raise ValidationError(
+            "Object to react to is not from given Collective")
+
+    member_id = request.data["member"]
+    member = User.objects.get(id=member_id)
+    if member not in collective.members:
+        raise ValidationError("Can only react as member of the Collective")
+
+    meaning = request.data["meaning"]
+    if meaning not in Reaction.get_available_meanings():
+        raise ValidationError("Unknown meaning: {}".format(meaning))
+
+    # Replace existing Reaction, if there is one.
+    try:
+        old_reaction = transfer.reactions.get(member=member)
+        old_reaction.delete()
+    except Reaction.DoesNotExist:
+        pass
+    reaction = Reaction.objects.create(member=member,
+                                       meaning=meaning,
+                                       content_object=transfer)
+
+    serialized_reaction = ReactionSerializer(reaction).data
+    return Response(serialized_reaction)

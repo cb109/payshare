@@ -5,6 +5,7 @@ from rest_framework import serializers
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
+from payshare.purchases.models import Reaction
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -59,8 +60,26 @@ class MoneyField(serializers.Field):
         return Money(data["amount"], data["currency"])
 
 
+class ReactionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reaction
+        fields = (
+            "created_at",
+            "id",
+            "meaning",
+            "member",
+        )
+
+
+def _get_sorted_serialzed_reactions_for_transfer(transfer):
+    reactions = transfer.reactions.order_by("created_at")
+    return ReactionSerializer(reactions, many=True).data
+
+
 class LiquidationSerializer(serializers.ModelSerializer):
     amount = MoneyField()
+    reactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Liquidation
@@ -73,23 +92,32 @@ class LiquidationSerializer(serializers.ModelSerializer):
             "kind",
             "modified_at",
             "name",
+            "reactions",
         )
+
+    def get_reactions(self, liquidation):
+        return _get_sorted_serialzed_reactions_for_transfer(liquidation)
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
     price = MoneyField()
+    reactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Purchase
         fields = (
-            "id",
-            "name",
-            "price",
             "buyer",
             "created_at",
-            "modified_at",
+            "id",
             "kind",
+            "modified_at",
+            "name",
+            "price",
+            "reactions",
         )
+
+    def get_reactions(self, purchase):
+        return _get_sorted_serialzed_reactions_for_transfer(purchase)
 
 
 class TransferSerializer(serializers.Serializer):
