@@ -1,7 +1,8 @@
 <template>
 
 <div @click="expanded = !expanded"
-     class="clickable mr-1"
+     class="clickable"
+     :class="{'mr-1': !expanded, 'mr-2': expanded}"
      :title="username">
   <v-layout align-center>
     <img src="/static/img/mozilla-heavy-black-heart.png"
@@ -36,10 +37,14 @@ export default {
       type: Object,
       required: true,
     },
+    'initiallyExpanded': {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
-      expanded: false
+      expanded: this.initiallyExpanded,
     }
   },
   computed: {

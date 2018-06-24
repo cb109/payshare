@@ -228,7 +228,10 @@ def financial_stats(request, key):
 @api_view(("POST",))
 @authentication_classes((HeaderAuthentication,))
 def create_reaction(request, key):
-    """Softdeletes given Purchase or Liquidation.
+    """Create a Member Reaction to a Purchase or Liquidation.
+
+    If the User already reacted before, that Reaction is replaced by the
+    new one (e.g. if he changed his mind).
 
     URL Args:
         key (str): Collective key
@@ -263,6 +266,12 @@ def create_reaction(request, key):
     if meaning not in Reaction.get_available_meanings():
         raise ValidationError("Unknown meaning: {}".format(meaning))
 
+    # Replace existing Reaction, if there is one.
+    try:
+        old_reaction = transfer.reactions.get(member=member)
+        old_reaction.delete()
+    except Reaction.DoesNotExist:
+        pass
     reaction = Reaction.objects.create(member=member,
                                        meaning=meaning,
                                        content_object=transfer)

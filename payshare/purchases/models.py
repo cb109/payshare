@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -14,7 +15,6 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from djmoney.models.fields import MoneyField
-
 
 DEFAULT_AVATAR_URL = "https://avataaars.io/?avatarStyle=Circle&topType=NoHair&accessoriesType=Blank&facialHairType=Blank&clotheType=ShirtCrewNeck&clotheColor=Black&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"  # noqa
 
@@ -256,6 +256,18 @@ class Reaction(TimestampMixin, models.Model):
     @classmethod
     def get_available_meanings(cls):
         return [raw for raw, human in cls.REACTION_MEANINGS]
+
+    def save(self, *args, **kwargs):
+        """Equivalent to unique_together('member', 'content_object').
+
+        Generic relations do not support that constraint, so we
+        implement it on this level here ourselves.
+
+        """
+        if self.content_object.reactions.filter(member=self.member).exists():
+            raise IntegrityError(
+                "Reaction for object/member combination already exists")
+        super(Reaction, self).save(*args, **kwargs)
 
 
 class Purchase(TimestampMixin, models.Model):

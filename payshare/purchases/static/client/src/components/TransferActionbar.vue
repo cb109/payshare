@@ -1,27 +1,33 @@
 <template>
 
-<div class="my-1">
+<div>
   <v-layout align-center
             wrap>
     <div v-for="(reaction, reactionIdx) in transfer.reactions"
          :key="reactionIdx">
       <v-layout align-center>
-        <mini-reaction :reaction="reaction"></mini-reaction>
+        <mini-reaction
+          :reaction="reaction"
+          :initially-expanded="usernamesInitiallyExpanded"
+        ></mini-reaction>
       </v-layout>
     </div>
-    <v-spacer></v-spacer>
-    <reaction-menu
-      :member="selectedMember"
-      :transfer="transfer"
-    ></reaction-menu>
-    <v-btn icon
-           small
-          class="ma-0"
-           @click="softdelete(transfer.name, transfer)">
-      <v-icon color="grey lighten-1">
-        delete
-      </v-icon>
-    </v-btn>
+    <v-layout nowrap>
+      <v-spacer></v-spacer>
+      <reaction-menu
+        v-if="selectedMember"
+        :member="selectedMember"
+        :transfer="transfer"
+      ></reaction-menu>
+      <v-btn icon
+             small
+            class="ma-0"
+             @click="softdelete(transfer.name, transfer)">
+        <v-icon color="grey lighten-1">
+          delete
+        </v-icon>
+      </v-btn>
+    </v-layout>
   </v-layout>
 </div>
 
@@ -54,6 +60,12 @@ export default {
   data() {
     return {
       expanded: false
+    }
+  },
+  computed: {
+    usernamesInitiallyExpanded() {
+      return (this.$vuetify.breakpoint.mdAndUp ||
+              this.transfer.reactions.length === 1)
     }
   },
 }

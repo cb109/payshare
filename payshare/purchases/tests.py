@@ -2,8 +2,11 @@ import json
 
 import pytest
 from django.contrib.auth.hashers import check_password
+from django.db import IntegrityError
 from model_mommy import mommy
 from rest_framework import status
+
+from payshare.purchases.models import Reaction
 
 
 def test_collective_password_not_saved_as_plain_text(db):
@@ -297,3 +300,18 @@ def test_api_version(client):
     assert response.status_code == status.HTTP_200_OK
     import payshare  # noqa
     assert response.data == str(payshare.__version__)
+
+
+def test_cannot_create_multiple_reactions_for_member_on_same_transfer(
+        collective_with_members, transfers):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    Reaction.objects.create(member=user_1,
+                            content_object=purchase,
+                            meaning="positive")
+
+    with pytest.raises(IntegrityError):
+        Reaction.objects.create(member=user_1,
+                                content_object=purchase,
+                                meaning="negative")

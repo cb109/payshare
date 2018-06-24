@@ -72,9 +72,14 @@ class ReactionSerializer(serializers.ModelSerializer):
         )
 
 
+def _get_sorted_serialzed_reactions_for_transfer(transfer):
+    reactions = transfer.reactions.order_by("created_at")
+    return ReactionSerializer(reactions, many=True).data
+
+
 class LiquidationSerializer(serializers.ModelSerializer):
     amount = MoneyField()
-    reactions = ReactionSerializer(many=True)
+    reactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Liquidation
@@ -90,10 +95,13 @@ class LiquidationSerializer(serializers.ModelSerializer):
             "reactions",
         )
 
+    def get_reactions(self, liquidation):
+        return _get_sorted_serialzed_reactions_for_transfer(liquidation)
+
 
 class PurchaseSerializer(serializers.ModelSerializer):
     price = MoneyField()
-    reactions = ReactionSerializer(many=True)
+    reactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Purchase
@@ -107,6 +115,9 @@ class PurchaseSerializer(serializers.ModelSerializer):
             "price",
             "reactions",
         )
+
+    def get_reactions(self, purchase):
+        return _get_sorted_serialzed_reactions_for_transfer(purchase)
 
 
 class TransferSerializer(serializers.Serializer):
