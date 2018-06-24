@@ -5,7 +5,7 @@
     <v-flex md8>
       <v-tabs v-model="currentTabIdx"
               grow
-              fxied-tabs>
+              fixed-tabs>
         <v-tab v-for="(tab, tabIndex) in tabs"
                :key="tabIndex">
           {{ $t(tab.title) }}
@@ -76,8 +76,9 @@ export default {
     return {
       currentTabIdx: null,
       tabs: [
-        {id: 2, title: 'feed'},
-        {id: 2, title: 'financialStatus'},
+        {id: 1, title: 'feed'},
+        {id: 2, title: 'ranking'},
+        {id: 3, title: 'cashingUp'},
       ],
     }
   },
