@@ -149,6 +149,28 @@ const store = new Vuex.Store({
         context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
       })
     },
+    /**
+     * opts (Object): Must contain memberId, transfer, meaning
+     */
+    CREATE_REACTION(context, opts) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/reaction`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      const payload = {
+        member: opts.memberId,
+        meaning: opts.meaning,
+        transfer_kind: opts.transfer.kind,
+        transfer_id: opts.transfer.id,
+      }
+      return axios.post(url, payload, config).then(response => {
+        context.dispatch('LIST_TRANSFERS')
+      })
+    },
     DELETE_TRANSFER(context, opts) {
       if (!opts.kind && opts.id) {
         throw('Need kind and id')

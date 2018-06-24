@@ -376,6 +376,10 @@ export default {
   cursor: pointer;
 }
 
+.full-width {
+  width: 100%;
+}
+
 .light {
   background: #FAFAFA !important;
 }
@@ -395,14 +399,6 @@ export default {
 
 .text--wrap {
   white-space: normal;
-}
-
-.transfer-delete-btn {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  font-size: 1em;
-  cursor: pointer;
 }
 
 </style>
