@@ -253,6 +253,10 @@ class Reaction(TimestampMixin, models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
 
+    @classmethod
+    def get_available_meanings(cls):
+        return [raw for raw, human in cls.REACTION_MEANINGS]
+
 
 class Purchase(TimestampMixin, models.Model):
     """A Purchase describes a certain payment of a member of a Collective."""

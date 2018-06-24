@@ -1,7 +1,7 @@
 <template>
 
 <div @click="expanded = !expanded"
-     class="clickable"
+     class="clickable mr-1"
      :title="username">
   <v-layout align-center>
     <img src="/static/img/mozilla-heavy-black-heart.png"

@@ -51,8 +51,13 @@ export default {
     }
   },
   methods: {
-    addReactionToTransfer(member, transfer, reactionType) {
-      console.log(member.username, reactionType, transfer.name);
+    addReactionToTransfer(member, transfer, meaning) {
+      const opts = {
+        memberId: member.id,
+        transfer: transfer,
+        meaning: meaning,
+      }
+      this.$store.dispatch('CREATE_REACTION', opts)
     }
   },
 }

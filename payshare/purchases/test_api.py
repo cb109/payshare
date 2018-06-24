@@ -235,6 +235,31 @@ def test_api_create_liquidation(collective_with_members, client):
     assert purchase["name"] == payload["name"]
 
 
+def test_api_create_reaction(collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    url = "/api/v1/{}/reaction".format(collective.key)
+    payload = {
+        "transfer_id": purchase.id,
+        "transfer_kind": purchase.kind,
+        "meaning": "positive",
+        "member": user_2.id,
+    }
+    response = client.post(url,
+                           json.dumps(payload),
+                           content_type="application/json",
+                           follow=True,
+                           HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    reaction = response.data
+    assert reaction["created_at"] is not None
+    assert reaction["id"] is not None
+    assert reaction["member"] == payload["member"]
+    assert reaction["meaning"] == payload["meaning"]
+
+
 def test_api_softdelete_purchase(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
