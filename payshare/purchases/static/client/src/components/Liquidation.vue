@@ -68,10 +68,10 @@
                 {{ collective.currency_symbol }}
               </span>
             </div>
-            <reaction-menu
-              :member="selectedMember"
-              :transfer="transfer"
-            ></reaction-menu>
+          </v-layout>
+          <v-layout class="full-width"
+                    justify-end>
+            <transfer-actionbar :transfer="transfer"></transfer-actionbar>
           </v-layout>
         </v-layout>
       </v-layout>
@@ -85,19 +85,17 @@
 
 import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
-import softdelete from '@/mixins/softdelete'
 
-import ReactionMenu from '@/components/ReactionMenu'
+import TransferActionbar from '@/components/TransferActionbar'
 
 export default {
   name: 'liquidation',
   mixins: [
     createdDate,
     selectedMember,
-    softdelete,
   ],
   components: {
-    ReactionMenu,
+    TransferActionbar,
   },
   props: {
     'liquidation': {

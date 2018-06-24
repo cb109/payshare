@@ -3,11 +3,6 @@
 <div>
   <v-card class="my-2">
     <v-card-text class="px-2 pt-2 pb-0">
-      <v-icon color="grey lighten-3"
-              class="transfer-delete-btn"
-              @click="softdelete(purchase.name, purchase)">
-        close
-      </v-icon>
       <v-layout row
                 align-center>
         <div v-if="buyer.avatar"
@@ -15,39 +10,38 @@
           <img :src="buyer.avatar"
                class="avatar">
         </div>
-        <v-layout v-bind="layout"
-                  align-baseline
-                  fill-height>
-          <div class="text">
-            <div class="description">
-              <strong :class="{'primary--text': isBuyer}">
-                {{ buyer.username }}
-              </strong>
-              {{ $t('payedFor') }} <br>
-            </div>
-            <div class="name">
-              {{ purchase.name }}
-            </div>
-          </div>
-          <v-spacer></v-spacer>
-          <v-layout column
-                    :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : 'initial'}"
+        <v-layout column>
+          <v-layout v-bind="layout"
+                    align-baseline
                     fill-height>
-            <div class="text-xs-right clickable"
-                 @click="onCreatedDateClicked()">
-              {{ showAgoInsteadOfDate ? createdDateAgo : createdDateFormatted }}
+            <div class="text">
+              <div class="description">
+                <strong :class="{'primary--text': isBuyer}">
+                  {{ buyer.username }}
+                </strong>
+                {{ $t('payedFor') }} <br>
+              </div>
+              <div class="name">
+                {{ purchase.name }}
+              </div>
             </div>
-            <div class="pl-5 price default--text">
-              {{ price }}
-              <span class="currency">
-                {{ collective.currency_symbol }}
-              </span>
-            </div>
-            <reaction-menu
-              :member="selectedMember"
-              :transfer="transfer"
-            ></reaction-menu>
+            <v-spacer></v-spacer>
+            <v-layout column
+                      :style="{'width': $vuetify.breakpoint.xsOnly ? '100%' : 'initial'}"
+                      fill-height>
+              <div class="text-xs-right clickable"
+                   @click="onCreatedDateClicked()">
+                {{ showAgoInsteadOfDate ? createdDateAgo : createdDateFormatted }}
+              </div>
+              <div class="pl-5 price default--text">
+                {{ price }}
+                <span class="currency">
+                  {{ collective.currency_symbol }}
+                </span>
+              </div>
+            </v-layout>
           </v-layout>
+          <transfer-actionbar :transfer="transfer"></transfer-actionbar>
         </v-layout>
       </v-layout>
     </v-card-text>
@@ -60,19 +54,17 @@
 
 import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
-import softdelete from '@/mixins/softdelete'
 
-import ReactionMenu from '@/components/ReactionMenu'
+import TransferActionbar from '@/components/TransferActionbar'
 
 export default {
   name: 'purchase',
   mixins: [
     createdDate,
     selectedMember,
-    softdelete,
   ],
   components: {
-    ReactionMenu,
+    TransferActionbar,
   },
   props: {
     'purchase': {
