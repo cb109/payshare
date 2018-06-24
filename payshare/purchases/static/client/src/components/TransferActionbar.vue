@@ -65,7 +65,7 @@ export default {
   computed: {
     usernamesInitiallyExpanded() {
       return (this.$vuetify.breakpoint.mdAndUp ||
-              this.transfer.reactions.length === 1)
+              this.transfer.reactions.length < 8)
     }
   },
 }
