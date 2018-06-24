@@ -1,32 +1,34 @@
 <template>
 
-<v-layout column
-          align-center
-          justify-center>
-  <v-layout justify-center
-            class="mb-3 min-100">
-    <img src="/static/img/payroll.png">
+<v-container>
+  <v-layout column
+            align-center
+            justify-center>
+    <v-layout justify-center
+              class="mb-3 min-100">
+      <img src="/static/img/payroll.png">
+    </v-layout>
+    <v-flex xs12>
+      <v-text-field
+        class="password-input"
+        ref="password"
+        :label="$t('password')"
+        type="password"
+        v-model="password"
+        @keyup.native.enter="loginWithCredentials(uuid, password)"
+        @keyup.native.esc="password = null"
+        :error="failed"
+        :error-messages="errorMessages">
+      </v-text-field>
+      <v-btn @click="loginWithCredentials(uuid, password)"
+             :loading="loading"
+             block
+             outline>
+        {{ $t('login') }}
+      </v-btn>
+    </v-flex>
   </v-layout>
-  <v-flex xs12>
-    <v-text-field
-      class="password-input"
-      ref="password"
-      :label="$t('password')"
-      type="password"
-      v-model="password"
-      @keyup.native.enter="loginWithCredentials(uuid, password)"
-      @keyup.native.esc="password = null"
-      :error="failed"
-      :error-messages="errorMessages">
-    </v-text-field>
-    <v-btn @click="loginWithCredentials(uuid, password)"
-           :loading="loading"
-           block
-           outline>
-      {{ $t('login') }}
-    </v-btn>
-  </v-flex>
-</v-layout>
+</v-container>
 
 </template>
 

@@ -123,11 +123,9 @@
       indeterminate
     ></v-progress-linear>
     <v-content>
-      <v-container>
-        <v-slide-y-transition mode="out-in">
-          <router-view :key="$route.fullPath" />
-        </v-slide-y-transition>
-      </v-container>
+      <v-slide-y-transition mode="out-in">
+        <router-view :key="$route.fullPath" />
+      </v-slide-y-transition>
     </v-content>
     <!-- Show Select Member Dialog-->
     <v-dialog persistent

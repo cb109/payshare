@@ -12,45 +12,50 @@
         </v-tab>
         <!-- Feed -->
         <v-tab-item href="feed">
-          <!-- Upper pagination controls -->
-          <v-layout justify-center>
-            <v-pagination v-if="numPages > 1"
-                          :length="numPages"
-                           v-model="pageIndex"
-                           :disabled="busy"
-                           class="custom-pagination-controls"
-                           :total-visible="maxVisiblePaginationItems">
-            </v-pagination>
-          </v-layout>
-          <!-- Transfers list of current Page-->
-          <v-layout justify-center>
-            <v-flex xs12>
-            <template v-for="(transfer, transferIndex) in transfers">
-              <purchase v-if="transfer.kind === 'purchase'"
-                        :key="transfer.kind + pageIndex + transferIndex"
-                        :purchase="transfer">
-              </purchase>
-              <liquidation v-if="transfer.kind === 'liquidation'"
-                           :key="transfer.kind + pageIndex + transferIndex"
-                           :liquidation="transfer">
-              </liquidation>
-            </template>
-            </v-flex>
-          </v-layout>
-          <!-- Lower pagination controls -->
-          <v-layout justify-center>
-            <v-pagination v-if="numPages > 1 && transfers.length > 6"
-                           class="custom-pagination-controls"
-                          :length="numPages"
-                           v-model="pageIndex"
-                           :disabled="busy"
-                           :total-visible="maxVisiblePaginationItems">
-            </v-pagination>
-          </v-layout>
+          <v-container>
+            <!-- Upper pagination controls -->
+            <v-layout justify-center>
+              <v-pagination v-if="numPages > 1"
+                            :length="numPages"
+                             v-model="pageIndex"
+                             :disabled="busy"
+                             class="custom-pagination-controls"
+                             :total-visible="maxVisiblePaginationItems">
+              </v-pagination>
+            </v-layout>
+            <!-- Transfers list of current Page-->
+            <v-layout justify-center>
+              <v-flex xs12>
+                <template v-for="(transfer, transferIndex) in transfers">
+                  <purchase v-if="transfer.kind === 'purchase'"
+                            :key="transfer.kind + pageIndex + transferIndex"
+                            :purchase="transfer">
+                  </purchase>
+                  <liquidation v-if="transfer.kind === 'liquidation'"
+                               :key="transfer.kind + pageIndex + transferIndex"
+                               :liquidation="transfer">
+                  </liquidation>
+                </template>
+              </v-flex>
+            </v-layout>
+            <!-- Lower pagination controls -->
+            <v-layout justify-center>
+              <v-pagination v-if="numPages > 1 && transfers.length > 6"
+                             class="custom-pagination-controls"
+                            :length="numPages"
+                             v-model="pageIndex"
+                             :disabled="busy"
+                             :total-visible="maxVisiblePaginationItems">
+              </v-pagination>
+            </v-layout>
+            <div style="height: 60px"></div>
+          </v-container>
         </v-tab-item>
-        <!-- Fincances -->
-        <v-tab-item href="finances">
-          <ranking-list></ranking-list>
+        <!-- Ranking -->
+        <v-tab-item href="ranking">
+          <v-container>
+            <ranking-list></ranking-list>
+          </v-container>
         </v-tab-item>
       </v-tabs>
     </v-flex>
