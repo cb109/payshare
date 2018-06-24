@@ -22,17 +22,21 @@
                       style="width: 100%">
           <v-btn flat
                  block
-                 color="primary"
+                 color="white"
                  style="height: 48px"
                  value="purchase">
-            {{ $t('purchase') }}
+            <span class="black--text">
+              {{ $t('purchase') }}
+            </span>
           </v-btn>
           <v-btn flat
                  block
-                 color="primary"
+                 color="white"
                  style="height: 48px"
                  value="liquidation">
-            {{ $t('liquidation') }}
+            <span class="black--text">
+              {{ $t('liquidation') }}
+            </span>
           </v-btn>
         </v-btn-toggle>
       </v-toolbar>
