@@ -57,6 +57,7 @@
               </v-select>
             </v-list-tile-content>
           </v-list-tile>
+          <v-divider></v-divider>
           <!-- Logout -->
           <v-list-tile @click="logout()">
             <v-list-tile-action>
