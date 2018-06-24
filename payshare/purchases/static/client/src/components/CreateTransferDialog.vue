@@ -10,9 +10,7 @@
                  color="primary"
                  dark>
         <v-toolbar-title>
-          <h3 class="headline">
-            {{ $t('addEntry') }}
-          </h3>
+          <h3 class="headline">{{ headline }}</h3>
         </v-toolbar-title>
       </v-toolbar>
       <v-toolbar flat
@@ -38,7 +36,23 @@
           </v-btn>
         </v-btn-toggle>
       </v-toolbar>
+      <v-card-actions class="mt-2">
+        <v-layout justify-center>
+          <v-btn color="error"
+                 flat
+                 @click="abort()">
+            {{ $t('abort') }}
+          </v-btn>
+          <v-btn color="success"
+                 @click="confirm()"
+                 :disabled="!formIsValid"
+                 :loading="loading">
+            {{ $t('confirm') }}
+          </v-btn>
+        </v-layout>
+      </v-card-actions>
       <v-card-text>
+        <h4 class="subheading mb-2">{{ explanation }}</h4>
         <select-member-list-tile
           v-if="isPurchaseMode"
           class="mb-4"
@@ -88,24 +102,6 @@
           class="price"
         ></v-text-field>
       </v-card-text>
-      <v-card-actions>
-        <v-layout :justify-center="$vuetify.breakpoint.xsOnly"
-                  :justify-end="$vuetify.breakpoint.smAndUp">
-          <v-btn color="error"
-                 flat
-                 @click="abort()">
-            {{ $t('abort') }}
-          </v-btn>
-          <v-btn color="success"
-                 @click="confirm()"
-                 :flat="!formIsValid"
-                 :outline="formIsValid"
-                 :disabled="!formIsValid"
-                 :loading="loading">
-            {{ $t('confirm') }}
-          </v-btn>
-        </v-layout>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </div>
@@ -159,6 +155,16 @@ export default {
     },
     isLiquidationMode() {
       return this.mode === 'liquidation'
+    },
+    headline() {
+      return (this.isPurchaseMode
+              ? this.$t('addPurchase')
+              : this.$t('addLiquidation'))
+    },
+    explanation() {
+      return (this.isPurchaseMode
+              ? this.$t('explainPurchase')
+              : this.$t('explainLiquidation'))
     },
     collective() {
       return this.$store.state.collective
