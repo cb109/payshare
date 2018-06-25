@@ -86,7 +86,7 @@
                  small
                  absolute
                  style="right: 8px"
-                 :style="{'top': $vuetify.breakpoint.xsOnly ? '170px' : '178px'}"
+                 :style="{'top': $vuetify.breakpoint.xsOnly ? '310px' : '292px'}"
                  @click="swapCreditorAndDebtor()">
             <v-icon medium>swap_vert</v-icon>
           </v-btn>
