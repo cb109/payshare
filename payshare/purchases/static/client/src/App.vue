@@ -80,7 +80,7 @@
                :color="!isLoginPage ? 'primary' : null"
                :class="{'light': isLoginPage,
                         'auto-height': isLoginPage}"
-               :flat="isLoginPage">
+               flat>
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
         @click.stop="drawer = !drawer">

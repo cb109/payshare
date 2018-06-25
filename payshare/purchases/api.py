@@ -16,6 +16,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from payshare.purchases.calc import calc_paybacks
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
@@ -223,6 +224,14 @@ def softdelete_transfer(request, key, kind, pk):
 def financial_stats(request, key):
     collective = collective_from_key(key)
     return Response(collective.stats)
+
+
+@api_view(("GET",))
+@authentication_classes((HeaderAuthentication,))
+def cashup(request, key):
+    collective = collective_from_key(key)
+    paybacks = [payback.to_json() for payback in calc_paybacks(collective)]
+    return Response(paybacks)
 
 
 @api_view(("POST",))
