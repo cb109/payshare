@@ -7,6 +7,7 @@ from model_mommy import mommy
 from rest_framework import status
 
 from payshare.purchases.models import Reaction
+from payshare.purchases.calc import calc_paybacks
 
 
 def test_collective_password_not_saved_as_plain_text(db):
@@ -315,3 +316,47 @@ def test_cannot_create_multiple_reactions_for_member_on_same_transfer(
         Reaction.objects.create(member=user_1,
                                 content_object=purchase,
                                 meaning="negative")
+
+
+@pytest.fixture
+def collective_with_transfers_for_payback(collective):
+    user_1 = mommy.make("auth.User", username="user_1")
+    user_2 = mommy.make("auth.User", username="user_2")
+    user_3 = mommy.make("auth.User", username="user_3")
+
+    collective.add_member(user_1)
+    collective.add_member(user_2)
+    collective.add_member(user_3)
+
+    mommy.make("purchases.Purchase",
+               collective=collective,
+               buyer=user_1,
+               name="Beer",
+               price=120.00)
+    mommy.make("purchases.Purchase",
+               collective=collective,
+               buyer=user_2,
+               name="Meat",
+               price=90.00)
+    mommy.make("purchases.Purchase",
+               collective=collective,
+               buyer=user_3,
+               name="Sweets",
+               price=5.00)
+
+    return collective, user_1, user_2, user_3
+
+
+def test_paybacks(collective_with_transfers_for_payback):
+    collective, user_1, user_2, user_3 = collective_with_transfers_for_payback
+
+    paybacks = calc_paybacks(collective)
+    assert len(paybacks) == 2
+
+    assert paybacks[0].debtor == user_3
+    assert paybacks[0].creditor == user_1
+    assert paybacks[0].amount == 48.33333333333333
+
+    assert paybacks[1].debtor == user_3
+    assert paybacks[1].creditor == user_2
+    assert paybacks[1].amount == 18.33333333333333
