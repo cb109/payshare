@@ -16,6 +16,9 @@ class Debtor(BaseMember):
     """This guy is in debt to the Collective."""
 
     def pay_debt_to(self, creditor):
+        if self.balance == 0 or creditor.balance == 0:
+            return None
+
         max_repayment = abs(self.balance)
         if abs(creditor.balance) < max_repayment:
             max_repayment = abs(creditor.balance)
@@ -43,12 +46,13 @@ class Payback(object):
 
     def to_json(self):
         return {
-            "debtor": self.debtor.id,
-            "creditor": self.creditor.id,
+            "debtor": self.debtor.username,
+            "creditor": self.creditor.username,
             "amount": self.amount,
         }
 
 
+# FIXME: Consider Liquidations as well
 def calc_paybacks(collective):
     creditors = []
     debtors = []
@@ -82,12 +86,9 @@ def calc_paybacks(collective):
             debtors.append(Debtor(member, balance))
 
     for debtor in debtors:
-        if debtor.balance == 0:
-            continue
         for creditor in creditors:
-            if creditor.balance == 0:
-                continue
             payback = debtor.pay_debt_to(creditor)
-            paybacks.append(payback)
+            if payback is not None:
+                paybacks.append(payback)
 
     return paybacks
