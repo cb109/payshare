@@ -53,9 +53,7 @@
         </v-tab-item>
         <!-- Ranking -->
         <v-tab-item href="ranking">
-          <v-container>
-            <ranking-list></ranking-list>
-          </v-container>
+          <ranking-list class="my-4"></ranking-list>
         </v-tab-item>
       </v-tabs>
     </v-flex>
