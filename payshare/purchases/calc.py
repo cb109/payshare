@@ -52,26 +52,25 @@ class Payback(object):
         }
 
 
-# FIXME: Consider Liquidations as well
 def calc_paybacks(collective):
     creditors = []
     debtors = []
     paybacks = []
 
     members = collective.members
-    numBaseMembers = len(members)
+    num_members = len(members)
 
     purchases = collective.purchases
     prices = [float(purchase.price.amount) for purchase in purchases]
     overall_purchased = sum(prices)
-    eachBaseMember_must_pay = float(overall_purchased) / float(numBaseMembers)
+    each_member_must_pay = float(overall_purchased) / float(num_members)
     member_to_balance = {}
     for member in collective.members:
         member_purchased = sum([
             float(purchase.price.amount) for purchase in purchases
             if purchase.buyer == member
         ])
-        balance = float(member_purchased) - eachBaseMember_must_pay
+        balance = float(member_purchased) - each_member_must_pay
         member_to_balance[member] = balance
 
     sorted_balances = sorted(
@@ -90,5 +89,36 @@ def calc_paybacks(collective):
             payback = debtor.pay_debt_to(creditor)
             if payback is not None:
                 paybacks.append(payback)
+
+    def _get_matching_payback(paybacks, liquidation):
+        """Return Payback that uses the same Users as the Liquidation.
+
+        It does not matter if creditor/debtor roles are reversed, return
+        it anyway or None.
+        """
+        liquidation_user_ids = sorted([liquidation.creditor.id,
+                                       liquidation.debtor.id])
+        for payback in paybacks:
+            payback_user_ids = sorted([payback.creditor.id,
+                                       payback.debtor.id])
+            if liquidation_user_ids == payback_user_ids:
+                return payback
+        return None
+
+    liquidations = sorted(collective.liquidations,
+                          key=lambda liq: liq.amount.amount)
+    for liquidation in liquidations:
+        liquidation_amount = float(liquidation.amount.amount)
+        payback = _get_matching_payback(paybacks, liquidation)
+        if payback is not None:
+            if liquidation.debtor.id == payback.debtor.id:
+                payback.amount += liquidation_amount
+            else:
+                payback.amount -= liquidation_amount
+        else:
+            payback = Payback(liquidation.debtor,
+                              liquidation.creditor,
+                              liquidation_amount)
+            paybacks.append(payback)
 
     return paybacks

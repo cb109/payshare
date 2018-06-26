@@ -344,6 +344,17 @@ def collective_with_transfers_for_payback(collective):
                name="Sweets",
                price=5.00)
 
+    mommy.make("purchases.Liquidation",
+               collective=collective,
+               creditor=user_3,
+               debtor=user_2,
+               amount=10.0)
+    mommy.make("purchases.Liquidation",
+               collective=collective,
+               creditor=user_2,
+               debtor=user_1,
+               amount=50.0)
+
     return collective, user_1, user_2, user_3
 
 
@@ -351,7 +362,7 @@ def test_paybacks(collective_with_transfers_for_payback):
     collective, user_1, user_2, user_3 = collective_with_transfers_for_payback
 
     paybacks = calc_paybacks(collective)
-    assert len(paybacks) == 2
+    assert len(paybacks) == 3
 
     assert paybacks[0].debtor == user_3
     assert paybacks[0].creditor == user_1
@@ -359,4 +370,8 @@ def test_paybacks(collective_with_transfers_for_payback):
 
     assert paybacks[1].debtor == user_3
     assert paybacks[1].creditor == user_2
-    assert paybacks[1].amount == 18.33333333333333
+    assert paybacks[1].amount == 8.333333333333329
+
+    assert paybacks[2].debtor == user_1
+    assert paybacks[2].creditor == user_2
+    assert paybacks[2].amount == 50.0
