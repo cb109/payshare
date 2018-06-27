@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import uuid
+from statistics import median
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
@@ -15,6 +16,9 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from djmoney.models.fields import MoneyField
+
+from payshare.purchases.calc import calc_paybacks
+
 
 DEFAULT_AVATAR_URL = "https://avataaars.io/?avatarStyle=Circle&topType=NoHair&accessoriesType=Blank&facialHairType=Blank&clotheType=ShirtCrewNeck&clotheColor=Black&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"  # noqa
 
@@ -119,13 +123,19 @@ class Collective(TimestampMixin, models.Model):
         Returns:
 
             {
-                'overall_purchased': 603.45,
+                'median_debt': 50.00,
+                'median_purchased': 15.95,
                 'overall_debt': 50.00,
+                'overall_purchased': 603.45,
                 'member_id_to_balance': {
                     '<member1-id>': -140.23,
                     '<member2-id>': 67.04,
                     ...
                 },
+                'cashup': [
+                    {'debtor': ..., 'creditor': ..., 'amount': ...},
+                    ...
+                ],
             }
 
         """
@@ -140,13 +150,21 @@ class Collective(TimestampMixin, models.Model):
         liquidations = collective.liquidations
         num_liquidations = liquidations.count()
 
-        overall_purchased = sum([
-            float(purchase.price.amount) for purchase in purchases
-        ])
-        overall_debt = sum([
-            float(liquidation.amount.amount) for liquidation in liquidations
-        ])
+        prices = [float(purchase.price.amount) for purchase in purchases]
+        overall_purchased = sum(prices)
         per_member = float(overall_purchased) / float(num_members)
+
+        debts = [
+            float(liquidation.amount.amount) for liquidation in liquidations]
+        overall_debt = sum(debts)
+
+        median_purchased = 0
+        if prices:
+            median_purchased = median(prices)
+
+        median_debt = 0
+        if debts:
+            median_debt = median(debts)
 
         member_id_to_balance = {}
         for member in collective.members:
@@ -180,12 +198,18 @@ class Collective(TimestampMixin, models.Model):
             key=lambda item: item[1],
             reverse=True)
 
+        serialized_paybacks = [payback.to_json()
+                               for payback in calc_paybacks(collective)]
+
         stats = {
+            "median_debt": median_debt,
+            "median_purchased": median_purchased,
             "num_liquidations": num_liquidations,
             "num_purchases": num_purchases,
             "overall_debt": overall_debt,
             "overall_purchased": overall_purchased,
             "sorted_balances": sorted_balances,
+            "cashup": serialized_paybacks,
         }
         return stats
 

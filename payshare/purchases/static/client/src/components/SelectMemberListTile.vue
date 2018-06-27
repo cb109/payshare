@@ -62,3 +62,11 @@ export default {
 }
 
 </script>
+
+<style>
+
+.input-group--select .input-group__details {
+  display: none;
+}
+
+</style>

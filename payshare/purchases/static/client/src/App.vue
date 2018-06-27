@@ -27,72 +27,7 @@
               </span>
             </v-list-tile-title>
           </v-list-tile>
-          <v-divider v-if="!expandRanking"></v-divider>
-          <!-- Ranking -->
-          <v-list-group v-if="selectedMember&& sortedBalanceObjects"
-                        v-model="expandRanking">
-            <v-list-tile slot="activator">
-              <v-list-tile-action>
-                <v-icon>account_balance</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  {{ $t('financialStatus') }}
-                </v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-sub-title>
-                  {{ $t('founded') }} {{ createdDateAgo }},
-                  {{ collective.members.length }} {{ $t('members') }}
-                </v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  {{ $t('overallPurchased') }}
-                </v-list-tile-title>
-                <v-list-tile-sub-title>
-                  {{ numPurchases }}
-                  <!-- {{ averagePurchasePrice }} -->
-                  <!-- {{ collective.currency_symbol }}/Ø -->
-                </v-list-tile-sub-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                {{ overallPurchased }}
-                {{ collective.currency_symbol }}
-              </v-list-tile-action>
-            </v-list-tile>
-            <v-list-tile>
-              <v-list-tile-content>
-                <v-list-tile-title>
-                  {{ $t('overallDebt') }}
-                </v-list-tile-title>
-                <v-list-tile-sub-title>
-                  {{ numLiquidations }}
-                  <!-- {{ averageLiquidationAmount }} -->
-                  <!-- {{ collective.currency_symbol }}/Ø -->
-                </v-list-tile-sub-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                {{ overallDebt }}
-                {{ collective.currency_symbol }}
-              </v-list-tile-action>
-            </v-list-tile>
-            <v-divider inset></v-divider>
-            <template v-for="obj in sortedBalanceObjects">
-              <v-layout>
-                <member-balance-list-tile
-                  :key="obj.memberId"
-                  :member-id="obj.memberId"
-                  :highlight="obj.memberId === selectedMember.id"
-                  :balance="obj.balance"
-                ></member-balance-list-tile>
-              </v-layout>
-            </template>
-          </v-list-group>
+          <v-divider></v-divider>
           <!-- Add new Entry -->
           <v-list-tile @click="(() => showCreateTransferDialog = true)">
             <v-list-tile-action>
@@ -122,6 +57,7 @@
               </v-select>
             </v-list-tile-content>
           </v-list-tile>
+          <v-divider></v-divider>
           <!-- Logout -->
           <v-list-tile @click="logout()">
             <v-list-tile-action>
@@ -144,7 +80,7 @@
                :color="!isLoginPage ? 'primary' : null"
                :class="{'light': isLoginPage,
                         'auto-height': isLoginPage}"
-               :flat="isLoginPage">
+               flat>
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
         @click.stop="drawer = !drawer">
@@ -187,11 +123,9 @@
       indeterminate
     ></v-progress-linear>
     <v-content>
-      <v-container>
-        <v-slide-y-transition mode="out-in">
-          <router-view :key="$route.fullPath" />
-        </v-slide-y-transition>
-      </v-container>
+      <v-slide-y-transition mode="out-in">
+        <router-view :key="$route.fullPath" />
+      </v-slide-y-transition>
     </v-content>
     <!-- Show Select Member Dialog-->
     <v-dialog persistent
@@ -232,25 +166,21 @@
 <script>
 
 import collectiveStats from '@/mixins/collectiveStats'
-import createdDate from '@/mixins/createdDate'
 import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
 import CreateTransferDialog from '@/components/CreateTransferDialog'
-import MemberBalanceListTile from '@/components/MemberBalanceListTile'
 import SelectedMemberListTile from '@/components/SelectedMemberListTile'
 
 export default {
   name: 'App',
   mixins: [
     collectiveStats,
-    createdDate,
     selectedMember,
     uuid,
   ],
   components: {
     CreateTransferDialog,
-    MemberBalanceListTile,
     SelectedMemberListTile,
   },
   data () {
@@ -261,15 +191,9 @@ export default {
       title: 'Payshare',
       showSelectMemberDialog: false,
       showCreateTransferDialog: false,
-      expandRanking: false,
     }
   },
   computed: {
-    // FIXME: Reusing date mixin here, but the interface does not match
-    //  this view. Refactor to make it more generic.
-    transfer() {
-      return this.collective
-    },
     isLoginPage() {
       return this.$route.name === 'login'
     },
@@ -289,23 +213,6 @@ export default {
         }
       })
       return languages
-    },
-    /**
-     * Cast list of tuples to list objects with same ordering.
-     */
-    sortedBalanceObjects() {
-      if (!this.collective) {
-        return []
-      }
-      const objs = []
-      const balances = this.collective.stats.sorted_balances
-      for (var i = 0; i < balances.length; i++) {
-        objs.push({
-          memberId: balances[i][0],
-          balance: balances[i][1],
-        })
-      }
-      return objs
     },
   },
   methods: {
@@ -332,9 +239,12 @@ export default {
       }
     },
     logout() {
-      const key = this.collective.key
-      this.$store.commit('RESET_ALL')
-      this.$router.push('/' + key)
+      const confirmed = confirm(this.$t('confirmLogout'))
+      if (confirmed) {
+        const key = this.collective.key
+        this.$store.commit('RESET_ALL')
+        this.$router.push('/' + key)
+      }
     },
     reloadPage() {
       location.reload()
@@ -377,7 +287,7 @@ export default {
 }
 
 .full-width {
-  width: 100%;
+  width: 100% !important;
 }
 
 .light {
@@ -399,6 +309,11 @@ export default {
 
 .text--wrap {
   white-space: normal;
+}
+
+.list__tile__title--wrap {
+  white-space: normal;
+  height: auto;
 }
 
 </style>

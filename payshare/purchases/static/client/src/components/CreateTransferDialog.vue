@@ -43,15 +43,17 @@
       <v-card-actions class="mt-2">
         <v-layout justify-center>
           <v-btn color="error"
+                 block
                  flat
                  @click="abort()">
             {{ $t('abort') }}
           </v-btn>
           <v-btn color="success"
+                 block
                  @click="confirm()"
                  :disabled="!formIsValid"
                  :loading="loading">
-            {{ $t('confirm') }}
+            {{ $t('save') }}
           </v-btn>
         </v-layout>
       </v-card-actions>
@@ -84,7 +86,7 @@
                  small
                  absolute
                  style="right: 8px"
-                 :style="{'top': $vuetify.breakpoint.xsOnly ? '170px' : '178px'}"
+                 :style="{'top': $vuetify.breakpoint.xsOnly ? '310px' : '292px'}"
                  @click="swapCreditorAndDebtor()">
             <v-icon medium>swap_vert</v-icon>
           </v-btn>
@@ -200,12 +202,12 @@ export default {
     formIsValid() {
       if (this.isPurchaseMode) {
         return (this.price > 0 &&
-                this.name.trim().length > 2 &&
+                this.name.trim().length > 0 &&
                 this.buyer !== null)
       }
       else if (this.isLiquidationMode) {
         return (this.price > 0 &&
-                this.name.trim().length > 2 &&
+                this.name.trim().length > 0 &&
                 this.creditor !== null &&
                 this.debtor !== null)
       }
