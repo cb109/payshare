@@ -11,26 +11,22 @@
          width="20">
   </v-btn>
   <v-card>
-    <v-layout>
-      <v-btn @click="addReactionToTransfer(member, transfer, 'negative')"
-             flat
-             class="reaction-icon-btn">
-        <img src="/static/img/mozilla-pile-of-poo.png"
-             width="48">
-      </v-btn>
-      <v-btn @click="addReactionToTransfer(member, transfer, 'neutral')"
-             flat
-             class="reaction-icon-btn">
-        <img src="/static/img/mozilla-expressionless-face.png"
-             width="48">
-      </v-btn>
-      <v-btn @click="addReactionToTransfer(member, transfer, 'positive')"
-             flat
-             class="reaction-icon-btn">
+    <v-list>
+      <v-list-tile class="mb-2"
+                   @click="addReactionToTransfer(member, transfer, 'positive')">
         <img src="/static/img/mozilla-heavy-black-heart.png"
              width="48">
-      </v-btn>
-    </v-layout>
+      </v-list-tile>
+      <v-list-tile class="mb-2"
+                   @click="addReactionToTransfer(member, transfer, 'neutral')">
+        <img src="/static/img/mozilla-expressionless-face.png"
+             width="48">
+      </v-list-tile>
+      <v-list-tile @click="addReactionToTransfer(member, transfer, 'negative')">
+        <img src="/static/img/mozilla-pile-of-poo.png"
+             width="48">
+      </v-list-tile>
+    </v-list>
   </v-card>
 </v-menu>
 
@@ -78,6 +74,7 @@ export default {
 .reaction-icon-btn {
   min-width: 48px;
   height: auto;
+  margin: 0;
 }
 
 </style>
