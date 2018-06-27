@@ -46,12 +46,13 @@ class Payback(object):
 
     def to_json(self):
         return {
-            "debtor": self.debtor.username,
-            "creditor": self.creditor.username,
+            "debtor": self.debtor.id,
+            "creditor": self.creditor.id,
             "amount": self.amount,
         }
 
 
+# FIXME: There is a lot of redundancy when looking at Collective.stats
 def calc_paybacks(collective):
     creditors = []
     debtors = []
