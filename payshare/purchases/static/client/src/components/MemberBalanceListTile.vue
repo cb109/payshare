@@ -13,7 +13,7 @@
       </v-avatar>
     </v-list-tile-avatar>
     <v-list-tile-content>
-      <v-list-tile-title>
+      <v-list-tile-title class="list__tile__title--wrap">
         {{ member.first_name || member.username }}
       </v-list-tile-title>
     </v-list-tile-content>
@@ -72,6 +72,11 @@ export default {
 </script>
 
 <style>
+
+.list__tile__title--wrap {
+  white-space: normal;
+  height: auto;
+}
 
 .small.avatar {
   width: 40px !important;
