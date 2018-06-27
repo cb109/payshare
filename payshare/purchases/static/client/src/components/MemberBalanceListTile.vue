@@ -20,10 +20,11 @@
     </v-list-tile-content>
     <v-list-tile-action
       class="subheading"
-      :class="{'red--text': balance < 0,
-               'default--text': balance == 0,
-               'green--text': balance > 0}">
-      {{ Number(balance).toFixed(2) }} {{ collective.currency_symbol }}
+      :class="{'red--text': sanitizedBalance < 0,
+               'default--text': sanitizedBalance == 0,
+               'green--text': sanitizedBalance > 0}">
+      {{ Number(sanitizedBalance).toFixed(2) }}
+      {{ collective.currency_symbol }}
     </v-list-tile-action>
   </v-list-tile>
 </div>
@@ -66,6 +67,14 @@ export default {
           return member
         }
       }
+    },
+    sanitizedBalance() {
+      let balance = this.balance
+      // Ignore unwieldy peanut values.
+      if (Math.abs(balance) <= 0.01) {
+        balance = 0
+      }
+      return balance
     },
   },
 }

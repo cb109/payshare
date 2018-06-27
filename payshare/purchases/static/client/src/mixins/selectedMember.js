@@ -26,7 +26,12 @@ export default {
       this.collective.stats.sorted_balances.forEach(tuple => {
         const memberId = tuple[0]
         if (memberId == this.selectedMember.id) {
-          balance = Number(tuple[1]).toFixed(2)
+          balance = tuple[1]
+          // Sanitize by ignoring unwieldy peanut values.
+          if (Math.abs(balance) <= 0.01) {
+            balance = 0
+          }
+          balance = Number(balance).toFixed(2)
           return
         }
       })
