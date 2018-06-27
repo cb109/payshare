@@ -311,4 +311,9 @@ export default {
   white-space: normal;
 }
 
+.list__tile__title--wrap {
+  white-space: normal;
+  height: auto;
+}
+
 </style>

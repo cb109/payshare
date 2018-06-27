@@ -1,0 +1,139 @@
+<template>
+
+<div>
+  <v-list-tile avatar
+               :value="highlight"
+               :style="{'background': highlight ? '#E8EAF6' : ' initial' }">
+    <v-list-tile-avatar class="avatar-tile--small">
+      <v-avatar>
+        <img v-if="debtor.avatar"
+             :src="debtor.avatar">
+      </v-avatar>
+    </v-list-tile-avatar>
+    <v-list-tile-avatar class="avatar-tile--icon">
+      <v-icon class="pa-0 payback-arrow grey--text">
+        arrow_right
+      </v-icon>
+    </v-list-tile-avatar>
+    <v-list-tile-avatar class="avatar-tile--small">
+      <v-avatar>
+        <img v-if="creditor.avatar"
+             :src="creditor.avatar">
+      </v-avatar>
+    </v-list-tile-avatar>
+    <v-spacer></v-spacer>
+    <v-list-tile-action>
+      <div class="amount"
+           :class="{'red--text': isDebtor,
+                    'green--text': isCreditor}">
+        {{ amount }}
+        <span class="grey--text">{{ collective.currency_symbol }}</span>
+      </div>
+    </v-list-tile-action>
+  </v-list-tile>
+  <v-list-tile :value="highlight"
+               :style="{'background': highlight ? '#E8EAF6' : ' initial' }">
+    <v-list-tile-content>
+      <v-list-tile-title class="list__tile__title--wrap">
+        <v-layout wrap>
+          <div>
+            <strong :class="{'primary--text': isDebtor}">{{ debtor.username }}</strong>
+            {{ $t('pays') }}
+          </div>
+          <div>
+            {{ $t('to') }}<strong :class="{'primary--text': isCreditor}">
+              {{ creditor.username }}
+            </strong>
+          </div>
+        </v-layout>
+      </v-list-tile-title>
+    </v-list-tile-content>
+  </v-list-tile>
+  <v-divider v-if="divider"></v-divider>
+</div>
+
+</template>
+
+<script>
+
+import selectedMember from '@/mixins/selectedMember'
+
+export default {
+  name: 'payback-list-tile',
+  mixins: [
+    selectedMember,
+  ],
+  props: {
+    payback: {
+      type: Object,
+      required: true,
+    },
+    highlight: {
+      type: Boolean,
+      default: false,
+    },
+    divider: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  computed: {
+    creditor() {
+      return this.getMemberForId(this.payback.creditor)
+    },
+    debtor() {
+      return this.getMemberForId(this.payback.debtor)
+    },
+    amount() {
+      return Number(this.payback.amount).toFixed(2)
+    },
+    isDebtor() {
+      return this.selectedMember.id === this.debtor.id
+    },
+    isCreditor() {
+      return this.selectedMember.id === this.creditor.id
+    },
+  },
+}
+
+</script>
+
+<style scoped>
+
+.avatar {
+  max-width: 72px;
+  max-height: 72px;
+}
+
+@media (max-width: 599px) {
+  .avatar {
+    max-width: 64px;
+    max-height: 64px;
+  }
+}
+
+.avatar-tile--small {
+  min-width: 36px;
+  max-width: 36px;
+}
+
+.avatar-tile--icon {
+  min-width: 24px;
+  max-width: 24px;
+}
+
+.payback-arrow {
+  font-size: 3em;
+  position: relative;
+  left: -4px;
+  max-width: 24px;
+  max-height: 24px;
+}
+
+.amount {
+  font-size: 1.5em;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+</style>

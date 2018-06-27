@@ -53,7 +53,15 @@
         </v-tab-item>
         <!-- Ranking -->
         <v-tab-item href="ranking">
-          <ranking-list class="my-4"></ranking-list>
+          <v-container class="px-0">
+            <ranking-list></ranking-list>
+          </v-container>
+        </v-tab-item>
+        <!-- Cashing Up -->
+        <v-tab-item href="cashingUp">
+          <v-container class="px-0">
+            <cashing-up></cashing-up>
+          </v-container>
         </v-tab-item>
       </v-tabs>
     </v-flex>
@@ -64,6 +72,7 @@
 
 <script>
 
+import CashingUp from '@/components/CashingUp'
 import Liquidation from '@/components/Liquidation'
 import Purchase from '@/components/Purchase'
 import RankingList from '@/components/RankingList'
@@ -71,6 +80,7 @@ import RankingList from '@/components/RankingList'
 export default {
   name: 'Transfers',
   components: {
+    CashingUp,
     Liquidation,
     Purchase,
     RankingList,

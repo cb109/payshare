@@ -2,9 +2,10 @@
 
 <div v-if="member">
   <v-list-tile :value="highlight"
-               :style="{'background': highlight ? '#E8EAF6' : ' initial' }">
+               :style="{'background': highlight ? '#E8EAF6' : ' initial' }"
+               avatar>
     <v-list-tile-avatar>
-      <v-avatar class="small">
+      <v-avatar>
         <img v-if="member.avatar"
              :src="member.avatar">
         <v-icon v-else>
@@ -70,17 +71,3 @@ export default {
 }
 
 </script>
-
-<style>
-
-.list__tile__title--wrap {
-  white-space: normal;
-  height: auto;
-}
-
-.small.avatar {
-  width: 40px !important;
-  height: 40px !important;
-}
-
-</style>
