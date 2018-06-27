@@ -90,7 +90,7 @@ export default {
      */
     sanitizedPaybacks() {
       return this.paybacks.filter(payback => {
-        return Math.abs(payback.amount > 0.01)
+        return Math.abs(payback.amount) > 0.01
       })
     },
     /**
