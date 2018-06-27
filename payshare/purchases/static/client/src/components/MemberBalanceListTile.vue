@@ -2,9 +2,10 @@
 
 <div v-if="member">
   <v-list-tile :value="highlight"
-               :style="{'background': highlight ? '#E8EAF6' : ' initial' }">
+               :style="{'background': highlight ? '#E8EAF6' : ' initial' }"
+               avatar>
     <v-list-tile-avatar>
-      <v-avatar class="small">
+      <v-avatar>
         <img v-if="member.avatar"
              :src="member.avatar">
         <v-icon v-else>
@@ -13,16 +14,17 @@
       </v-avatar>
     </v-list-tile-avatar>
     <v-list-tile-content>
-      <v-list-tile-title>
+      <v-list-tile-title class="list__tile__title--wrap">
         {{ member.first_name || member.username }}
       </v-list-tile-title>
     </v-list-tile-content>
     <v-list-tile-action
       class="subheading"
-      :class="{'red--text': balance < 0,
-               'default--text': balance == 0,
-               'green--text': balance > 0}">
-      {{ Number(balance).toFixed(2) }} {{ collective.currency_symbol }}
+      :class="{'red--text': sanitizedBalance < 0,
+               'default--text': sanitizedBalance == 0,
+               'green--text': sanitizedBalance > 0}">
+      {{ Number(sanitizedBalance).toFixed(2) }}
+      {{ collective.currency_symbol }}
     </v-list-tile-action>
   </v-list-tile>
 </div>
@@ -66,16 +68,15 @@ export default {
         }
       }
     },
+    sanitizedBalance() {
+      let balance = this.balance
+      // Ignore unwieldy peanut values.
+      if (Math.abs(balance) <= 0.01) {
+        balance = 0
+      }
+      return balance
+    },
   },
 }
 
 </script>
-
-<style>
-
-.small.avatar {
-  width: 40px !important;
-  height: 40px !important;
-}
-
-</style>

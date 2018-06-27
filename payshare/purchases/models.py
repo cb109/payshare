@@ -17,6 +17,9 @@ from django.dispatch import receiver
 from django.utils import timezone
 from djmoney.models.fields import MoneyField
 
+from payshare.purchases.calc import calc_paybacks
+
+
 DEFAULT_AVATAR_URL = "https://avataaars.io/?avatarStyle=Circle&topType=NoHair&accessoriesType=Blank&facialHairType=Blank&clotheType=ShirtCrewNeck&clotheColor=Black&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"  # noqa
 
 
@@ -129,6 +132,10 @@ class Collective(TimestampMixin, models.Model):
                     '<member2-id>': 67.04,
                     ...
                 },
+                'cashup': [
+                    {'debtor': ..., 'creditor': ..., 'amount': ...},
+                    ...
+                ],
             }
 
         """
@@ -191,6 +198,9 @@ class Collective(TimestampMixin, models.Model):
             key=lambda item: item[1],
             reverse=True)
 
+        serialized_paybacks = [payback.to_json()
+                               for payback in calc_paybacks(collective)]
+
         stats = {
             "median_debt": median_debt,
             "median_purchased": median_purchased,
@@ -199,6 +209,7 @@ class Collective(TimestampMixin, models.Model):
             "overall_debt": overall_debt,
             "overall_purchased": overall_purchased,
             "sorted_balances": sorted_balances,
+            "cashup": serialized_paybacks,
         }
         return stats
 

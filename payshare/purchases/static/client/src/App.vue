@@ -80,7 +80,7 @@
                :color="!isLoginPage ? 'primary' : null"
                :class="{'light': isLoginPage,
                         'auto-height': isLoginPage}"
-               :flat="isLoginPage">
+               flat>
       <v-toolbar-side-icon
         v-if="$store.getters.isLoggedIn"
         @click.stop="drawer = !drawer">
@@ -123,11 +123,9 @@
       indeterminate
     ></v-progress-linear>
     <v-content>
-      <v-container>
-        <v-slide-y-transition mode="out-in">
-          <router-view :key="$route.fullPath" />
-        </v-slide-y-transition>
-      </v-container>
+      <v-slide-y-transition mode="out-in">
+        <router-view :key="$route.fullPath" />
+      </v-slide-y-transition>
     </v-content>
     <!-- Show Select Member Dialog-->
     <v-dialog persistent
@@ -311,6 +309,11 @@ export default {
 
 .text--wrap {
   white-space: normal;
+}
+
+.list__tile__title--wrap {
+  white-space: normal;
+  height: auto;
 }
 
 </style>
