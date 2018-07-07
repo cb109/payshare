@@ -10,12 +10,21 @@
                  color="primary"
                  dark>
         <v-toolbar-title>
-          <h3 class="headline">{{ headline }}</h3>
+          <h3 class="headline">
+            <v-layout align-center>
+              <v-icon v-if="isCreateAction">add</v-icon>
+              <v-icon v-if="isUpdateAction">edit</v-icon>
+              <span class="m-2">
+                {{ headline }}
+              </span>
+            </v-layout>
+          </h3>
         </v-toolbar-title>
       </v-toolbar>
       <v-toolbar flat
                  dense
-                 color="primary">
+                 color="primary"
+                 v-show="action === 'create'">
         <v-btn-toggle v-model="mode"
                       mandatory
                       class="elevation-0"
@@ -53,7 +62,7 @@
                  @click="confirm()"
                  :disabled="!formIsValid"
                  :loading="loading">
-            {{ $t('save') }}
+            {{ confirmButtonTitle }}
           </v-btn>
         </v-layout>
       </v-card-actions>
@@ -86,7 +95,7 @@
                  small
                  absolute
                  style="right: 8px"
-                 :style="{'top': $vuetify.breakpoint.xsOnly ? '310px' : '292px'}"
+                 :style="{'top': swapButtonTopOffset}"
                  @click="swapCreditorAndDebtor()">
             <v-icon medium>swap_vert</v-icon>
           </v-btn>
@@ -133,11 +142,16 @@ const defaults = {
   name: '',
   price: null,
 
+  // 'purchase' or 'liquidation'.
   mode: 'purchase',
+
+  // 'create' or 'update'.
+  action: 'create',
+  transferToUpdate: null,
 }
 
 export default {
-  name: 'create-transfer-dialog',
+  name: 'create-update-transfer-dialog',
   mixins: [
     selectedMember,
   ],
@@ -156,16 +170,36 @@ export default {
     }
   },
   computed: {
+    confirmButtonTitle() {
+      return this.isCreateAction ? this.$t('confirm') : this.$t('save')
+    },
+    swapButtonTopOffset() {
+      if (this.isCreateAction) {
+        return this.$vuetify.breakpoint.xsOnly ? '310px' : '292px'
+      }
+      else {
+        return this.$vuetify.breakpoint.xsOnly ? '260px' : '242px'
+      }
+    },
     isPurchaseMode() {
       return this.mode === 'purchase'
     },
     isLiquidationMode() {
       return this.mode === 'liquidation'
     },
+    isCreateAction() {
+      return this.action === 'create'
+    },
+    isUpdateAction() {
+      return this.action === 'update'
+    },
     headline() {
       return (this.isPurchaseMode
-              ? this.$t('addPurchase')
-              : this.$t('addLiquidation'))
+        ? (this.isCreateAction
+           ? this.$t('addPurchase') : this.$t('editPurchase'))
+        : (this.isCreateAction
+           ? this.$t('addLiquidation') : this.$t('editLiquidation'))
+      )
     },
     explanation() {
       return (this.isPurchaseMode
@@ -226,12 +260,42 @@ export default {
     },
   },
   methods: {
+    setupSignals() {
+      this.$bus.$on('edit-transfer-in-dialog', (transfer) => {
+        this.action = 'update'
+        this.mode = transfer.kind
+        this.transferToUpdate = transfer
+
+        this.name = transfer.name
+        if (transfer.kind === 'purchase') {
+          this.price = Number(transfer.price.amount).toFixed(2)
+          this.buyer = this.getMemberForId(transfer.buyer)
+        }
+        else if (transfer.kind === 'liquidation') {
+          this.price = Number(transfer.amount.amount).toFixed(2)
+          this.creditor = this.getMemberForId(transfer.creditor)
+          this.debtor = this.getMemberForId(transfer.debtor)
+        }
+
+        this.showDialog = true
+      })
+    },
     confirm() {
-      if (this.isPurchaseMode) {
-        this.createPurchase()
+      if (this.isCreateAction) {
+        if (this.isPurchaseMode) {
+          this.createPurchase()
+        }
+        else if (this.isLiquidationMode) {
+          this.createLiquidation()
+        }
       }
-      else if (this.isLiquidationMode) {
-        this.createLiquidation()
+      else if (this.isUpdateAction) {
+        if (this.isPurchaseMode) {
+          this.updatePurchase()
+        }
+        else if (this.isLiquidationMode) {
+          this.updateLiquidation()
+        }
       }
     },
     abort() {
@@ -269,11 +333,41 @@ export default {
         this.loading = false
       })
     },
+    updatePurchase() {
+      this.loading = true
+      this.$store.dispatch('UPDATE_PURCHASE', {
+        id: this.transferToUpdate.id,
+        buyerId: this.buyer.id,
+        price: this.price,
+        name: this.name,
+      }).then(() => {
+        this.abort()
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    updateLiquidation() {
+      this.loading = true
+      this.$store.dispatch('UPDATE_LIQUIDATION', {
+        id: this.transferToUpdate.id,
+        creditorId: this.creditor.id,
+        debtorId: this.debtor.id,
+        amount: this.price,
+        name: this.name,
+      }).then(() => {
+        this.abort()
+      }).catch(() => {
+        this.loading = false
+      })
+    },
     swapCreditorAndDebtor() {
       const temp = this.creditor
       this.creditor = this.debtor
       this.debtor = temp
     },
+  },
+  created() {
+    this.setupSignals()
   },
 }
 

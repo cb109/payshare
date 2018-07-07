@@ -16,9 +16,18 @@
       <v-spacer></v-spacer>
       <reaction-menu
         v-if="selectedMember"
+        class="mr-1"
         :member="selectedMember"
         :transfer="transfer"
       ></reaction-menu>
+      <v-btn icon
+             small
+            class="ma-0 mr-1"
+             @click="edit(transfer)">
+        <v-icon color="grey lighten-1">
+          edit
+        </v-icon>
+      </v-btn>
       <v-btn icon
              small
             class="ma-0"
@@ -35,6 +44,7 @@
 
 <script>
 
+import edit from '@/mixins/edit'
 import selectedMember from '@/mixins/selectedMember'
 import softdelete from '@/mixins/softdelete'
 
@@ -44,6 +54,7 @@ import ReactionMenu from '@/components/ReactionMenu'
 export default {
   name: 'transfer-actionbar',
   mixins: [
+    edit,
     selectedMember,
     softdelete,
   ],

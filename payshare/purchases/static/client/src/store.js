@@ -133,6 +133,25 @@ const store = new Vuex.Store({
         context.commit('SET_FINANCIAL_STATS', response.data)
       })
     },
+    UPDATE_PURCHASE(context, opts) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/purchase/${opts.id}`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      const payload = {
+        buyer: opts.buyerId,
+        price: opts.price,
+        name: opts.name,
+      }
+      return axios.put(url, payload, config).then(response => {
+        context.dispatch('LIST_TRANSFERS')
+        context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
+      })
+    },
     CREATE_PURCHASE(context, opts) {
       const uuid = context.state.collective.key
       const token = context.state.collective.token
@@ -148,6 +167,26 @@ const store = new Vuex.Store({
         name: opts.name,
       }
       return axios.post(url, payload, config).then(response => {
+        context.dispatch('LIST_TRANSFERS')
+        context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
+      })
+    },
+    UPDATE_LIQUIDATION(context, opts) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/liquidation/${opts.id}`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      const payload = {
+        creditor: opts.creditorId,
+        debtor: opts.debtorId,
+        amount: opts.amount,
+        name: opts.name,
+      }
+      return axios.put(url, payload, config).then(response => {
         context.dispatch('LIST_TRANSFERS')
         context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
       })

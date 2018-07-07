@@ -14,6 +14,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import ListModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.viewsets import ViewSet
 
@@ -143,6 +144,64 @@ def create_purchase(request, key):
     return Response(serialized_purchase)
 
 
+class PurchaseDetailView(APIView):
+    authentication_classes = (HeaderAuthentication,)
+
+    def put(self, request, key, pk):
+        """Create a new Purchase and return it in a seriailzed representation.
+
+        URL Args:
+            key (str): Collective key
+            pk (int) Purchase ID
+
+        POST Args:
+            name (str)
+            buyer (int): User id
+            price (float)
+
+        Returns:
+            Serialized Purchase
+
+        """
+        collective = collective_from_key(key)
+
+        buyer = User.objects.get(id=request.data["buyer"])
+        if not collective.is_member(buyer):
+            raise ValidationError(USER_MUST_BE_MEMBER)
+
+        price_value = float(request.data["price"])
+        if price_value <= 0:
+            raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+        price = Money(price_value, EUR)
+
+        purchase = Purchase.objects.get(pk=pk)
+        purchase.name = request.data["name"]
+        purchase.price = price
+        purchase.buyer = buyer
+        purchase.save()
+
+        serialized_purchase = PurchaseSerializer(purchase).data
+        return Response(serialized_purchase)
+
+    def delete(self, request, key, pk):
+        """Softdeletes given Purchase.
+
+        URL Args:
+            key (str): Collective key
+            pk (int)
+
+        """
+        collective = collective_from_key(key)
+        purchase = Purchase.objects.get(pk=pk)
+        if not purchase.collective.id == collective.id:
+            raise ValidationError(
+                    "Purchase to delete is not from given Collective")
+
+        purchase.deleted = True
+        purchase.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 @api_view(("POST",))
 @authentication_classes((HeaderAuthentication,))
 def create_liquidation(request, key):
@@ -192,31 +251,71 @@ def create_liquidation(request, key):
     return Response(serialized_liquidation)
 
 
-@api_view(("DELETE",))
-@authentication_classes((HeaderAuthentication,))
-def softdelete_transfer(request, key, kind, pk):
-    """Softdeletes given Purchase or Liquidation.
+class LiquidationDetailView(APIView):
+    authentication_classes = (HeaderAuthentication,)
 
-    URL Args:
-        key (str): Collective key
-        kind (str): 'purchase' or 'liquidation'
-        pk (int)
+    def put(self, request, key, pk):
+        """Update a new Liquidation.
 
-    """
-    collective = collective_from_key(key)
+        URL Args:
+            key (str): Collective key
+            pk (int): Liquidation ID
 
-    if kind == "purchase":
-        cls = Purchase
-    elif kind == "liquidation":
-        cls = Liquidation
+        POST Args:
+            name (str)
+            creditor (int): User id
+            debtor (int): User id
+            amount (float)
 
-    transfer = cls.objects.get(pk=pk)
-    if not transfer.collective.id == collective.id:
-        raise ValidationError("Object to delete is not from given Collective")
+        Returns:
+            Serialized Liquidation
 
-    transfer.deleted = True
-    transfer.save()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+        """
+        creditor_id = request.data["creditor"]
+        debtor_id = request.data["debtor"]
+
+        collective = collective_from_key(key)
+
+        creditor = User.objects.get(id=creditor_id)
+        if not collective.is_member(creditor):
+            raise ValidationError(USER_MUST_BE_MEMBER)
+
+        debtor = User.objects.get(id=debtor_id)
+        if not collective.is_member(debtor):
+            raise ValidationError(USER_MUST_BE_MEMBER)
+
+        amount_value = float(request.data["amount"])
+        if amount_value <= 0:
+            raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+        amount = Money(amount_value, EUR)
+
+        liquidation = Liquidation.objects.get(pk=pk)
+        liquidation.name = request.data["name"]
+        liquidation.debtor = debtor
+        liquidation.creditor = creditor
+        liquidation.amount = amount
+        liquidation.save()
+
+        serialized_liquidation = LiquidationSerializer(liquidation).data
+        return Response(serialized_liquidation)
+
+    def delete(self, request, key, pk):
+        """Softdeletes given Liquidation.
+
+        URL Args:
+            key (str): Collective key
+            pk (int)
+
+        """
+        collective = collective_from_key(key)
+        liquidation = Liquidation.objects.get(pk=pk)
+        if not liquidation.collective.id == collective.id:
+            raise ValidationError(
+                    "Liquidation to delete is not from given Collective")
+
+        liquidation.deleted = True
+        liquidation.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(("GET",))

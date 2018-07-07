@@ -29,7 +29,7 @@
           </v-list-tile>
           <v-divider></v-divider>
           <!-- Add new Entry -->
-          <v-list-tile @click="(() => showCreateTransferDialog = true)">
+          <v-list-tile @click="(() => showCreateUpdateTransferDialog = true)">
             <v-list-tile-action>
               <v-icon>add</v-icon>
             </v-list-tile-action>
@@ -97,7 +97,7 @@
         </span>
         </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn @click="(() => showCreateTransferDialog = true)"
+      <v-btn @click="(() => showCreateUpdateTransferDialog = true)"
              icon
              :title="$t('addEntry')">
         <v-icon>add</v-icon>
@@ -157,9 +157,9 @@
       </v-card>
     </v-dialog>
     <!-- Create Purchase Dialog-->
-    <create-transfer-dialog
-      :show.sync="showCreateTransferDialog"
-    ></create-transfer-dialog>
+    <create-update-transfer-dialog
+      :show.sync="showCreateUpdateTransferDialog"
+    ></create-update-transfer-dialog>
   </v-app>
 </template>
 
@@ -169,7 +169,7 @@ import collectiveStats from '@/mixins/collectiveStats'
 import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
-import CreateTransferDialog from '@/components/CreateTransferDialog'
+import CreateUpdateTransferDialog from '@/components/CreateUpdateTransferDialog'
 import SelectedMemberListTile from '@/components/SelectedMemberListTile'
 
 export default {
@@ -180,7 +180,7 @@ export default {
     uuid,
   ],
   components: {
-    CreateTransferDialog,
+    CreateUpdateTransferDialog,
     SelectedMemberListTile,
   },
   data () {
@@ -190,7 +190,7 @@ export default {
       dark: false,
       title: 'Payshare',
       showSelectMemberDialog: false,
-      showCreateTransferDialog: false,
+      showCreateUpdateTransferDialog: false,
     }
   },
   computed: {

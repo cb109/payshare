@@ -218,6 +218,41 @@ def test_api_create_purchase(collective_with_members, client):
     assert purchase["name"] == payload["name"]
 
 
+def test_api_softdelete_purchase(collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    url = "/api/v1/{}/{}/{}".format(collective.key,
+                                    purchase.kind,
+                                    purchase.id)
+    response = client.delete(url,
+                             follow=True,
+                             HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+def test_api_update_purchase(collective_with_members, transfers, client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+
+    url = "/api/v1/{}/purchase/{}".format(collective.key, purchase.id)
+    payload = {
+        "name": "Groceries 2",
+        "buyer": user_2.id,
+        "price": 100.0,
+    }
+    response = client.put(url,
+                          data=json.dumps(payload),
+                          content_type="application/json",
+                          follow=True,
+                          HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.data["name"] == payload["name"]
+    assert response.data["buyer"] == user_2.id
+    assert float(response.data["price"]["amount"]) == payload["price"]
+
+
 def test_api_create_liquidation(collective_with_members, client):
     collective, user_1, user_2 = collective_with_members
 
@@ -264,17 +299,37 @@ def test_api_create_reaction(collective_with_members, transfers, client):
     assert reaction["meaning"] == payload["meaning"]
 
 
-def test_api_softdelete_purchase(collective_with_members, transfers, client):
+def test_cannot_create_multiple_reactions_for_member_on_same_transfer(
+        collective_with_members, transfers):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
 
-    url = "/api/v1/{}/{}/{}".format(collective.key,
-                                    purchase.kind,
-                                    purchase.id)
+    Reaction.objects.create(member=user_1,
+                            content_object=purchase,
+                            meaning="positive")
+
+    with pytest.raises(IntegrityError):
+        Reaction.objects.create(member=user_1,
+                                content_object=purchase,
+                                meaning="negative")
+
+
+def test_api_delete_reaction(collective_with_members, transfers, client):
+    # Setup
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+    reaction = Reaction.objects.create(member=user_1,
+                                       content_object=purchase,
+                                       meaning="positive")
+
+    # Test
+    url = "/api/v1/{}/reaction/{}".format(collective.key, reaction.id)
     response = client.delete(url,
                              follow=True,
                              HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    assert Reaction.objects.count() == 0
 
 
 def test_api_stats(collective_with_members, transfers, client):
@@ -301,21 +356,6 @@ def test_api_version(client):
     assert response.status_code == status.HTTP_200_OK
     import payshare  # noqa
     assert response.data == str(payshare.__version__)
-
-
-def test_cannot_create_multiple_reactions_for_member_on_same_transfer(
-        collective_with_members, transfers):
-    collective, user_1, user_2 = collective_with_members
-    purchase, liquidation = transfers
-
-    Reaction.objects.create(member=user_1,
-                            content_object=purchase,
-                            meaning="positive")
-
-    with pytest.raises(IntegrityError):
-        Reaction.objects.create(member=user_1,
-                                content_object=purchase,
-                                meaning="negative")
 
 
 @pytest.fixture
