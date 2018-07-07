@@ -171,7 +171,7 @@ export default {
   },
   computed: {
     confirmButtonTitle() {
-      return this.isCreateAction ? this.$t('create') : this.$t('save')
+      return this.isCreateAction ? this.$t('confirm') : this.$t('save')
     },
     swapButtonTopOffset() {
       if (this.isCreateAction) {
