@@ -375,3 +375,25 @@ def test_paybacks(collective_with_transfers_for_payback):
     assert paybacks[2].debtor == user_1
     assert paybacks[2].creditor == user_2
     assert paybacks[2].amount == 50.0
+
+    # Adding a Liquidation can flip the creditor/debtor relation,
+    # as otherwise the balance would become negative.
+    mommy.make("purchases.Liquidation",
+               collective=collective,
+               creditor=user_1,
+               debtor=user_2,
+               amount=60.0)
+    paybacks = calc_paybacks(collective)
+    assert len(paybacks) == 3
+
+    assert paybacks[0].debtor == user_3
+    assert paybacks[0].creditor == user_1
+    assert paybacks[0].amount == 48.33333333333333
+
+    assert paybacks[1].debtor == user_3
+    assert paybacks[1].creditor == user_2
+    assert paybacks[1].amount == 8.333333333333329
+
+    assert paybacks[2].debtor == user_2
+    assert paybacks[2].creditor == user_1
+    assert paybacks[2].amount == 10.0

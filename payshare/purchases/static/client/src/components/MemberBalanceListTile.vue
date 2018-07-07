@@ -15,7 +15,7 @@
     </v-list-tile-avatar>
     <v-list-tile-content>
       <v-list-tile-title class="list__tile__title--wrap">
-        {{ member.first_name || member.username }}
+        {{ member.username }}
       </v-list-tile-title>
     </v-list-tile-content>
     <v-list-tile-action

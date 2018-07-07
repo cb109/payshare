@@ -20,6 +20,7 @@ urlpatterns = [
     path(r"api/v1/<uuid:key>/purchase", api.create_purchase),
     path(r"api/v1/<uuid:key>/liquidation", api.create_liquidation),
     path(r"api/v1/<uuid:key>/reaction", api.create_reaction),
+    path(r"api/v1/<uuid:key>/reaction/<int:pk>", api.delete_reaction),
     path(r"api/v1/<uuid:key>/cashup", api.cashup),
     path(r"api/v1/<uuid:key>/<str:kind>/<int:pk>", api.softdelete_transfer),
 ]

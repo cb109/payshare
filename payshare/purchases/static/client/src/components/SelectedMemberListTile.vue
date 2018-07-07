@@ -26,7 +26,7 @@
           </v-list-tile-avatar>
           <v-list-tile-content>
             <v-list-tile-title>
-              {{ data.item.first_name || data.item.username }}
+              {{ data.item.username }}
             </v-list-tile-title>
             <v-list-tile-sub-title>
               {{ data.item.last_name || '' }}

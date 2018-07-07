@@ -23,6 +23,7 @@ const getInitialState = () => {
       next: null,
       results: [],
     },
+    previousCollectiveKeys: [],
   }
 }
 
@@ -34,6 +35,25 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
+    PUT_COLLECTIVE_KEY_TO_LOCALSTORAGE(state, key) {
+      let keysString = localStorage.getItem('previousCollectiveKeys')
+      let keys = JSON.parse(keysString) || []
+      if (keys.indexOf(key) == -1) {
+        keys.push(key)
+        keysString = JSON.stringify(keys)
+        localStorage.setItem('previousCollectiveKeys', keysString)
+        this.commit('LOAD_PREVIOUS_COLLECTIVE_KEYS_FROM_LOCALSTORAGE')
+      }
+    },
+    LOAD_PREVIOUS_COLLECTIVE_KEYS_FROM_LOCALSTORAGE(state) {
+      const keysString = localStorage.getItem('previousCollectiveKeys')
+      if (keysString) {
+        const keys = JSON.parse(keysString)
+        if (keys) {
+          state.previousCollectiveKeys = keys
+        }
+      }
+    },
     LOAD_COLLECTIVE_FROM_LOCALSTORAGE(state) {
       const collectiveString = localStorage.getItem('collective')
       if (collectiveString) {
@@ -46,6 +66,9 @@ const store = new Vuex.Store({
     SET_COLLECTIVE(state, collective) {
       state.collective = collective
       localStorage.setItem('collective', JSON.stringify(collective))
+      if (state.collective) {
+        this.commit('PUT_COLLECTIVE_KEY_TO_LOCALSTORAGE', collective.key)
+      }
     },
     UNSET_COLLECTIVE(state) {
       state.collective = null
@@ -168,6 +191,19 @@ const store = new Vuex.Store({
         transfer_id: opts.transfer.id,
       }
       return axios.post(url, payload, config).then(response => {
+        context.dispatch('LIST_TRANSFERS')
+      })
+    },
+    DELETE_REACTION(context, reactionId) {
+      const uuid = context.state.collective.key
+      const token = context.state.collective.token
+      const url = `${apiBaseUrl}/api/v1/${uuid}/reaction/${reactionId}`
+      const config = {
+        headers: {
+          authorization: 'Token ' + token,
+        },
+      }
+      return axios.delete(url, config).then(response => {
         context.dispatch('LIST_TRANSFERS')
       })
     },

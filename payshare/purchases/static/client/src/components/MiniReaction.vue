@@ -17,6 +17,13 @@
     <div v-if="expanded"
          class="ml-1 caption">
       {{ username }}
+      <v-icon v-if="reaction.member === selectedMember.id"
+              color="red"
+              small
+              class="clickable"
+              @click.stop="removeReaction(reaction)">
+        clear
+      </v-icon>
     </div>
   </v-layout>
 </div>
@@ -50,6 +57,11 @@ export default {
   computed: {
     username() {
       return this.getMemberForId(this.reaction.member).username
+    },
+  },
+  methods: {
+    removeReaction(reaction) {
+      this.$store.dispatch('DELETE_REACTION', reaction.id);
     },
   },
 }
