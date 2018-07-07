@@ -15,6 +15,7 @@ from rest_framework.mixins import ListModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ViewSet
 
 from payshare.purchases.calc import calc_paybacks
 from payshare.purchases.models import Collective
@@ -26,7 +27,6 @@ from payshare.purchases.serializers import LiquidationSerializer
 from payshare.purchases.serializers import PurchaseSerializer
 from payshare.purchases.serializers import ReactionSerializer
 from payshare.purchases.serializers import TransferSerializer
-
 
 USER_MUST_BE_MEMBER = "User must be member of Collective"
 CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
@@ -234,56 +234,80 @@ def cashup(request, key):
     return Response(paybacks)
 
 
-@api_view(("POST",))
-@authentication_classes((HeaderAuthentication,))
-def create_reaction(request, key):
-    """Create a Member Reaction to a Purchase or Liquidation.
+class ReactionViewSet(ViewSet):
 
-    If the User already reacted before, that Reaction is replaced by the
-    new one (e.g. if he changed his mind).
+    authentication_classes = (HeaderAuthentication,)
 
-    URL Args:
-        key (str): Collective key
+    def create(self, request, key):
+        """Create a Member Reaction to a Purchase or Liquidation.
 
-    POST Args:
-        transfer_kind (str): 'purchase' or 'liquidation'
-        transfer_id (int): Purchase or Liquidation ID
-        meaning (str): One of Reaction.available_meanings
-        member (int): User ID
+        If the User already reacted before, that Reaction is replaced by the
+        new one (e.g. if he changed his mind).
 
-    """
-    collective = collective_from_key(key)
+        URL Args:
+            key (str): Collective key
 
-    transfer_kind = request.data["transfer_kind"]
-    if transfer_kind == "purchase":
-        cls = Purchase
-    elif transfer_kind == "liquidation":
-        cls = Liquidation
+        POST Args:
+            transfer_kind (str): 'purchase' or 'liquidation'
+            transfer_id (int): Purchase or Liquidation ID
+            meaning (str): One of Reaction.available_meanings
+            member (int): User ID
 
-    transfer_id = request.data["transfer_id"]
-    transfer = cls.objects.get(id=transfer_id)
-    if not transfer.collective.id == collective.id:
-        raise ValidationError(
-            "Object to react to is not from given Collective")
+        """
+        collective = collective_from_key(key)
 
-    member_id = request.data["member"]
-    member = User.objects.get(id=member_id)
-    if member not in collective.members:
-        raise ValidationError("Can only react as member of the Collective")
+        transfer_kind = request.data["transfer_kind"]
+        if transfer_kind == "purchase":
+            cls = Purchase
+        elif transfer_kind == "liquidation":
+            cls = Liquidation
 
-    meaning = request.data["meaning"]
-    if meaning not in Reaction.get_available_meanings():
-        raise ValidationError("Unknown meaning: {}".format(meaning))
+        transfer_id = request.data["transfer_id"]
+        transfer = cls.objects.get(id=transfer_id)
+        if not transfer.collective.id == collective.id:
+            raise ValidationError(
+                "Object to react to is not from given Collective")
 
-    # Replace existing Reaction, if there is one.
-    try:
-        old_reaction = transfer.reactions.get(member=member)
-        old_reaction.delete()
-    except Reaction.DoesNotExist:
-        pass
-    reaction = Reaction.objects.create(member=member,
-                                       meaning=meaning,
-                                       content_object=transfer)
+        member_id = request.data["member"]
+        member = User.objects.get(id=member_id)
+        if member not in collective.members:
+            raise ValidationError("Can only react as member of the Collective")
 
-    serialized_reaction = ReactionSerializer(reaction).data
-    return Response(serialized_reaction)
+        meaning = request.data["meaning"]
+        if meaning not in Reaction.get_available_meanings():
+            raise ValidationError("Unknown meaning: {}".format(meaning))
+
+        # Replace existing Reaction, if there is one.
+        try:
+            old_reaction = transfer.reactions.get(member=member)
+            old_reaction.delete()
+        except Reaction.DoesNotExist:
+            pass
+        reaction = Reaction.objects.create(member=member,
+                                           meaning=meaning,
+                                           content_object=transfer)
+
+        serialized_reaction = ReactionSerializer(reaction).data
+        return Response(serialized_reaction)
+
+    def destroy(self, request, key, pk):
+        """Remove a Reaction.
+
+        URL Args:
+            key (str): Collective key
+            pk (int): Reaction ID
+
+        """
+        collective = collective_from_key(key)
+
+        reaction_id = pk
+        reaction = Reaction.objects.get(
+            id=reaction_id,
+            member__membership__collective=collective)
+        reaction.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+create_reaction = ReactionViewSet.as_view({"post": "create"})
+delete_reaction = ReactionViewSet.as_view({"delete": "destroy"})
