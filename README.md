@@ -76,7 +76,7 @@ The whiteboard metaphor is valid: Anyone with a "key" to your flat (aka password
 
 ## Tech Stack
 
-Project is build with Django 2.1, Vue 2.5, vue-cli-3 and Vuetify 1.1.0. Technically it is a [PWA](https://developers.google.com/web/progressive-web-apps/), but right now that is only used to cache the app shell, not any API responses. Uses SQLite as its database, creating a simple file for easy backup.
+Project is build with [Django](https://www.djangoproject.com/) 2.1, Vue 2.5, [vue](https://vuejs.org/)-cli-3 and the wonderful [Vuetify](https://vuetifyjs.com/en/) 1.1.0. It is build mainly to be used on a mobile phone, but responsive and very usable on desktop as well. Technically it is a [PWA](https://developers.google.com/web/progressive-web-apps/), but right now that is only used to cache the app shell, not any API responses. Uses SQLite as its database, creating a simple file for easy backup.
 
 ## Deployment
 
