@@ -4,7 +4,11 @@ A web app to track shared expenses in a group of people.
 
 Payshare is the equivalent of a whiteboard in the kitchen of your shared flat where everyone writes down how much he paid for groceries, who paid the cinema ticket or pizza for whom and so on, while it does the math for you to figure out who should buy the next round.
 
-### License
+## Demo
+
+You can login using the password `demo` [here](https://payshare.cbuelter.de/28d7c6ad-9548-45d6-b023-b8e3b0950a44).
+
+## License
 
 **MIT**, see [LICENSE.txt](LICENSE.txt)
 
@@ -55,12 +59,12 @@ Assuming your Django dev-server is running at the default port, go to:
 https://localhost:8000/admin
 
 - Create a Collective and set a password for it
-- Create some Users (`username` is the only field that is displayed)
+- Create some Users (`username` is the only field that is displayed. Django requires us to set a password here, but you can just give any, it isn't used)
 - Create Memberships for those Users in your Collective
 
-The URL for your collective will be e.g. `http://localhost:8000/<collective-key>`. You can get the key from the admin pages. Send the URL to everyone you want to participate, they will be asked to choose a User when logging in for the first time.
+The URL for your collective will be e.g. `http://localhost:8000/<collective-key>`. You can get the key from the admin pages. Send the URL (and the Collective's password of course) to everyone you want to participate, they will be asked to choose a User when logging in for the first time.
 
-You can also assign an avatar for each user by assigning some URL to a hosted image (there is no own upload feature, sorry). There are many avatar generators, I like these:
+You can also assign an avatar for each user by assigning some URL to a hosted image (there is no own upload feature, sorry). You can do that in the ` User profiles` area in the admin pages. There are many avatar generators, I like these:
 
 - https://getavataaars.com/
 - http://avatars.adorable.io/
