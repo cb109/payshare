@@ -96,7 +96,6 @@ Oh the joy of deploying custom web apps to your own server. Our backend can be s
 Please see the following files for examples on simple systemd and nginx configurations:
 
 - [payshare.service](payshare.service)
-
 - [payshare.conf](payshare.conf)
 
 Notes: We should use https in any case, but it is also a requirement for the service-worker. One specialty about location blocks here is that for some we'll want to pass through the URL path and for others we don't.
