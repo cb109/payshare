@@ -1,4 +1,4 @@
-# payshare
+# Payshare
 
 A web app to track shared expenses in a group of people.
 
@@ -7,9 +7,15 @@ flat where everyone writes down how much he paid for groceries, who paid
 the cinema ticket or pizza for whom and so on, while it does the math
 for you to figure out who should buy the next round.
 
+## Screenshots
+
+![](docs/transfers.png) ![](docs/ranking.png)
+
+![](docs/cashup.png) ![](docs/newoutlay.png)
+
 ## Setup
 
-Individual Steps: TBD
+Individual Steps: **TBD**
 
 The project currently relies on the Django admin pages to create new
 Collectives and Users and add Memberships between them. You can assign
@@ -26,9 +32,9 @@ impersonate other Users. It's all based on trust between the people in
 the group.
 
 ## Terminology
-- Collective: This is basically your shared flat, sports team, whatever
-- User: A person that can be a member of one or more Collectives
-- Membership: The connection of a User to a Collective
+- `Collective`: This is basically your shared flat, sports team, whatever
+- `User`: A person that can be a member of one or more Collectives
+- `Membership`: The connection of a User to a Collective
 
 ## Tech Stack
 
@@ -39,12 +45,12 @@ app shell, not any API responses.
 ## Deployment
 
 Oh, the joy of deploying custom web apps to your own server. Our backend
-will be setup as a systemd service that runs a WSGi app via gunicorn,
-whereas the frontend is built into a bundle of staticfiles that our
+will be setup as a systemd service that runs a WSGI app via gunicorn,
+whereas the frontend is built into a bundle of static files that our
 webserver can serve as is. We'll use nginx here to illustrate a possible
 configuration.
 
 Notes: We should use https in any case, but it is also a requirement
-  here for the service-worker. One specialty about location blocks here
+  for the service-worker. One specialty about location blocks here
   is that for some we'll want to pass through the URL path and for
-  others like we don't.
+  others we don't.
