@@ -2,6 +2,8 @@
 
 A web app to track shared expenses in a group of people.
 
+[![Build Status](https://travis-ci.com/cb109/payshare.svg?branch=develop)](https://travis-ci.com/cb109/payshare)
+
 Payshare is the equivalent of a whiteboard in the kitchen of your shared flat where everyone writes down how much he paid for groceries, who paid the cinema ticket or pizza for whom and so on, while it does the math for you to figure out who should buy the next round.
 
 ## Demo
