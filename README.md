@@ -24,7 +24,7 @@ You can login using the password `demo` [here](https://payshare.cbuelter.de/28d7
 - `User`: A person that can be a member of one or more Collectives
 - `Membership`: The connection of a User to a Collective
 - ` Purchase`: A User bought something and the cost is shared equally in the Collective
-- ` Liquidation` (named "Outlay" in the frontend): Some User have money to another one and that debt will have to be payed back later
+- ` Liquidation` (named "Outlay" in the frontend): Some User gave money to another one and that debt will have to be payed back later
 
 ## Development Setup
 
