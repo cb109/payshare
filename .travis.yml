@@ -5,4 +5,4 @@ install:
   - pip install pip-tools
   - pip-sync
 script:
-  - pytest
+  - pytest -vv -s
