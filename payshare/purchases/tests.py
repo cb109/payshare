@@ -80,10 +80,12 @@ def test_collective_members(collective_with_members):
 def transfers(collective_with_members):
     collective, user_1, user_2 = collective_with_members
     purchase = mommy.make("purchases.Purchase",
+                          name="my cool purchase",
                           collective=collective,
                           buyer=user_1,
                           price=45.50)
     liquidation = mommy.make("purchases.Liquidation",
+                             name="my nifty liquidation",
                              collective=collective,
                              creditor=user_2,
                              debtor=user_1,
@@ -167,6 +169,45 @@ def test_api_list_transfers(collective_with_members, transfers, client):
     transfer_identifiers = [(obj["kind"], obj["id"]) for obj in transfers]
     assert (purchase.kind, purchase.id) in transfer_identifiers
     assert (liquidation.kind, liquidation.id) in transfer_identifiers
+
+
+def test_api_list_transfers_with_search(collective_with_members,
+                                        transfers,
+                                        client):
+    collective, user_1, user_2 = collective_with_members
+    purchase, liquidation = transfers
+    url = "/api/v1/{}/transfers".format(collective.key)
+
+    # Match the purchase name only.
+    response = client.get(url,
+                          {"search": "cool"},
+                          follow=True,
+                          HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+    transfers = response.data["results"]
+    assert len(transfers) == 1
+    assert transfers[0]["kind"] == purchase.kind
+    assert transfers[0]["id"] == purchase.id
+
+    # Match the liquidation name only.
+    response = client.get(url,
+                          {"search": "nifty"},
+                          follow=True,
+                          HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+    transfers = response.data["results"]
+    assert len(transfers) == 1
+    assert transfers[0]["kind"] == liquidation.kind
+    assert transfers[0]["id"] == liquidation.id
+
+    # Match both via username.
+    response = client.get(url,
+                          {"search": user_1.username},
+                          follow=True,
+                          HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+    transfers = response.data["results"]
+    assert len(transfers) == 2
 
 
 @pytest.fixture

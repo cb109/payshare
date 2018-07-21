@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
+from django.db.models import Q
 from moneyed import Money, EUR
 
 from rest_framework import authentication
@@ -86,7 +87,19 @@ class TransfersPagination(PageNumberPagination):
 
 
 class TransfersViewSet(ListModelMixin, GenericViewSet):
-    """Return sorted Purchases and Liquidations for a Collective."""
+    """Return sorted Purchases and Liquidations for a Collective.
+
+    URL Args:
+        key (str): Collective key
+
+    GET Args:
+        search (str): Optional search text. Is matched against name
+            and usernames of transfers (case insensitive).
+
+    Returns:
+        list[Purchase|Liquidation]
+
+    """
     authentication_classes = (HeaderAuthentication,)
     pagination_class = TransfersPagination
     serializer_class = TransferSerializer
@@ -94,10 +107,30 @@ class TransfersViewSet(ListModelMixin, GenericViewSet):
     def get_queryset(self):
         key = self.kwargs["key"]
         collective = collective_from_key(key)
-        transfers = (
-            list(collective.purchase_set.filter(deleted=False)) +
-            list(collective.liquidation_set.filter(deleted=False))
-        )
+
+        purchase_query = Q(deleted=False)
+        liquidation_query = Q(deleted=False)
+
+        search_text = self.request.query_params.get("search")
+        if search_text is not None:
+            purchase_query = (
+                purchase_query & Q(
+                    Q(name__icontains=search_text) |
+                    Q(buyer__username__icontains=search_text)
+                )
+            )
+            liquidation_query = (
+                liquidation_query & Q(
+                    Q(name__icontains=search_text) |
+                    Q(debtor__username__icontains=search_text) |
+                    Q(creditor__username__icontains=search_text)
+                )
+            )
+
+        purchases = collective.purchase_set.filter(purchase_query)
+        liquidations = collective.liquidation_set.filter(liquidation_query)
+
+        transfers = list(purchases) + list(liquidations)
         transfers.sort(key=lambda obj: obj.created_at, reverse=True)
         return transfers
 
