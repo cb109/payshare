@@ -20,8 +20,9 @@
                   class="pt-0 mt-0"
                   clearable
                   v-model="searchText"
-                  :hint="numOverallMatchingTransfers + ' ' + $t('matchingEntries')"
-                  persistent-hint
+                  :placeholder="matchingEntriesHint"
+                  :hint="!!searchText.trim() ? matchingEntriesHint : ''"
+                  :persistent-hint="!!searchText.trim()"
                   @keyup.esc="searchText = ''"
                   @keyup.enter=""
                 ></v-text-field>
@@ -162,6 +163,10 @@ export default {
     },
     numOverallMatchingTransfers() {
       return this.$store.state.transfersPage.count
+    },
+    matchingEntriesHint() {
+      return (this.numOverallMatchingTransfers + ' ' +
+              this.$t('matchingEntries'))
     },
   },
   watch: {
