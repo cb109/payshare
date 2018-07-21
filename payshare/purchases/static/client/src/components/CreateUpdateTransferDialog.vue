@@ -255,6 +255,13 @@ export default {
         }
         if (!this.creditor) {
           this.creditor = this.selectedMember
+
+          // If there are only two members we can also preselect the debtor.
+          if (this.members.length === 2) {
+            const otherMember = this.members.filter(
+              member => member.id !== this.creditor)[0]
+            this.debtor = otherMember
+          }
         }
       }
     },
