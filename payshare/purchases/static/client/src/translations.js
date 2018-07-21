@@ -25,7 +25,7 @@ const messages = {
     en: 'English',
     matchingEntries: 'matching Entries',
     explainCashingUp: 'The following steps are necessary to resolve all debt',
-    explainLiquidation: 'You advanced money to someone and he will have to pay you back later.',
+    explainLiquidation: 'You advanced money to someone and he will have to pay that debt back to you at some later point in time.',
     explainPurchase: 'You bought something for the Group and the expense will be shared equally.',
     feed: 'Feed',
     financialStatus: 'Status',
