@@ -15,6 +15,7 @@ const getInitialState = () => {
     busy: false,
     collective: null,
     selectedMember: null,
+    searchText: '',
     transfersPageIndex: 1,
     transfersPage: {
       num_pages: 0,
@@ -107,8 +108,18 @@ const store = new Vuex.Store({
     SET_TRANSFERS_PAGE_INDEX(state, index) {
       state.transfersPageIndex = index
     },
+    RESET_TRANSFERS_PAGE_INDEX(state, index) {
+      const initial = getInitialState()
+      state.transfersPageIndex = initial.transfersPageIndex
+    },
     SET_BUSY(state, busy) {
       state.busy = busy
+    },
+    SET_SEARCH_TEXT(state, text) {
+      if (text === null) {
+        text = ''
+      }
+      state.searchText = text
     },
     RESET_ALL(state) {
       this.commit('UNSET_COLLECTIVE')
@@ -300,6 +311,10 @@ const store = new Vuex.Store({
         params: {
           page: context.state.transfersPageIndex,
         }
+      }
+      const searchText = context.state.searchText.trim()
+      if (searchText) {
+        config.params.search = searchText
       }
       return axios.get(url, config).then(response => {
         const transfersPage = response.data

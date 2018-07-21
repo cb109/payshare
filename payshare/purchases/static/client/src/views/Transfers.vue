@@ -13,6 +13,21 @@
         <!-- Feed -->
         <v-tab-item href="feed">
           <v-container>
+            <v-layout justify-center>
+              <v-flex xs12 sm6>
+                <v-text-field
+                  append-icon="search"
+                  class="pt-0 mt-0"
+                  clearable
+                  v-model="searchText"
+                  :placeholder="matchingEntriesHint"
+                  :hint="!!searchText.trim() ? matchingEntriesHint : ''"
+                  :persistent-hint="!!searchText.trim()"
+                  @keyup.esc="searchText = ''"
+                  @keyup.enter=""
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
             <!-- Upper pagination controls -->
             <v-layout justify-center>
               <v-pagination v-if="numPages > 1"
@@ -77,6 +92,23 @@ import Liquidation from '@/components/Liquidation'
 import Purchase from '@/components/Purchase'
 import RankingList from '@/components/RankingList'
 
+// From https://davidwalsh.name/javascript-debounce-function
+function debounce(func, wait, immediate) {
+  let timeout;
+  return function() {
+    const context = this
+    const args = arguments
+    const later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args)
+    }
+    const callNow = immediate && !timeout
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+    if (callNow) func.apply(context, args)
+  }
+}
+
 export default {
   name: 'Transfers',
   components: {
@@ -96,6 +128,14 @@ export default {
     }
   },
   computed: {
+    searchText: {
+      get() {
+        return this.$store.state.searchText
+      },
+      set(text) {
+        this.$store.commit('SET_SEARCH_TEXT', text)
+      },
+    },
     maxVisiblePaginationItems() {
       // See Vuetify source: src/components/VPagination/VPagination.js:items()
       // The default logic does not use available width in an optimal way,
@@ -120,6 +160,21 @@ export default {
     },
     transfers() {
       return this.$store.state.transfersPage.results
+    },
+    numOverallMatchingTransfers() {
+      return this.$store.state.transfersPage.count
+    },
+    matchingEntriesHint() {
+      return (this.numOverallMatchingTransfers + ' ' +
+              this.$t('matchingEntries'))
+    },
+  },
+  watch: {
+    searchText: {
+      handler: debounce(function(text) {
+        this.$store.commit('RESET_TRANSFERS_PAGE_INDEX')
+        this.$store.dispatch('LIST_TRANSFERS')
+      }, 300),
     },
   },
   mounted() {
