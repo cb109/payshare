@@ -18,10 +18,19 @@
       <v-list-tile-title>
         {{ $t('overallPurchased') }}
       </v-list-tile-title>
-      <v-list-tile-sub-title>
+      <v-list-tile-sub-title
+        class="clickable"
+        @click="showAverage = !showAverage"
+      >
         {{ numPurchases }}
-        ({{ $t('median') }}: {{ medianPurchasePrice }}
-        {{ collective.currency_symbol }})
+        <span v-if="showAverage">
+          ({{ $t('average') }}: {{ averagePurchasePrice }}
+          {{ collective.currency_symbol }})
+        </span>
+        <span v-else>
+          ({{ $t('median') }}: {{ medianPurchasePrice }}
+          {{ collective.currency_symbol }})
+        </span>
       </v-list-tile-sub-title>
     </v-list-tile-content>
     <v-list-tile-action>
@@ -29,15 +38,24 @@
       {{ collective.currency_symbol }}
     </v-list-tile-action>
   </v-list-tile>
-  <v-list-tile>
+  <v-list-tile class="auto-height mb-2">
     <v-list-tile-content>
       <v-list-tile-title>
         {{ $t('overallDebt') }}
       </v-list-tile-title>
-      <v-list-tile-sub-title>
+      <v-list-tile-sub-title
+        class="clickable"
+        @click="showAverage = !showAverage"
+       >
         {{ numLiquidations }}
-        ({{ $t('median') }}: {{ medianLiquidationAmount }}
-        {{ collective.currency_symbol }})
+        <span v-if="showAverage">
+          ({{ $t('average') }}: {{ averageLiquidationAmount }}
+          {{ collective.currency_symbol }})
+        </span>
+        <span v-else>
+          ({{ $t('median') }}: {{ medianLiquidationAmount }}
+          {{ collective.currency_symbol }})
+        </span>
       </v-list-tile-sub-title>
     </v-list-tile-content>
     <v-list-tile-action>
@@ -78,7 +96,7 @@ export default {
   },
   data() {
     return {
-
+      showAverage: true,
     }
   },
   computed: {

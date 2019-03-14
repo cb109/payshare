@@ -97,11 +97,6 @@
         </span>
         </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn @click="(() => showCreateUpdateTransferDialog = true)"
-             icon
-             :title="$t('addEntry')">
-        <v-icon>add</v-icon>
-      </v-btn>
       <v-btn @click="reloadPage()"
              icon
              :title="$t('reloadPage')">
@@ -123,6 +118,19 @@
       indeterminate
     ></v-progress-linear>
     <v-content>
+      <v-btn
+         fab
+         fixed
+         right
+         bottom
+         color="primary"
+         dark
+         :large="$vuetify.breakpoint.mdAndUp"
+         :title="$t('addEntry')"
+         @click="(() => showCreateUpdateTransferDialog = true)"
+      >
+        <v-icon>add</v-icon>
+      </v-btn>
       <v-slide-y-transition mode="out-in">
         <router-view :key="$route.fullPath" />
       </v-slide-y-transition>

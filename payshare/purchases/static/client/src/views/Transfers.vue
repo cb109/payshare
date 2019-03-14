@@ -63,7 +63,7 @@
                              :total-visible="maxVisiblePaginationItems">
               </v-pagination>
             </v-layout>
-            <div style="height: 60px"></div>
+            <div style="height: 80px"></div>
           </v-container>
         </v-tab-item>
         <!-- Ranking -->
