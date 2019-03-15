@@ -119,6 +119,7 @@
     ></v-progress-linear>
     <v-content>
       <v-btn
+         v-if="!isLoginPage"
          fab
          fixed
          right
