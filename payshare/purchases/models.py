@@ -101,7 +101,7 @@ class Collective(TimestampMixin, models.Model):
         return check_password(password, self.password)
 
     def is_member(self, user):
-        return Membership.objects.exists(collective=self, member=user)
+        return Membership.objects.filter(collective=self, member=user).exists()
 
     def add_member(self, user):
         if not self.is_member(user):
