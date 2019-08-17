@@ -20,6 +20,6 @@ pytest-django==3.3.2
 pytest==3.6.2
 pytz==2018.4              # via django
 six==1.11.0               # via model-mommy, more-itertools, pytest
-
+black
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools==41.1.0        # via django-money, pytest
