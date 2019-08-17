@@ -6,3 +6,4 @@ install:
   - pip-sync
 script:
   - pytest -vv -s
+  - black --check .
