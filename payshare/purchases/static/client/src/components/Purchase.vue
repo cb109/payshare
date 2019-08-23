@@ -18,7 +18,7 @@
               <strong :class="{'primary--text': isBuyer}">
                 {{ buyer.username }}
               </strong>
-              {{ $t('payedFor') }} <br>
+              {{ $t('paidFor') }} <br>
             </div>
             <div class="name">
               {{ purchase.name }}
