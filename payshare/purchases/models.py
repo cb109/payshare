@@ -101,11 +101,7 @@ class Collective(TimestampMixin, models.Model):
         return check_password(password, self.password)
 
     def is_member(self, user):
-        try:
-            Membership.objects.get(collective=self, member=user)
-            return True
-        except Membership.DoesNotExist:
-            return False
+        return Membership.objects.filter(collective=self, member=user).exists()
 
     def add_member(self, user):
         if not self.is_member(user):
@@ -317,7 +313,7 @@ class Purchase(TimestampMixin, models.Model):
     def kind(self):
         return "purchase"
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         self.deleted = True
         self.save()
 
@@ -355,7 +351,7 @@ class Liquidation(TimestampMixin, models.Model):
     def kind(self):
         return "liquidation"
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         self.deleted = True
         self.save()
 
