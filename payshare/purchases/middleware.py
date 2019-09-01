@@ -3,6 +3,7 @@ import logging
 from django.urls.base import resolve
 
 from payshare.purchases import api
+from payshare.purchases.models import Collective
 from payshare.purchases.models import CollectiveReadOnlyError
 
 logger = logging.getLogger(__name__)
@@ -29,13 +30,14 @@ def readonly_middleware(get_response):
     """
     def middleware(request):
         if request.method not in ("GET", "OPTIONS"):
-
-            resolver_match = resolve(request.path)
-            key = api.key_from_resolvermatch(resolver_match)
-            collective = api.collective_from_key(key)
-
-            if collective.readonly:
-                raise CollectiveReadOnlyError(collective)
+            try:
+                resolver_match = resolve(request.path)
+                key = api.key_from_resolvermatch(resolver_match)
+                collective = api.collective_from_key(key)
+                if collective.readonly:
+                    raise CollectiveReadOnlyError(collective)
+            except (KeyError, Collective.DoesNotExist):
+                pass
 
         response = get_response(request)
         return response
