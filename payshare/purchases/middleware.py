@@ -22,12 +22,7 @@ def debugging_middleware(get_response):
 
 
 def readonly_middleware(get_response):
-    """Reject all requests that may change data when Collective is readonly.
-
-    This middleware must come after the AuthenticationMiddleware so we
-    can identify the Collective.
-
-    """
+    """Reject all requests that may change data when Collective is readonly."""
     def middleware(request):
         if request.method not in ("GET", "OPTIONS"):
             try:
