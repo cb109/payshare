@@ -67,7 +67,7 @@ export default {
         this.$bus.$emit('logged-in')
 
         this.password = null
-        this.$router.push('/transfers')
+        this.$router.push(`/${this.uuid}/transfers`)
       })
       .catch(error => {
         this.loading = false

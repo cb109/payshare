@@ -265,6 +265,11 @@ export default {
     rememberCollective() {
       this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
       if (this.collective) {
+
+        if (this.collective.key !== this.uuid) {
+          this.onFailureExitApp()
+        }
+
         // It may be outdated, get a fresh dataset from the API.
         this.$store.dispatch('RETRIEVE_COLLECTIVE_USING_TOKEN')
       }
