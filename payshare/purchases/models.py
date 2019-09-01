@@ -27,6 +27,13 @@ class PayShareError(Exception):
     pass
 
 
+class CollectiveReadOnlyError(PayShareError):
+
+    def __init__(self, collective):
+        message = "{} is read-only".format(collective)
+        super(CollectiveReadOnlyError, self).__init__(message)
+
+
 class UserNotMemberOfCollectiveError(PayShareError):
 
     def __init__(self, user, collective):
@@ -86,6 +93,7 @@ class Collective(TimestampMixin, models.Model):
     password = models.CharField(max_length=128)
     token = models.UUIDField(default=uuid.uuid4, editable=False)
     currency_symbol = models.CharField(default="€", max_length=3)
+    readonly = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         """Make sure to save changed password hashes, not as plain text."""
