@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from model_mommy import mommy
 from rest_framework import status
 
+from payshare.purchases.models import CollectiveReadOnlyError
 from payshare.purchases.models import Reaction
 from payshare.purchases.calc import calc_paybacks
 
@@ -478,3 +479,44 @@ def test_paybacks(collective_with_transfers_for_payback):
     assert paybacks[2].debtor == user_2
     assert paybacks[2].creditor == user_1
     assert paybacks[2].amount == 10.0
+
+
+class TestReadOnlyMiddleware:
+
+    @pytest.fixture
+    def readonly_collective(self, collective_with_members):
+        collective, user_1, user_2 = collective_with_members
+        collective.readonly = True
+        collective.save()
+        return collective
+
+    def test_GET(self, readonly_collective, client):
+        url = "/api/v1/{}".format(readonly_collective.key)
+        response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_OPTIONS(self, readonly_collective, client):
+        url = "/api/v1/{}".format(readonly_collective.key)
+        response = client.options(url,
+                                  follow=True, HTTP_AUTHORIZATION="foobar")
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_POST(self, readonly_collective, client):
+        with pytest.raises(CollectiveReadOnlyError):
+            url = "/api/v1/{}/purchase".format(readonly_collective.key)
+            client.post(url, {}, follow=True, HTTP_AUTHORIZATION="foobar")
+
+    def test_PUT(self, readonly_collective, client):
+        with pytest.raises(CollectiveReadOnlyError):
+            url = "/api/v1/{}/purchase".format(readonly_collective.key)
+            client.put(url, {}, follow=True, HTTP_AUTHORIZATION="foobar")
+
+    def test_PATCH(self, readonly_collective, client):
+        with pytest.raises(CollectiveReadOnlyError):
+            url = "/api/v1/{}/purchase".format(readonly_collective.key)
+            client.patch(url, {}, follow=True, HTTP_AUTHORIZATION="foobar")
+
+    def test_DELETE(self, readonly_collective, client):
+        with pytest.raises(CollectiveReadOnlyError):
+            url = "/api/v1/{}/purchase".format(readonly_collective.key)
+            client.delete(url, {}, follow=True, HTTP_AUTHORIZATION="foobar")
