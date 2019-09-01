@@ -66,7 +66,10 @@
           </v-layout>
         </v-layout>
       </v-layout>
-      <transfer-actionbar :transfer="transfer"></transfer-actionbar>
+      <transfer-actionbar
+        :allow-edit="allowEdit"
+        :transfer="transfer"
+      />
     </v-card-text>
   </v-card>
 </div>
@@ -105,14 +108,16 @@ export default {
       }
       return {row: true}
     },
+    allowEdit() {
+      return this.collective && !this.collective.readonly
+    },
     creditor() {
       const member = this.collective.members.filter(
         user => user.id === this.liquidation.creditor)[0]
       return member
     },
     debtor() {
-      const collective = this.$store.state.collective
-      const member = collective.members.filter(
+      const member = this.collective.members.filter(
         user => user.id === this.liquidation.debtor)[0]
       return member
     },

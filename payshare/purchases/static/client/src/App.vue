@@ -29,7 +29,10 @@
           </v-list-tile>
           <v-divider></v-divider>
           <!-- Add new Entry -->
-          <v-list-tile @click="(() => showCreateUpdateTransferDialog = true)">
+          <v-list-tile
+            v-if="showCreationButton"
+            @click="(() => showCreateUpdateTransferDialog = true)"
+          >
             <v-list-tile-action>
               <v-icon>add</v-icon>
             </v-list-tile-action>
@@ -90,13 +93,28 @@
                                 'text--wrap': isLoginPage}">
         <span v-if="!$store.getters.isLoggedIn"
               class="subheading">
-          {{ title }}<span v-if="uuid">: {{ uuid }}</span>
+          {{ title }}
         </span>
         <span v-else>
           {{ collective.name }}
         </span>
-        </v-toolbar-title>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-layout
+        v-if="collective && collective.readonly"
+        align-center
+        class="warning--text"
+      >
+        <v-icon
+          class="mr-1"
+          color="warning"
+        >
+          lock
+        </v-icon>
+        <strong v-if="$vuetify.breakpoint.smAndUp">
+          {{ $t('readOnly') }}
+        </strong>
+      </v-layout>
       <v-btn @click="reloadPage()"
              icon
              :title="$t('reloadPage')">
@@ -119,7 +137,7 @@
     ></v-progress-linear>
     <v-content>
       <v-btn
-         v-if="!isLoginPage"
+         v-if="showCreationButton"
          fab
          fixed
          right
@@ -193,7 +211,6 @@ export default {
     SelectedMemberListTile,
   },
   data () {
-    const vm = this
     return {
       drawer: false,
       dark: false,
@@ -211,6 +228,12 @@ export default {
     },
     busy() {
       return this.$store.state.busy
+    },
+    showCreationButton() {
+      return (
+        !this.isLoginPage &&
+        (this.collective && !this.collective.readonly)
+      );
     },
     languages() {
       const locales = Object.keys(this.$i18n.messages)
@@ -232,8 +255,12 @@ export default {
     },
     checkUrl() {
       if (!this.uuid) {
-        this.$router.push('/unknown')
+        this.onFailureExitApp()
       }
+    },
+    onFailureExitApp() {
+      this.$store.commit('UNSET_COLLECTIVE')
+      this.$router.push('/unknown')
     },
     rememberCollective() {
       this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
@@ -269,7 +296,7 @@ export default {
     this.rememberSelectedMember()
 
     if (this.$store.getters.isLoggedIn) {
-      this.$router.push('/transfers')
+      this.$router.push(`/${this.uuid}/transfers`)
     }
   },
   mounted() {

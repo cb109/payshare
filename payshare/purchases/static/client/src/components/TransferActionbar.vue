@@ -4,7 +4,8 @@
   <v-layout align-center
             wrap>
     <div v-for="(reaction, reactionIdx) in transfer.reactions"
-         :key="reactionIdx">
+         :key="reactionIdx"
+         class="mb-1">
       <v-layout align-center>
         <mini-reaction
           :reaction="reaction"
@@ -12,7 +13,10 @@
         ></mini-reaction>
       </v-layout>
     </div>
-    <v-layout nowrap>
+    <v-layout
+      v-if="allowEdit"
+      nowrap
+    >
       <v-spacer></v-spacer>
       <reaction-menu
         v-if="selectedMember"
@@ -22,7 +26,7 @@
       ></reaction-menu>
       <v-btn icon
              small
-            class="ma-0 mr-1"
+             class="ma-0 mr-1"
              @click="edit(transfer)">
         <v-icon color="grey lighten-1">
           edit
@@ -66,6 +70,10 @@ export default {
     'transfer': {
       type: Object,
       required: true,
+    },
+    'allowEdit': {
+      type: Boolean,
+      default: true,
     },
   },
   data() {

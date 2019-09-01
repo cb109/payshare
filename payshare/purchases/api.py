@@ -34,6 +34,10 @@ USER_MUST_BE_MEMBER = "User must be member of Collective"
 CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
 
 
+def key_from_resolvermatch(resolver_match):
+    return resolver_match.kwargs["key"]
+
+
 def collective_from_key(key):
     return Collective.objects.get(key=key)
 
@@ -50,7 +54,7 @@ class HeaderAuthentication(authentication.BaseAuthentication):
         possible_token = token_or_password.replace("Token ", "")
 
         # Accessing the URL params of the request is a bit tedious here.
-        key = request._request.resolver_match.kwargs["key"]
+        key = key_from_resolvermatch(request._request.resolver_match)
 
         collective = collective_from_key(key)
         if not (str(collective.token) == possible_token or
@@ -228,7 +232,8 @@ class PurchaseDetailView(APIView):
         purchase = Purchase.objects.get(pk=pk)
         if not purchase.collective.id == collective.id:
             raise ValidationError(
-                    "Purchase to delete is not from given Collective")
+                "Purchase to delete is not from given Collective"
+            )
 
         purchase.deleted = True
         purchase.save()
@@ -344,7 +349,7 @@ class LiquidationDetailView(APIView):
         liquidation = Liquidation.objects.get(pk=pk)
         if not liquidation.collective.id == collective.id:
             raise ValidationError(
-                    "Liquidation to delete is not from given Collective")
+                "Liquidation to delete is not from given Collective")
 
         liquidation.deleted = True
         liquidation.save()
