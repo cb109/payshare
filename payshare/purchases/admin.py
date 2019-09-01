@@ -59,7 +59,14 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 class CollectiveAdmin(admin.ModelAdmin):
     readonly_fields = ("key",)
-    list_display = ("name", "key", "password", "currency_symbol", "id")
+    list_display = (
+        "name",
+        "key",
+        "password",
+        "currency_symbol",
+        "readonly",
+        "id",
+    )
 
 
 class PurchaseAdmin(admin.ModelAdmin):
