@@ -18,7 +18,7 @@
               <strong :class="{'primary--text': isBuyer}">
                 {{ buyer.username }}
               </strong>
-              {{ $t('payedFor') }} <br>
+              {{ $t('paidFor') }} <br>
             </div>
             <div class="name">
               {{ purchase.name }}
@@ -41,7 +41,10 @@
           </v-layout>
         </v-layout>
       </v-layout>
-      <transfer-actionbar :transfer="transfer"></transfer-actionbar>
+      <transfer-actionbar
+        :allow-edit="allowEdit"
+        :transfer="transfer"
+      />
     </v-card-text>
   </v-card>
 </div>
@@ -82,6 +85,9 @@ export default {
     },
     collective() {
       return this.$store.state.collective
+    },
+    allowEdit() {
+      return this.collective && !this.collective.readonly
     },
     buyer() {
       const member = this.collective.members.filter(

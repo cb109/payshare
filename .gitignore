@@ -2,3 +2,5 @@
 db.sqlite3
 .pytest_cache/
 public/static
+venv/
+.idea/
