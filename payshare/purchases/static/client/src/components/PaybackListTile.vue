@@ -34,9 +34,9 @@
           <v-btn
             v-if="isDebtor && creditor.paypal_me_username"
             icon
+            class="ml-3"
             :title="$t('paypalMeHint')"
             @click="openPaypalMePage(creditor.paypal_me_username, amount)"
-            class="ml-3"
           >
             <img
               src="/static/paypal_logo.png"
