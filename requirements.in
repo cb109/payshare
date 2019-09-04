@@ -1,7 +1,9 @@
 Django
+django-cors-headers
+django-filer
 django-money
 djangorestframework
-django-cors-headers
+whitenoise
 
 gunicorn
 model_mommy
