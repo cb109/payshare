@@ -9,8 +9,13 @@ from payshare.purchases.models import Reaction
 
 
 class UserSerializer(serializers.ModelSerializer):
-    avatar = serializers.SerializerMethodField()
+    avatar = serializers.ReadOnlyField(
+        source="profile.avatar_image_url"
+    )
     full_name = serializers.SerializerMethodField()
+    paypal_me_username = serializers.ReadOnlyField(
+        source="profile.paypal_me_username"
+    )
 
     class Meta:
         model = User
@@ -20,11 +25,9 @@ class UserSerializer(serializers.ModelSerializer):
             "full_name",
             "id",
             "last_name",
+            "paypal_me_username",
             "username",
         )
-
-    def get_avatar(self, user):
-        return user.profile.avatar_image_url
 
     def get_full_name(self, user):
         return user.get_full_name()

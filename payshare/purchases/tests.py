@@ -216,12 +216,14 @@ def softdeleted_transfers(collective_with_members):
     collective, user_1, user_2 = collective_with_members
     purchase = mommy.make("purchases.Purchase",
                           collective=collective,
+                          price=10,
                           buyer=user_1,
                           deleted=True)
     liquidation = mommy.make("purchases.Liquidation",
                              collective=collective,
                              debtor=user_1,
                              creditor=user_2,
+                             amount=20,
                              deleted=True)
     return purchase, liquidation
 

@@ -33,6 +33,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         "user",
         "avatar_image_url_link",
         "avatar_image_url",
+        "paypal_me_username",
         "id",
     )
 
@@ -40,20 +41,27 @@ class UserProfileAdmin(admin.ModelAdmin):
         "avatar_image_url",
     )
 
-    def avatar_image_url_link(self, obj):
+    def avatar_image_url_link(self, profile):
+        image_url = profile.avatar_image_url
+        editor_url = ""
+        is_avataaars_url = image_url.startswith("https://avataaars.io")
+        if is_avataaars_url:
+            editor_url = image_url.replace(
+                "https://avataaars.io", "https://getavataaars.com"
+            )
         template = '''
             <image src="{0}"
                    style="max-width: 200px; max-height: 200px"/>
-            <a href="{1}" target="blank_">
-                Edit on https://getavataaars.com
-            </a>
         '''
-        image_url = obj.avatar_image_url
-        editor_url = ""
-        if image_url.startswith("https://avataaars.io"):
-            editor_url = image_url.replace("https://avataaars.io",
-                                           "https://getavataaars.com")
-        html = template.format(image_url, editor_url)
+        if is_avataaars_url:
+            template += '''
+                <a href="{1}" target="blank_">
+                    Edit on https://getavataaars.com
+                </a>
+            '''
+            html = template.format(image_url, editor_url)
+        else:
+            html = template.format(image_url)
         return mark_safe(html)
 
 

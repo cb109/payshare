@@ -25,6 +25,7 @@ const getInitialState = () => {
       results: [],
     },
     previousCollectiveKeys: [],
+    collectiveNameByKey: {},
   }
 }
 
@@ -55,6 +56,18 @@ const store = new Vuex.Store({
         }
       }
     },
+    PUT_COLLECTIVE_NAME_BY_KEY_TO_LOCALSTORAGE(state, collective) {
+      let dataString = localStorage.getItem('collectiveKeyToName')
+      let data = JSON.parse(dataString) || {}
+      data[collective.key] = collective.name
+      dataString = JSON.stringify(data)
+      localStorage.setItem('collectiveKeyToName', dataString)
+    },
+    LOAD_COLLECTIVE_NAME_BY_KEY_MAP_FROM_LOCALSTORAGE(state) {
+      const dataString = localStorage.getItem('collectiveKeyToName')
+      const data = JSON.parse(dataString) || {}
+      state.collectiveNameByKey = data
+    },
     LOAD_COLLECTIVE_FROM_LOCALSTORAGE(state) {
       const collectiveString = localStorage.getItem('collective')
       if (collectiveString) {
@@ -68,7 +81,8 @@ const store = new Vuex.Store({
       state.collective = collective
       localStorage.setItem('collective', JSON.stringify(collective))
       if (state.collective) {
-        this.commit('PUT_COLLECTIVE_KEY_TO_LOCALSTORAGE', collective.key)
+        this.commit('PUT_COLLECTIVE_KEY_TO_LOCALSTORAGE', state.collective.key)
+        this.commit('PUT_COLLECTIVE_NAME_BY_KEY_TO_LOCALSTORAGE', state.collective)
       }
     },
     UNSET_COLLECTIVE(state) {

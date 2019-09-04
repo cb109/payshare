@@ -69,6 +69,10 @@ class UserProfile(models.Model):
                                         blank=True,
                                         default=DEFAULT_AVATAR_URL)
 
+    paypal_me_username = models.CharField(
+        max_length=64, null=True, blank=True, default=None
+    )
+
     def __str__(self):
         return u"Profile for {} ".format(self.user)
 
@@ -156,7 +160,10 @@ class Collective(TimestampMixin, models.Model):
 
         prices = [float(purchase.price.amount) for purchase in purchases]
         overall_purchased = sum(prices)
-        per_member = float(overall_purchased) / float(num_members)
+        try:
+            per_member = float(overall_purchased) / float(num_members)
+        except ZeroDivisionError:
+            per_member = 0
 
         debts = [
             float(liquidation.amount.amount) for liquidation in liquidations]

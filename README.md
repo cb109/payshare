@@ -54,7 +54,7 @@ Make sure to have ` npm` or ` yarn` installed globally
 
 #### Creating initial Data
 
-The project currently relies on the Django admin pages to create new Collectives and Users and add  Memberships between them. 
+The project currently relies on the Django admin pages to create new Collectives and Users and add  Memberships between them.
 
 Assuming your Django dev-server is running at the default port, go to:
 
@@ -86,14 +86,14 @@ Oh the joy of deploying custom web apps to your own server. Our backend can be s
 
 #### Building the Frontend
 
-- `$ cd payshare/purchases/static/client` 
+- `$ cd payshare/purchases/static/client`
 - Update the `src/store.js` `apiBaseUrl` as needed, depending where your API lives on.
 - `$ npm run build`
-- ` $ cd -` 
+- ` $ cd -`
 - `$ python manage.py collectstatic --noinput`
-- Copy the results from `public` to a folder that your webserver knows, e.g. ` /var/www/payshare` 
+- Copy the results from `public` to a folder that your webserver knows, e.g. ` /var/www/payshare`
 - Configure your webserver and systemd, see below
-- Don't forget to install gunicorn: `$ pip install gunicorn` 
+- Don't forget to install gunicorn: `$ pip install gunicorn`
 
 Please see the following files for examples on simple systemd and nginx configurations:
 
@@ -101,3 +101,20 @@ Please see the following files for examples on simple systemd and nginx configur
 - [payshare.conf](payshare.conf)
 
 Notes: We should use https in any case, but it is also a requirement for the service-worker. One specialty about location blocks here is that for some we'll want to pass through the URL path and for others we don't.
+
+#### Image Hosting (e.g. avatars)
+
+You can upload images within the admin page using [Filer](https://django-filer.readthedocs.io/en/latest/index.html)
+which is particularly helpful to upload avatars to use within the UserProfile model.
+Any URLs that may have been used to create the avatar can be stored in the 'description'
+field of the image so it can be used later on.
+
+Images are hosted efficiently by making use of [Whitenoise](http://whitenoise.evans.io/en/stable/),
+so there is no need to configure your webserver for it in addition.
+
+
+#### Paypal.me Integration
+
+Well, integration is a big word. You can set a paypal.me username in the profile
+of each User and the app will show a button on the cashup page to open a tab
+in the browser with the correct amount for that payback action.
