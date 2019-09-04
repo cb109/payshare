@@ -69,7 +69,10 @@ def calc_paybacks(collective):
     purchases = collective.purchases
     prices = [float(purchase.price.amount) for purchase in purchases]
     overall_purchased = sum(prices)
-    each_member_must_pay = float(overall_purchased) / float(num_members)
+    try:
+        each_member_must_pay = float(overall_purchased) / float(num_members)
+    except ZeroDivisionError:
+        each_member_must_pay = 0
     member_to_balance = {}
     for member in collective.members:
         member_purchased = sum([

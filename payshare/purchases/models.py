@@ -160,7 +160,10 @@ class Collective(TimestampMixin, models.Model):
 
         prices = [float(purchase.price.amount) for purchase in purchases]
         overall_purchased = sum(prices)
-        per_member = float(overall_purchased) / float(num_members)
+        try:
+            per_member = float(overall_purchased) / float(num_members)
+        except ZeroDivisionError:
+            per_member = 0
 
         debts = [
             float(liquidation.amount.amount) for liquidation in liquidations]

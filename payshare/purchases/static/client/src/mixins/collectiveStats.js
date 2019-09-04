@@ -31,13 +31,15 @@ export default {
       if (!this.collective) {
         return 0
       }
-      return Number(this.overallPurchased / this.numPurchases).toFixed(2)
+      const value = this.overallPurchased / this.numPurchases
+      return Number(value || 0).toFixed(2)
     },
     averageLiquidationAmount() {
       if (!this.collective) {
         return 0
       }
-      return Number(this.overallDebt / this.numLiquidations).toFixed(2)
+      const value = this.overallDebt / this.numLiquidations
+      return Number(value || 0).toFixed(2)
     },
     medianPurchasePrice() {
       if (!this.collective) {
