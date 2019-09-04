@@ -16,7 +16,7 @@ const router = new Router({
       component: Unknown
     },
     {
-      path: '/transfers',
+      path: '/:key/transfers',
       name: 'transfers',
       component: Transfers,
     },

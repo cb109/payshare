@@ -16,7 +16,12 @@
             <li v-for="prevKey in previousCollectiveKeys"
                 :key="prevKey">
                 <a :href="'/' + prevKey">
-                  {{ prevKey }}
+                  <span v-if="collectiveNameByKey[prevKey]">
+                    {{ collectiveNameByKey[prevKey] }}
+                  </span>
+                  <span v-else>
+                    {{ prevKey }}
+                  </span>
                 </a>
             </li>
           </ul>
@@ -34,9 +39,13 @@ export default {
     previousCollectiveKeys() {
       return this.$store.state.previousCollectiveKeys || []
     },
+    collectiveNameByKey() {
+      return this.$store.state.collectiveNameByKey
+    },
   },
   created() {
     this.$store.commit('LOAD_PREVIOUS_COLLECTIVE_KEYS_FROM_LOCALSTORAGE')
+    this.$store.commit('LOAD_COLLECTIVE_NAME_BY_KEY_MAP_FROM_LOCALSTORAGE')
   },
 }
 

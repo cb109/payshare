@@ -42,6 +42,7 @@
         </v-layout>
       </v-layout>
       <transfer-actionbar
+        class="pb-1"
         :allow-edit="allowEdit"
         :transfer="transfer"
       />
