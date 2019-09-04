@@ -111,3 +111,10 @@ field of the image so it can be used later on.
 
 Images are hosted efficiently by making use of [Whitenoise](http://whitenoise.evans.io/en/stable/),
 so there is no need to configure your webserver for it in addition.
+
+
+#### Paypal.me Integration
+
+Well, integration is a big word. You can set a paypal.me username in the profile
+of each User and the app will show a button on the cashup page to open a tab
+in the browser with the correct amount for that payback action.
