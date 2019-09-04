@@ -23,19 +23,40 @@
     </v-list-tile-avatar>
     <v-spacer></v-spacer>
     <v-list-tile-action>
-      <div class="amount"
-           :class="{'red--text': isDebtor,
-                    'green--text': isCreditor}">
-        {{ amount }}
-        <span class="grey--text">{{ collective.currency_symbol }}</span>
-      </div>
+      <v-layout align-center>
+        <div class="amount"
+             :class="{'red--text': isDebtor,
+                      'green--text': isCreditor}">
+          {{ amount }}
+          <span class="grey--text">{{ collective.currency_symbol }}</span>
+        </div>
+        <v-layout>
+          <v-btn
+            v-if="isDebtor && creditor.paypal_me_username"
+            icon
+            :title="$t('paypalMeHint')"
+            @click="openPaypalMePage(creditor.paypal_me_username, amount)"
+            class="ml-3"
+          >
+            <img
+              src="/static/paypal_logo.png"
+              alt="Paypal Me"
+              width="24"
+              height="24"
+            />
+          </v-btn>
+        </v-layout>
+      </v-layout>
     </v-list-tile-action>
   </v-list-tile>
   <v-list-tile :value="highlight"
                :style="{'background': highlight ? '#E8EAF6' : ' initial' }">
     <v-list-tile-content>
       <v-list-tile-title class="list__tile__title--wrap">
-        <v-layout wrap>
+        <v-layout
+          wrap
+          align-center
+        >
           <div>
             <strong :class="{'primary--text': isDebtor}">{{ debtor.username }}</strong>
             {{ $t('pays') }}
@@ -57,6 +78,8 @@
 <script>
 
 import selectedMember from '@/mixins/selectedMember'
+
+const PAYPAL_ME_BASE_URL = 'https://www.paypal.me'
 
 export default {
   name: 'payback-list-tile',
@@ -93,6 +116,12 @@ export default {
     isCreditor() {
       return this.selectedMember.id === this.creditor.id
     },
+  },
+  methods: {
+    openPaypalMePage(username, amount) {
+      const url = `${PAYPAL_ME_BASE_URL}/${username}/${amount}`
+      window.open(url, '_blank');
+    }
   },
 }
 
