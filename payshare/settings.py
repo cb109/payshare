@@ -125,6 +125,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "public", "media")
+
 
 class CustomizedStaticFilesConfig(StaticFilesConfig):
     """Ignore some unnecessary folder during " collectstatic"."""
@@ -140,7 +143,6 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "public", "static")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # One year.
 
 # https://django-filer.readthedocs.io/en/latest/installation.html
