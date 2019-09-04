@@ -17,7 +17,7 @@
     <div v-if="expanded"
          class="ml-1 caption">
       {{ username }}
-      <v-icon v-if="reaction.member === selectedMember.id"
+      <v-icon v-if="selectedMember && (reaction.member === selectedMember.id)"
               color="red"
               small
               class="clickable"
