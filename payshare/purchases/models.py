@@ -69,6 +69,10 @@ class UserProfile(models.Model):
                                         blank=True,
                                         default=DEFAULT_AVATAR_URL)
 
+    paypal_me_username = models.CharField(
+        max_length=64, null=True, blank=True, default=None
+    )
+
     def __str__(self):
         return u"Profile for {} ".format(self.user)
 
