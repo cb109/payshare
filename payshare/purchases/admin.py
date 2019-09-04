@@ -33,6 +33,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         "user",
         "avatar_image_url_link",
         "avatar_image_url",
+        "paypal_me_username",
         "id",
     )
 
