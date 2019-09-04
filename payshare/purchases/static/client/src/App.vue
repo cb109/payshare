@@ -284,7 +284,7 @@ export default {
       if (confirmed) {
         const key = this.collective.key
         this.$store.commit('RESET_ALL')
-        this.$router.push('/' + key)
+        this.$router.push('/unknown')
       }
     },
     reloadPage() {
