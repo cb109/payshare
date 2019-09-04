@@ -147,5 +147,6 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # One year.
 
 # https://django-filer.readthedocs.io/en/latest/installation.html
 THUMBNAIL_HIGH_RESOLUTION = True
+ADMIN_MEDIA_PREFIX = "/static/admin/"
 
 CLIENT_APP_TEMPLATE = "payshare/purchases/static/client/dist/index.html"
