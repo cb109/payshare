@@ -1,6 +1,7 @@
 *.py[cod]
-db.sqlite3
-.pytest_cache/
-public/static
-venv/
 .idea/
+.pytest_cache/
+db.sqlite3
+public/media/
+public/static/
+venv/
