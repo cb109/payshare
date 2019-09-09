@@ -14,6 +14,7 @@ const getInitialState = () => {
   return {
     busy: false,
     collective: null,
+    dialogActive: false,
     selectedMember: null,
     searchText: '',
     transfersPageIndex: 1,
@@ -37,6 +38,9 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
+    SET_DIALOG_ACTIVE(state, active) {
+      state.dialogActive = active
+    },
     PUT_COLLECTIVE_KEY_TO_LOCALSTORAGE(state, key) {
       let keysString = localStorage.getItem('previousCollectiveKeys')
       let keys = JSON.parse(keysString) || []

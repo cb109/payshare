@@ -249,6 +249,8 @@ export default {
   },
   watch: {
     show: function(val) {
+      this.$bus.$emit('dialog-active', val)
+
       if (val) {
         if (!this.buyer) {
           this.buyer = this.selectedMember
@@ -285,6 +287,10 @@ export default {
         }
 
         this.showDialog = true
+      })
+
+      this.$bus.$on('close-all-dialogs', () => {
+        this.showDialog = false
       })
     },
     confirm() {

@@ -87,6 +87,8 @@
 
 <script>
 
+import dialogBackButton from '@/mixins/dialogBackButton'
+
 import CashingUp from '@/components/CashingUp'
 import Liquidation from '@/components/Liquidation'
 import Purchase from '@/components/Purchase'
@@ -117,6 +119,9 @@ export default {
     Purchase,
     RankingList,
   },
+  mixins: [
+    dialogBackButton,
+  ],
   data() {
     return {
       currentTabIdx: null,
