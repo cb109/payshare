@@ -10,16 +10,10 @@ module.exports = {
   // See: https://github.com/vuejs/vue-cli/issues/976
   baseUrl: 'static',
 
-  configureWebpack: {
-    devtool: false,
-  },
-
   // Requests for files at /static/ will be found in the 'public' folder
   // during dev, before Django will later serve them from the actual URL
   // in production. See: https://github.com/vuejs/vue-cli/issues/1102
   devServer: {
-    compress: true,
-    disableHostCheck: true,
     proxy: null,
     before: app => {
       app.use('/static', express.static('public'));
