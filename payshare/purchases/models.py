@@ -121,8 +121,11 @@ class Collective(TimestampMixin, models.Model):
 
     @property
     def members(self):
-        return User.objects.filter(membership__collective__id=self.id,
-                                   is_active=True)
+        return (
+            User.objects
+            .filter(membership__collective__id=self.id, is_active=True)
+            .order_by("username", "first_name", "last_name")
+        )
 
     @property
     def stats(self):
