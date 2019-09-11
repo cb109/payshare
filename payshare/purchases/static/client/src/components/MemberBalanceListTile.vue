@@ -17,6 +17,9 @@
       <v-list-tile-title class="list__tile__title--wrap">
         {{ member.username }}
       </v-list-tile-title>
+      <v-list-tile-sub-title>
+        {{ member.last_name || '' }}
+      </v-list-tile-sub-title>
     </v-list-tile-content>
     <v-list-tile-action
       class="subheading"
