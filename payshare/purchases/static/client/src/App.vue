@@ -282,7 +282,6 @@ export default {
     logout() {
       const confirmed = confirm(this.$t('confirmLogout'))
       if (confirmed) {
-        const key = this.collective.key
         this.$store.commit('RESET_ALL')
         this.$router.push('/unknown')
       }
@@ -292,7 +291,7 @@ export default {
     },
   },
   // FIXME: Dehydration of state races with created() and mounted() in
-  //   other components and should better be handled explcitly, maybe
+  //   other components and should better be handled explicitly, maybe
   //   using something like vuex-localstorage.
   created() {
     this.checkUrl()
