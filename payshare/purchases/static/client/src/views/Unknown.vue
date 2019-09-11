@@ -15,14 +15,14 @@
           <ul>
             <li v-for="prevKey in previousCollectiveKeys"
                 :key="prevKey">
-                <a :href="'/' + prevKey">
+                <router-link :to="'/' + prevKey">
                   <span v-if="collectiveNameByKey[prevKey]">
                     {{ collectiveNameByKey[prevKey] }}
                   </span>
                   <span v-else>
                     {{ prevKey }}
                   </span>
-                </a>
+                </router-link>
             </li>
           </ul>
         </div>
