@@ -15,8 +15,9 @@ const getInitialState = () => {
     busy: false,
     collective: null,
     dialogActive: false,
-    selectedMember: null,
+    drawer: false,
     searchText: '',
+    selectedMember: null,
     transfersPageIndex: 1,
     transfersPage: {
       num_pages: 0,
@@ -38,6 +39,9 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
+    SET_DRAWER(state, drawer) {
+      state.drawer = drawer
+    },
     SET_DIALOG_ACTIVE(state, active) {
       state.dialogActive = active
     },

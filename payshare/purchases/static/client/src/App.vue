@@ -214,7 +214,6 @@ export default {
   },
   data () {
     return {
-      drawer: false,
       dark: false,
       title: 'Payshare',
       showSelectMemberDialog: false,
@@ -222,6 +221,14 @@ export default {
     }
   },
   computed: {
+    drawer: {
+      get() {
+        return this.$store.state.drawer
+      },
+      set(drawer) {
+        this.$store.commit('SET_DRAWER', drawer)
+      }
+    },
     isLoginPage() {
       return this.$route.name === 'login'
     },
