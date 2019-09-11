@@ -33,6 +33,10 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !store.getters.isLoggedIn) {
+    const key = to.params.key
+    if (key) {
+      return next(`/${key}`)  // To login
+    }
     return next('/unknown')
   }
   next()
