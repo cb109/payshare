@@ -1,12 +1,14 @@
 <template>
   <v-app :dark="dark">
-    <v-navigation-drawer app
-                         :dark="dark"
-                         fixed
-                         :clipped="$vuetify.breakpoint.mdAndDown"
-                         v-model="drawer"
-                         :width="$vuetify.breakpoint.width <= 320 ? 280 : 300"
-                         v-if="$store.getters.isLoggedIn">
+    <v-navigation-drawer
+      v-if="collective"
+      v-model="drawer"
+      app
+      fixed
+      :dark="dark"
+      :clipped="$vuetify.breakpoint.mdAndDown"
+      :width="$vuetify.breakpoint.width <= 320 ? 280 : 300"
+    >
       <v-layout column
                 fill-height>
         <v-list>
