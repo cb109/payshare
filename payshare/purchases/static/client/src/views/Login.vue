@@ -20,11 +20,22 @@
         :error="failed"
         :error-messages="errorMessages">
       </v-text-field>
-      <v-btn @click="loginWithCredentials(uuid, password)"
-             :loading="loading"
-             block
-             outline>
+      <v-btn
+        block
+        color="primary"
+        class="elevation-0"
+        :loading="loading"
+        @click="loginWithCredentials(uuid, password)"
+      >
         {{ $t('login') }}
+      </v-btn>
+      <v-btn
+        v-if="displayBackButton"
+        block
+        outline
+        @click="$router.push('/unknown')"
+      >
+        {{ $t('back') }}
       </v-btn>
     </v-flex>
   </v-layout>
@@ -50,6 +61,11 @@ export default {
       errorMessages: [],
     }
   },
+  computed: {
+    displayBackButton() {
+      return this.$store.state.previousCollectiveKeys.length > 0
+    },
+  },
   methods: {
     loginWithCredentials(uuid, password) {
       this.loading = true
@@ -74,6 +90,9 @@ export default {
         this.errorMessages = [this.$t(error.response.data.detail)]
       })
     },
+  },
+  created() {
+    this.$store.commit('LOAD_PREVIOUS_COLLECTIVE_KEYS_FROM_LOCALSTORAGE')
   },
   mounted() {
     this.$nextTick(() => {
