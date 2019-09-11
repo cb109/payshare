@@ -34,7 +34,6 @@
 <script>
 
 export default {
-  name: 'unknown',
   computed: {
     previousCollectiveKeys() {
       return this.$store.state.previousCollectiveKeys || []

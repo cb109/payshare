@@ -38,7 +38,6 @@ import selectedMember from '@/mixins/selectedMember'
 import uuid from '@/mixins/uuid'
 
 export default {
-  name: 'Login',
   mixins: [
     selectedMember,
     uuid,
