@@ -8,7 +8,7 @@ export default {
         return []
       }
       const users = this.collective.members.concat()
-      return users.sort((u1, u2) => u1.username > u2.username)
+      return users
     },
     selectedMember: {
       get() {

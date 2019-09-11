@@ -59,7 +59,7 @@
         >
           <div>
             <strong :class="{'primary--text': isDebtor}">{{ debtor.username }}</strong>
-            {{ $t('pays') }}
+            {{ $t('pays') }}&nbsp;
           </div>
           <div>
             {{ $t('to') }}<strong :class="{'primary--text': isCreditor}">

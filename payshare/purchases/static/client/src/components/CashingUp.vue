@@ -23,13 +23,13 @@
       <v-layout justify-center
                 align-center>
         <v-icon color="success"
-                x-large
+                medium
                 class="mr-2">
           check
         </v-icon>
-        <h3 class="headline grey--text text--darken-2">
+        <div class="grey--text text--darken-2">
           {{ $t('nothingToDo') }}
-        </h3>
+        </div>
       </v-layout>
     </v-card-title>
   </v-card>

@@ -30,13 +30,14 @@
             </v-layout>
             <!-- Upper pagination controls -->
             <v-layout justify-center>
-              <v-pagination v-if="numPages > 1"
-                            :length="numPages"
-                             v-model="pageIndex"
-                             :disabled="busy"
-                             class="custom-pagination-controls"
-                             :total-visible="maxVisiblePaginationItems">
-              </v-pagination>
+              <v-pagination
+                v-if="numPages > 1"
+                v-model="pageIndex"
+                class="custom-pagination-controls"
+                :length="numPages"
+                :disabled="busy"
+                :total-visible="maxVisiblePaginationItems"
+              />
             </v-layout>
             <!-- Transfers list of current Page-->
             <v-layout justify-center>
@@ -55,13 +56,14 @@
             </v-layout>
             <!-- Lower pagination controls -->
             <v-layout justify-center>
-              <v-pagination v-if="numPages > 1 && transfers.length > 6"
-                             class="custom-pagination-controls"
-                            :length="numPages"
-                             v-model="pageIndex"
-                             :disabled="busy"
-                             :total-visible="maxVisiblePaginationItems">
-              </v-pagination>
+              <v-pagination
+                v-if="numPages > 1 && transfers.length > 6"
+                v-model="pageIndex"
+                class="custom-pagination-controls"
+                :length="numPages"
+                :disabled="busy"
+                :total-visible="maxVisiblePaginationItems"
+              />
             </v-layout>
             <div style="height: 80px"></div>
           </v-container>
@@ -86,6 +88,8 @@
 </template>
 
 <script>
+
+import dialogBackButton from '@/mixins/dialogBackButton'
 
 import CashingUp from '@/components/CashingUp'
 import Liquidation from '@/components/Liquidation'
@@ -117,6 +121,9 @@ export default {
     Purchase,
     RankingList,
   },
+  mixins: [
+    dialogBackButton,
+  ],
   data() {
     return {
       currentTabIdx: null,
@@ -141,8 +148,17 @@ export default {
       // The default logic does not use available width in an optimal way,
       // resulting often just two buttons being shown. This improves
       // that a bit, which makes it easier to use on small devices.
-      const numItems = Math.floor((this.$vuetify.breakpoint.width - 96) / 30);
-      return numItems;
+      const drawerOffset = (
+        this.$vuetify.breakpoint.lgAndUp && this.$store.state.drawer
+        ? 300
+        : 0
+      )
+      const flexMd8Factor = this.$vuetify.breakpoint.width >= 960 ? 0.667 : 1.0
+      const availableWidth = this.$vuetify.breakpoint.width * flexMd8Factor
+      const leftAndRightNavButtonWidth = 2 * 48
+      const widthPerPageButton = this.$vuetify.breakpoint.xs ? 28 : 44
+      const leftoverWidth = availableWidth - drawerOffset - leftAndRightNavButtonWidth
+      return (leftoverWidth / widthPerPageButton) - 1
     },
     busy() {
       return this.$store.state.busy

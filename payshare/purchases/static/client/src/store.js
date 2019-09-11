@@ -14,8 +14,12 @@ const getInitialState = () => {
   return {
     busy: false,
     collective: null,
-    selectedMember: null,
+    collectiveNameByKey: {},
+    dialogActive: false,
+    drawer: false,
+    previousCollectiveKeys: [],
     searchText: '',
+    selectedMember: null,
     transfersPageIndex: 1,
     transfersPage: {
       num_pages: 0,
@@ -24,8 +28,7 @@ const getInitialState = () => {
       next: null,
       results: [],
     },
-    previousCollectiveKeys: [],
-    collectiveNameByKey: {},
+    version: null,
   }
 }
 
@@ -37,6 +40,15 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
+    SET_VERSION(state, version) {
+      state.version = version
+    },
+    SET_DRAWER(state, drawer) {
+      state.drawer = drawer
+    },
+    SET_DIALOG_ACTIVE(state, active) {
+      state.dialogActive = active
+    },
     PUT_COLLECTIVE_KEY_TO_LOCALSTORAGE(state, key) {
       let keysString = localStorage.getItem('previousCollectiveKeys')
       let keys = JSON.parse(keysString) || []
@@ -145,6 +157,12 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    RETRIEVE_VERSION(context) {
+      const url = `${apiBaseUrl}/api/v1/version`
+      return axios.get(url).then(response => {
+        context.commit('SET_VERSION', response.data)
+      })
+    },
     UPDATE_COLLECTIVE_FINANCIAL_STATS(context) {
       const uuid = context.state.collective.key
       const token = context.state.collective.token
