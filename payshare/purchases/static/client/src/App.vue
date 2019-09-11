@@ -122,10 +122,12 @@
              :title="$t('reloadPage')">
         <v-icon>refresh</v-icon>
       </v-btn>
-      <v-btn v-if="$store.getters.isLoggedIn && $vuetify.breakpoint.smAndUp"
-             @click="logout()"
-             icon
-             :title="$t('logout')">
+      <v-btn
+        v-if="$store.getters.isLoggedIn && $vuetify.breakpoint.smAndUp"
+        icon
+        :title="$t('logout')"
+        @click="logout()"
+      >
         <v-icon>exit_to_app</v-icon>
       </v-btn>
     </v-toolbar>
@@ -168,10 +170,12 @@
             <h3 class="headline">{{ $t('chooseMember') }}</h3>
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon
-                 large
-                 @click="showSelectMemberDialog = false; logout()"
-                 :title="$t('logout')">
+          <v-btn
+            icon
+            large
+            :title="$t('logout')"
+            @click="showSelectMemberDialog = false; logout()"
+          >
             <v-icon>
               exit_to_app
             </v-icon>
@@ -256,6 +260,25 @@ export default {
       return languages
     },
   },
+  // FIXME: Dehydration of state races with created() and mounted() in
+  //   other components and should better be handled explicitly, maybe
+  //   using something like vuex-localstorage.
+  created() {
+    this.checkUrl()
+
+    this.rememberCollective()
+    this.rememberSelectedMember()
+
+    if (this.$store.getters.isLoggedIn) {
+      this.$router.push(`/${this.uuid}/transfers`)
+    }
+  },
+  mounted() {
+    this.setInitialDrawerState()
+    this.checkIfWeNeedToChooseMember()
+
+    this.$bus.$on('logged-in', this.checkIfWeNeedToChooseMember)
+  },
   methods: {
     setInitialDrawerState() {
       if (this.$vuetify.breakpoint.lgAndUp) {
@@ -299,25 +322,6 @@ export default {
       location.reload()
     },
   },
-  // FIXME: Dehydration of state races with created() and mounted() in
-  //   other components and should better be handled explicitly, maybe
-  //   using something like vuex-localstorage.
-  created() {
-    this.checkUrl()
-
-    this.rememberCollective()
-    this.rememberSelectedMember()
-
-    if (this.$store.getters.isLoggedIn) {
-      this.$router.push(`/${this.uuid}/transfers`)
-    }
-  },
-  mounted() {
-    this.setInitialDrawerState()
-    this.checkIfWeNeedToChooseMember()
-
-    this.$bus.$on('logged-in', this.checkIfWeNeedToChooseMember)
-  },
 }
 </script>
 
@@ -327,9 +331,32 @@ export default {
   padding-bottom: 0;
 }
 
+.auto-height .toolbar__content {
+  padding-top: 8px;
+  height: auto !important;
+}
+
+.list__tile__title--wrap {
+  white-space: normal;
+  height: auto;
+}
+
 </style>
 
 <style>
+
+.version-container {
+  width: 100%;
+  position: relative;
+}
+
+.version {
+  width: 100%;
+  text-align: end;
+  position: absolute;
+  font-size: 0.7rem;
+  top: -17px;
+}
 
 .clickable {
   cursor: pointer;
@@ -351,18 +378,8 @@ export default {
   border: 1px solid red;
 }
 
-.auto-height .toolbar__content {
-  padding-top: 8px;
-  height: auto !important;
-}
-
 .text--wrap {
   white-space: normal;
-}
-
-.list__tile__title--wrap {
-  white-space: normal;
-  height: auto;
 }
 
 </style>
