@@ -69,7 +69,10 @@ class HeaderAuthentication(authentication.BaseAuthentication):
 @authentication_classes((HeaderAuthentication,))
 def collective(request, key):
     collective = collective_from_key(key)
-    serialized_collective = CollectiveSerializer(collective).data
+    serialized_collective = (
+        CollectiveSerializer(collective, context={"request": request})
+        .data
+    )
     return Response(serialized_collective)
 
 

@@ -34,6 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CollectiveSerializer(serializers.ModelSerializer):
+    logo_image_url = serializers.SerializerMethodField()
     members = UserSerializer(many=True)
 
     class Meta:
@@ -43,12 +44,18 @@ class CollectiveSerializer(serializers.ModelSerializer):
             "currency_symbol",
             "id",
             "key",
+            "logo_image_url",
             "members",
             "name",
             "readonly",
             "stats",
             "token",
         )
+
+    def get_logo_image_url(self, collective):
+        if collective.logo_image is None:
+            return None
+        return self.context["request"].build_absolute_uri(collective.logo_image.url)
 
 
 class MoneyField(serializers.Field):
