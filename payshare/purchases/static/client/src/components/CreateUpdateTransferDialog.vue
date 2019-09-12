@@ -86,14 +86,18 @@
           :member.sync="debtor"
         ></select-member-list-tile>
         <v-layout justify-end>
-          <v-btn v-if="isLiquidationMode && (creditor || debtor)"
-                 fab
-                 small
-                 absolute
-                 style="right: 8px"
-                 :style="{'top': swapButtonTopOffset}"
-                 @click="swapCreditorAndDebtor()">
-            <v-icon medium>swap_vert</v-icon>
+          <v-btn
+            v-if="isLiquidationMode && (creditor || debtor)"
+            fab
+            small
+            absolute
+            style="right: 8px"
+            :style="{'top': swapButtonTopOffset}"
+            @click="swapCreditorAndDebtor()"
+          >
+            <v-icon medium>
+              swap_vert
+            </v-icon>
           </v-btn>
         </v-layout>
         <v-text-field
@@ -114,7 +118,10 @@
         ></v-text-field>
       </v-card-text>
       <v-card-actions class="pb-3">
-        <v-layout justify-center>
+        <v-layout
+          justify-center
+          wrap
+        >
           <v-btn
             color="error"
             block
@@ -191,14 +198,14 @@ export default {
   },
   computed: {
     confirmButtonTitle() {
-      return this.isCreateAction ? this.$t('create') : this.$t('confirmChanges')
+      return this.isCreateAction ? this.$t('create') : this.$t('confirm')
     },
     swapButtonTopOffset() {
       if (this.isCreateAction) {
-        return this.$vuetify.breakpoint.xsOnly ? '310px' : '292px'
+        return this.$vuetify.breakpoint.xsOnly ? '246px' : '220px'
       }
       else {
-        return this.$vuetify.breakpoint.xsOnly ? '260px' : '242px'
+        return this.$vuetify.breakpoint.xsOnly ? '196px' : '174px'
       }
     },
     isPurchaseMode() {
