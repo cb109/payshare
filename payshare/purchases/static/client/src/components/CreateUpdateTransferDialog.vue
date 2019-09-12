@@ -1,73 +1,69 @@
 <template>
 
 <div v-if="collective && members">
-  <v-dialog :fullscreen="$vuetify.breakpoint.xsOnly"
-            max-width="480px"
-            :persistent="loading"
-            v-model="showDialog">
+  <v-dialog
+    v-model="showDialog"
+    max-width="480px"
+    persistent
+    :fullscreen="$vuetify.breakpoint.xsOnly"
+  >
     <v-card>
-      <v-toolbar flat
-                 color="primary"
-                 dark>
-        <v-toolbar-title>
-          <h3 class="headline">
-            <v-layout align-center>
-              <v-icon v-if="isCreateAction">add</v-icon>
-              <v-icon v-if="isUpdateAction">edit</v-icon>
-              <span class="m-2">
-                {{ headline }}
-              </span>
-            </v-layout>
-          </h3>
-        </v-toolbar-title>
-      </v-toolbar>
-      <v-toolbar flat
-                 dense
-                 color="primary"
-                 v-show="action === 'create'">
-        <v-btn-toggle v-model="mode"
-                      mandatory
-                      class="elevation-0"
-                      style="width: 100%">
-          <v-btn flat
-                 block
-                 color="white"
-                 style="height: 48px"
-                 value="purchase">
+      <v-toolbar
+        v-show="action === 'create'"
+        color="primary"
+        flat
+        dense
+      >
+        <v-btn-toggle
+          v-model="mode"
+          mandatory
+          class="elevation-0"
+          style="width: 100%"
+        >
+          <v-btn
+            flat
+            block
+            style="height: 56px"
+            value="purchase"
+            :color="isPurchaseMode ? 'primary' : null"
+          >
             <span class="black--text">
               {{ $t('purchase') }}
             </span>
           </v-btn>
-          <v-btn flat
-                 block
-                 color="white"
-                 style="height: 48px"
-                 value="liquidation">
+          <v-btn
+            flat
+            block
+            style="height: 56px"
+            value="liquidation"
+            :color="isLiquidationMode ? 'primary' : null"
+          >
             <span class="black--text">
               {{ $t('liquidation') }}
             </span>
           </v-btn>
         </v-btn-toggle>
       </v-toolbar>
-      <v-card-actions class="mt-2">
-        <v-layout justify-center>
-          <v-btn color="error"
-                 block
-                 flat
-                 @click="abort()">
-            {{ $t('abort') }}
-          </v-btn>
-          <v-btn color="success"
-                 block
-                 @click="confirm()"
-                 :disabled="!formIsValid"
-                 :loading="loading">
-            {{ confirmButtonTitle }}
-          </v-btn>
-        </v-layout>
-      </v-card-actions>
       <v-card-text>
-        <h4 class="subheading mb-2">{{ explanation }}</h4>
+        <h3 class="headline mb-3">
+          <v-layout
+            align-center
+            class="mt-1"
+          >
+            <v-icon
+              v-if="isUpdateAction"
+              class="mr-2"
+            >
+              edit
+            </v-icon>
+            <span>
+              {{ headline }}
+            </span>
+          </v-layout>
+        </h3>
+        <h4 class="subheading mb-2">
+          {{ explanation }}
+        </h4>
         <select-member-list-tile
           v-if="isPurchaseMode"
           class="mb-4"
@@ -117,6 +113,30 @@
           class="price"
         ></v-text-field>
       </v-card-text>
+      <v-card-actions class="pb-3">
+        <v-layout justify-center>
+          <v-btn
+            color="error"
+            block
+            flat
+            round
+            @click="abort()"
+          >
+            {{ $t('abort') }}
+          </v-btn>
+          <v-btn
+            color="success"
+            block
+            round
+            class="elevation-0"
+            :disabled="!formIsValid"
+            :loading="loading"
+            @click="confirm()"
+          >
+            {{ confirmButtonTitle }}
+          </v-btn>
+        </v-layout>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </div>
@@ -171,7 +191,7 @@ export default {
   },
   computed: {
     confirmButtonTitle() {
-      return this.isCreateAction ? this.$t('confirm') : this.$t('save')
+      return this.isCreateAction ? this.$t('create') : this.$t('confirmChanges')
     },
     swapButtonTopOffset() {
       if (this.isCreateAction) {
