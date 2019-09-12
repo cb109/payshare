@@ -79,17 +79,30 @@
         </v-list>
       </v-layout>
     </v-navigation-drawer>
-    <v-toolbar app
-               fixed
-               dark
-               :color="!isLoginPage ? 'primary' : null"
-               :class="{'light': isLoginPage,
-                        'auto-height': isLoginPage}"
-               flat>
+    <v-toolbar
+      app
+      fixed
+      dark
+      :color="!isLoginPage ? 'primary' : null"
+      :class="{'light': isLoginPage,
+               'auto-height': isLoginPage}"
+      flat
+    >
       <v-toolbar-side-icon
-        v-if="$store.getters.isLoggedIn"
-        @click.stop="drawer = !drawer">
-      </v-toolbar-side-icon>
+        v-if="$store.getters.isLoggedIn && !collective.logo_image_url"
+        @click.stop="drawer = !drawer"
+      />
+      <v-btn
+        v-if="$store.getters.isLoggedIn && collective.logo_image_url"
+        @click.stop="drawer = !drawer"
+        icon
+      >
+        <img
+          :src="collective.logo_image_url"
+          width="36"
+          height="36"
+        >
+      </v-btn>
       <v-spacer v-if="isLoginPage"></v-spacer>
       <v-toolbar-title :class="{'black--text': isLoginPage,
                                 'text--wrap': isLoginPage}">

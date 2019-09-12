@@ -16,6 +16,7 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from djmoney.models.fields import MoneyField
+from filer.fields.image import FilerImageField
 
 from payshare.purchases.calc import calc_paybacks
 
@@ -98,6 +99,13 @@ class Collective(TimestampMixin, models.Model):
     token = models.UUIDField(default=uuid.uuid4, editable=False)
     currency_symbol = models.CharField(default="€", max_length=3)
     readonly = models.BooleanField(default=False)
+    logo_image = FilerImageField(
+        null=True,
+        blank=True,
+        default=None,
+        on_delete=models.SET_NULL,
+        related_name="logo_collective",
+    )
 
     def save(self, *args, **kwargs):
         """Make sure to save changed password hashes, not as plain text."""
