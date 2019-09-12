@@ -202,11 +202,11 @@ export default {
 
 <style lang="stylus">
 
-$smaller-margin = 2px
+$smaller-margin = 1px
 
 @media(max-width: 599px)
   .custom-pagination-controls .pagination__item
-    width: 1.75rem
+    width: 1.6rem
     height: 2rem
     margin-left: $smaller-margin
     margin-right: $smaller-margin
