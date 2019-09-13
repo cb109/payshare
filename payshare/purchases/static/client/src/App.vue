@@ -255,6 +255,9 @@ export default {
     busy() {
       return this.$store.state.busy
     },
+    isWithinPwaStartup() {
+      return this.$route.path === '/index.html'
+    },
     showCreationButton() {
       return (
         !this.isLoginPage &&
@@ -299,6 +302,9 @@ export default {
       }
     },
     checkUrl() {
+      if (this.isWithinPwaStartup) {
+        return
+      }
       if (!this.uuid) {
         this.onFailureExitApp()
       }
@@ -310,11 +316,12 @@ export default {
     rememberCollective() {
       this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
       if (this.collective) {
-
+        if (this.isWithinPwaStartup) {
+          return
+        }
         if (this.collective.key !== this.uuid) {
           this.onFailureExitApp()
         }
-
         // It may be outdated, get a fresh dataset from the API.
         this.$store.dispatch('RETRIEVE_COLLECTIVE_USING_TOKEN')
       }

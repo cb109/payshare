@@ -10,7 +10,7 @@ import './registerServiceWorker'
 
 Vue.use(Vuetify, {
   theme: {
-    primary: '#2673a7',
+    primary: '#2673a7',  // Update manifest.json as well!
   },
 })
 Vue.config.productionTip = false
