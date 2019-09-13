@@ -16,10 +16,10 @@
             <v-layout justify-center>
               <v-flex xs12 sm6>
                 <v-text-field
+                  v-model="searchText"
                   append-icon="search"
                   class="pt-0 mt-0"
                   clearable
-                  v-model="searchText"
                   :placeholder="matchingEntriesHint"
                   :hint="!!searchText.trim() ? matchingEntriesHint : ''"
                   :persistent-hint="!!searchText.trim()"
