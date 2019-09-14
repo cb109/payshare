@@ -255,9 +255,6 @@ export default {
     busy() {
       return this.$store.state.busy
     },
-    isWithinPwaStartup() {
-      return this.$route.path === '/index.html'
-    },
     showCreationButton() {
       return (
         !this.isLoginPage &&
@@ -276,20 +273,14 @@ export default {
       return languages
     },
   },
-  // FIXME: Dehydration of state races with created() and mounted() in
-  //   other components and should better be handled explicitly, maybe
-  //   using something like vuex-localstorage.
-  created() {
-    this.checkUrl()
-
+  mounted() {
     this.rememberCollective()
     this.rememberSelectedMember()
 
     if (this.$store.getters.isLoggedIn) {
       this.$router.push(`/${this.uuid}/transfers`)
     }
-  },
-  mounted() {
+
     this.setInitialDrawerState()
     this.checkIfWeNeedToChooseMember()
 
@@ -301,30 +292,16 @@ export default {
         this.drawer = true
       }
     },
-    checkUrl() {
-      if (this.isWithinPwaStartup) {
-        return
-      }
-      if (!this.uuid) {
-        this.onFailureExitApp()
-      }
-    },
     onFailureExitApp() {
       this.$store.commit('UNSET_COLLECTIVE')
       this.$router.push('/unknown')
     },
     rememberCollective() {
       this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
-      if (this.collective) {
-        if (this.isWithinPwaStartup) {
-          return
-        }
-        if (this.collective.key !== this.uuid) {
-          this.onFailureExitApp()
-        }
-        // It may be outdated, get a fresh dataset from the API.
-        this.$store.dispatch('RETRIEVE_COLLECTIVE_USING_TOKEN')
+      if (!this.collective) {
+        this.onFailureExitApp()
       }
+      this.$store.dispatch('RETRIEVE_COLLECTIVE_USING_TOKEN')
     },
     checkIfWeNeedToChooseMember() {
       if (this.$store.getters.isLoggedIn && !this.selectedMember) {
