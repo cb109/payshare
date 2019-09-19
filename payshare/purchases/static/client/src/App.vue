@@ -166,7 +166,12 @@
          :title="$t('addEntry')"
          @click="(() => showCreateUpdateTransferDialog = true)"
       >
-        <v-icon medium>add</v-icon>
+        <v-icon
+         :medium="$vuetify.breakpoint.smAndDown"
+         :large="$vuetify.breakpoint.mdAndUp"
+        >
+          add
+        </v-icon>
       </v-btn>
       <v-slide-y-transition mode="out-in">
         <router-view :key="$route.fullPath" />
