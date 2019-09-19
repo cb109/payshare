@@ -55,11 +55,14 @@ router.beforeEach((to, from, next) => {
 
   // Handle not being logged in we we have to be.
   if (to.meta.requiresAuth && !store.getters.isLoggedIn) {
-    return next('/unknown')
+    return next(`/${key}`)
   }
 
   // Handle invalid route path e.g.: /<uuid>/bogus
-  // TBD
+  const invalidPath = to.name === null
+  if (invalidPath) {
+    return next('/unknown')
+  }
 
   next()
 })
