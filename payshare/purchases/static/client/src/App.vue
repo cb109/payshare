@@ -118,7 +118,8 @@
       <v-layout
         v-if="collective && collective.readonly"
         align-center
-        class="warning--text"
+        class="warning--text no-grow clickable"
+        @click="displayReadOnlyAlert()"
       >
         <v-icon
           class="mr-1"
@@ -274,12 +275,15 @@ export default {
     },
   },
   mounted() {
-    this.rememberCollective()
-    this.rememberSelectedMember()
-
     if (this.$store.getters.isLoggedIn) {
-      this.$router.push(`/${this.uuid}/transfers`)
+      this.refreshCollective()
+
+      if (this.uuid) {
+        this.$router.push(`/${this.uuid}/transfers`)
+      }
     }
+
+    this.rememberSelectedMember()
 
     this.setInitialDrawerState()
     this.checkIfWeNeedToChooseMember()
@@ -287,21 +291,16 @@ export default {
     this.$bus.$on('logged-in', this.checkIfWeNeedToChooseMember)
   },
   methods: {
+    refreshCollective() {
+      this.$store.dispatch('RETRIEVE_COLLECTIVE_USING_TOKEN')
+    },
+    displayReadOnlyAlert() {
+      window.alert(this.$t('readOnlyAlert'))
+    },
     setInitialDrawerState() {
       if (this.$vuetify.breakpoint.lgAndUp) {
         this.drawer = true
       }
-    },
-    onFailureExitApp() {
-      this.$store.commit('UNSET_COLLECTIVE')
-      this.$router.push('/unknown')
-    },
-    rememberCollective() {
-      this.$store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
-      if (!this.collective) {
-        this.onFailureExitApp()
-      }
-      this.$store.dispatch('RETRIEVE_COLLECTIVE_USING_TOKEN')
     },
     checkIfWeNeedToChooseMember() {
       if (this.$store.getters.isLoggedIn && !this.selectedMember) {
@@ -377,6 +376,10 @@ export default {
 
 .text--wrap {
   white-space: normal;
+}
+
+.no-grow {
+  flex-grow: 0 !important;
 }
 
 </style>
