@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import { isUUID } from './mixins/uuid'
 import store from './store'
 
 import Login from './views/Login.vue'
@@ -32,13 +33,37 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !store.getters.isLoggedIn) {
-    const key = to.params.key
-    if (key) {
-      return next(`/${key}`)  // To login
-    }
+  const key = to.params.key
+
+  // Handle invalid UUID in URL.
+  if (to.name != 'unknown' && key && !isUUID(key)) {
     return next('/unknown')
   }
+
+  if (!store.getters.isLoggedIn) {
+    store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
+  }
+
+  // Handle URL key points to different Collective then cached one.
+  if (store.getters.isLoggedIn && key) {
+    const urlKeyDiffersFromRememberedKey = store.state.collective.key != key
+    if (urlKeyDiffersFromRememberedKey) {
+      store.commit('UNSET_COLLECTIVE')
+      return next(`/${key}`)
+    }
+  }
+
+  // Handle not being logged in we we have to be.
+  if (to.meta.requiresAuth && !store.getters.isLoggedIn) {
+    return next(`/${key}`)
+  }
+
+  // Handle invalid route path e.g.: /<uuid>/bogus
+  const invalidPath = to.name === null
+  if (invalidPath) {
+    return next('/unknown')
+  }
+
   next()
 })
 

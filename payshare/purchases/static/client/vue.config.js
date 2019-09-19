@@ -14,6 +14,7 @@ module.exports = {
   // during dev, before Django will later serve them from the actual URL
   // in production. See: https://github.com/vuejs/vue-cli/issues/1102
   devServer: {
+    disableHostCheck: true,
     proxy: null,
     before: app => {
       app.use('/static', express.static('public'));
