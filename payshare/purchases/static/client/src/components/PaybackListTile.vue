@@ -147,16 +147,14 @@ export default {
 }
 
 .avatar-tile--icon {
-  min-width: 24px;
-  max-width: 24px;
+  min-width: 34px;
+  max-width: 34px;
 }
 
 .payback-arrow {
   font-size: 3em;
-  position: relative;
-  left: -4px;
-  max-width: 24px;
-  max-height: 24px;
+  max-width: 36px;
+  max-height: 36px;
 }
 
 .amount {
