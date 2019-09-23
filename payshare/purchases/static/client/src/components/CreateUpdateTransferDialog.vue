@@ -262,15 +262,19 @@ export default {
     },
     formIsValid() {
       if (this.isPurchaseMode) {
-        return (this.price > 0 &&
-                this.name.trim().length > 0 &&
-                this.buyer !== null)
+        return (
+          this.price !== 0 &&
+          this.name.trim().length > 0 &&
+          this.buyer !== null
+        )
       }
       else if (this.isLiquidationMode) {
-        return (this.price > 0 &&
-                this.name.trim().length > 0 &&
-                this.creditor !== null &&
-                this.debtor !== null)
+        return (
+          this.price !== 0 &&
+          this.name.trim().length > 0 &&
+          this.creditor !== null &&
+          this.debtor !== null
+        )
       }
     },
   },
