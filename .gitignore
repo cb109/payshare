@@ -1,6 +1,7 @@
 *.py[cod]
 .idea/
 .pytest_cache/
+.tox/
 db.sqlite3
 public/media/
 public/static/

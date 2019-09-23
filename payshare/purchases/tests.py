@@ -483,6 +483,46 @@ def test_paybacks(collective_with_transfers_for_payback):
     assert paybacks[2].amount == 10.0
 
 
+def test_calc_paybacks_with_negative_transfers(collective):
+    user_1 = mommy.make("auth.User", username="user_1")
+    user_2 = mommy.make("auth.User", username="user_2")
+    user_3 = mommy.make("auth.User", username="user_3")
+
+    collective.add_member(user_1)
+    collective.add_member(user_2)
+    collective.add_member(user_3)
+
+    mommy.make("purchases.Purchase",
+               collective=collective,
+               buyer=user_1,
+               name="Electricty Bill Refund",
+               price=-90.00)
+
+    mommy.make("purchases.Purchase",
+               collective=collective,
+               buyer=user_2,
+               name="Pizza",
+               price=15.00)
+
+    mommy.make("purchases.Liquidation",
+               collective=collective,
+               creditor=user_2,
+               debtor=user_3,
+               name="This makes no sense, but hey",
+               amount=-5.00)
+
+    paybacks = calc_paybacks(collective)
+    assert len(paybacks) == 3
+
+    data = [
+        (payback.debtor, payback.creditor, payback.amount)
+        for payback in paybacks
+    ]
+    assert (user_1, user_2, 40.00) in data
+    assert (user_1, user_3, 25.00) in data
+    assert (user_2, user_3, 5.00) in data
+
+
 class TestReadOnlyMiddleware:
 
     @pytest.fixture

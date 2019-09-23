@@ -44,10 +44,15 @@ class Payback(object):
         return ("{self.debtor.username} pays back {self.amount} "
                 "to {self.creditor.username}".format(self=self))
 
-    def swap_roles(self):
+    def _swap_roles(self):
         temp = self.debtor
         self.debtor = self.creditor
         self.creditor = temp
+
+    def enforce_positive_amount(self):
+        if self.amount < 0:
+            self._swap_roles()
+            self.amount = abs(self.amount)
 
     def to_json(self):
         return {
@@ -124,13 +129,12 @@ def calc_paybacks(collective):
                 payback.amount += liquidation_amount
             else:
                 payback.amount -= liquidation_amount
-            if payback.amount < 0:
-                payback.swap_roles()
-                payback.amount = abs(payback.amount)
+            payback.enforce_positive_amount()
         else:
-            payback = Payback(liquidation.debtor,
-                              liquidation.creditor,
-                              liquidation_amount)
+            payback = Payback(
+                liquidation.debtor, liquidation.creditor, liquidation_amount
+            )
+            payback.enforce_positive_amount()
             paybacks.append(payback)
 
     return paybacks
