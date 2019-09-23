@@ -5,4 +5,4 @@ install:
   - pip install pip-tools
   - pip-sync
 script:
-  - pytest -vv -s
+  - pytest -vv -s payshare/purchases/tests.py
