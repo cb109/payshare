@@ -65,19 +65,21 @@
                 :total-visible="maxVisiblePaginationItems"
               />
             </v-layout>
-            <div style="height: 80px"></div>
+            <scroll-space :height="80" />
           </v-container>
         </v-tab-item>
         <!-- Ranking -->
         <v-tab-item href="ranking">
           <v-container class="px-0">
             <ranking-list></ranking-list>
+            <scroll-space :height="80" />
           </v-container>
         </v-tab-item>
         <!-- Cashing Up -->
         <v-tab-item href="cashingUp">
           <v-container class="px-0">
             <cashing-up></cashing-up>
+            <scroll-space :height="80" />
           </v-container>
         </v-tab-item>
       </v-tabs>
@@ -95,6 +97,7 @@ import CashingUp from '@/components/CashingUp'
 import Liquidation from '@/components/Liquidation'
 import Purchase from '@/components/Purchase'
 import RankingList from '@/components/RankingList'
+import ScrollSpace from '@/components/ScrollSpace'
 
 // From https://davidwalsh.name/javascript-debounce-function
 function debounce(func, wait, immediate) {
@@ -120,6 +123,7 @@ export default {
     Liquidation,
     Purchase,
     RankingList,
+    ScrollSpace,
   },
   mixins: [
     dialogBackButton,
