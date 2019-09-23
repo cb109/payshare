@@ -31,7 +31,7 @@ from payshare.purchases.serializers import ReactionSerializer
 from payshare.purchases.serializers import TransferSerializer
 
 USER_MUST_BE_MEMBER = "User must be member of Collective"
-CANNOT_ADD_ZERO_MONEY = "The amount of money must be larger than zero"
+CANNOT_ADD_ZERO_MONEY = "The amount of money must not be zero"
 
 
 def key_from_resolvermatch(resolver_match):
@@ -142,6 +142,11 @@ class TransfersViewSet(ListModelMixin, GenericViewSet):
         return transfers
 
 
+def _raise_if_wrong_amount(amount):
+    if amount == 0:
+        raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+
+
 @api_view(("POST",))
 @authentication_classes((HeaderAuthentication,))
 def create_purchase(request, key):
@@ -170,8 +175,7 @@ def create_purchase(request, key):
 
     # FIXME: Either don't allow something else than euro or handle here.
     price_value = float(request.data["price"])
-    if price_value <= 0:
-        raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+    _raise_if_wrong_amount(price_value)
     price = Money(price_value, EUR)
 
     purchase = Purchase.objects.create(
@@ -210,8 +214,7 @@ class PurchaseDetailView(APIView):
             raise ValidationError(USER_MUST_BE_MEMBER)
 
         price_value = float(request.data["price"])
-        if price_value <= 0:
-            raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+        _raise_if_wrong_amount(price_value)
         price = Money(price_value, EUR)
 
         purchase = Purchase.objects.get(pk=pk)
@@ -277,8 +280,7 @@ def create_liquidation(request, key):
 
     # FIXME: Either don't allow something else than euro or handle here.
     amount_value = float(request.data["amount"])
-    if amount_value <= 0:
-        raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+    _raise_if_wrong_amount(amount_value)
     amount = Money(amount_value, EUR)
 
     liquidation = Liquidation.objects.create(
@@ -326,8 +328,7 @@ class LiquidationDetailView(APIView):
             raise ValidationError(USER_MUST_BE_MEMBER)
 
         amount_value = float(request.data["amount"])
-        if amount_value <= 0:
-            raise ValidationError(CANNOT_ADD_ZERO_MONEY)
+        _raise_if_wrong_amount(amount_value)
         amount = Money(amount_value, EUR)
 
         liquidation = Liquidation.objects.get(pk=pk)
