@@ -23,11 +23,11 @@ You can login using the password `demo` [here](https://payshare.cbuelter.de/28d7
 
 ## Terminology
 
-  - `Collective`: This is basically your shared flat, sports team, whatever
-  - `User`: A person that can be a member of one or more Collectives
-  - `Membership`: The connection of a User to a Collective
-  - ` Purchase`: A User bought something and the cost is shared equally in the Collective
-  - ` Liquidation` (named "Outlay" in the frontend): Some User gave money to another one and that debt will have to be paid back later
+- `Collective`: This is basically your shared flat, sports team, whatever
+- `User`: A person that can be a member of one or more Collectives
+- `Membership`: The connection of a User to a Collective
+- ` Purchase`: A User bought something and the cost is shared equally in the Collective
+- ` Liquidation` (named "Outlay" in the frontend): Some User gave money to another one and that debt will have to be paid back later
 
 ## Development Setup
 
@@ -35,23 +35,23 @@ If you want to setup and run the project yourself, follow these steps (assuming 
 
 ### Backend
 
-  - Make sure you have Python 3.x installed
-  - Clone the project and `cd` into its root directory
-  - `$ virtualenv venv`
-  - `$ source venv/bin/activate`
-  - `$ pip install pip-tools`
-  - `$ pip-sync`
-  - `$ python manage.py migrate`
-  - `$ python manage.py createsuperuser`
-  - `$ python manage.py runserver`
+- Make sure you have Python 3.x installed
+- Clone the project and `cd` into its root directory
+- `$ virtualenv venv`
+- `$ source venv/bin/activate`
+- `$ pip install pip-tools`
+- `$ pip-sync`
+- `$ python manage.py migrate`
+- `$ python manage.py createsuperuser`
+- `$ python manage.py runserver`
 
 ### Frontend
 
 Make sure to have ` npm` or ` yarn` installed globally
 
-  - `$ cd payshare/purchases/static/client`
-  - `$ yarn`/ `$ npm install`
-  - `$ npm run serve`
+- `$ cd payshare/purchases/static/client`
+- `$ yarn`/ `$ npm install`
+- `$ npm run serve`
 
 ### Creating initial Data
 
@@ -61,17 +61,17 @@ Assuming your Django dev-server is running at the default port, go to:
 
 [https://localhost:8000/admin](https://localhost:8000/admin)
 
-  - Create a Collective and set a password for it
-  - Create some Users (`username` is the only field that is displayed. Django requires us to set a password here, but you can just give any, it isn't used)
-  - Create Memberships for those Users in your Collective
+- Create a Collective and set a password for it
+- Create some Users (`username` is the only field that is displayed. Django requires us to set a password here, but you can just give any, it isn't used)
+- Create Memberships for those Users in your Collective
 
 The URL for your collective will be e.g. `http://localhost:8000/<collective-key>`. You can get the key from the admin pages. Send the URL (and the Collective's password of course) to everyone you want to participate, they will be asked to choose a User when logging in for the first time.
 
 You can also assign an avatar for each user by assigning some URL to a hosted image (there is no own upload feature, sorry). You can do that in the ` User profiles` area in the admin pages. There are many avatar generators, I like these:
 
-  - [https://getavataaars.com](https://getavataaars.com/)
-  - [http://avatars.adorable.io](http://avatars.adorable.io/)
-  - [https://robohash.org](https://robohash.org/)
+- [https://getavataaars.com](https://getavataaars.com/)
+- [http://avatars.adorable.io](http://avatars.adorable.io/)
+- [https://robohash.org](https://robohash.org/)
 
 ## A Note about Security
 
@@ -87,19 +87,19 @@ Oh the joy of deploying custom web apps to your own server. Our backend can be s
 
 ### Building the Frontend
 
-  - `$ cd payshare/purchases/static/client`
-  - Update the `src/store.js` `apiBaseUrl` as needed, depending where your API lives on.
-  - `$ npm run build`
-  - ` $ cd -`
-  - `$ python manage.py collectstatic --noinput`
-  - Copy the results from `public` to a folder that your webserver knows, e.g. ` /var/www/payshare`
-  - Configure your webserver and systemd, see below
-  - Don't forget to install gunicorn: `$ pip install gunicorn`
+- `$ cd payshare/purchases/static/client`
+- Update the `src/store.js` `apiBaseUrl` as needed, depending where your API lives on.
+- `$ npm run build`
+- ` $ cd -`
+- `$ python manage.py collectstatic --noinput`
+- Copy the results from `public` to a folder that your webserver knows, e.g. ` /var/www/payshare`
+- Configure your webserver and systemd, see below
+- Don't forget to install gunicorn: `$ pip install gunicorn`
 
 Please see the following files for examples on simple systemd and nginx configurations:
 
-  - [payshare.service](payshare.service)
-  - [payshare.conf](payshare.conf)
+- [payshare.service](payshare.service)
+- [payshare.conf](payshare.conf)
 
 Notes: We should use https in any case, but it is also a requirement for the service-worker. One specialty about location blocks here is that for some we'll want to pass through the URL path and for others we don't.
 
