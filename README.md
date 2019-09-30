@@ -3,6 +3,7 @@
 A web app to track shared expenses in a group of people.
 
 [![Build Status](https://travis-ci.com/cb109/payshare.svg?branch=develop)](https://travis-ci.com/cb109/payshare)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a111b89f4464f3bb5eb69f08fad568e)](https://www.codacy.com/manual/cb109/payshare?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cb109/payshare&amp;utm_campaign=Badge_Grade)
 
 Payshare is the equivalent of a whiteboard in the kitchen of your shared flat where everyone writes down how much he paid for groceries, who paid the cinema ticket or pizza for whom and so on, while it does the math for you to figure out who should buy the next round.
 
@@ -32,7 +33,7 @@ You can login using the password `demo` [here](https://payshare.cbuelter.de/28d7
 
 If you want to setup and run the project yourself, follow these steps (assuming you are on a Unix OS):
 
-#### Backend
+### Backend
 
 - Make sure you have Python 3.x installed
 - Clone the project and `cd` into its root directory
@@ -44,7 +45,7 @@ If you want to setup and run the project yourself, follow these steps (assuming 
 - `$ python manage.py createsuperuser`
 - `$ python manage.py runserver`
 
-#### Frontend
+### Frontend
 
 Make sure to have ` npm` or ` yarn` installed globally
 
@@ -52,13 +53,13 @@ Make sure to have ` npm` or ` yarn` installed globally
 - `$ yarn`/ `$ npm install`
 - `$ npm run serve`
 
-#### Creating initial Data
+### Creating initial Data
 
 The project currently relies on the Django admin pages to create new Collectives and Users and add  Memberships between them.
 
 Assuming your Django dev-server is running at the default port, go to:
 
-https://localhost:8000/admin
+[https://localhost:8000/admin](https://localhost:8000/admin)
 
 - Create a Collective and set a password for it
 - Create some Users (`username` is the only field that is displayed. Django requires us to set a password here, but you can just give any, it isn't used)
@@ -68,9 +69,9 @@ The URL for your collective will be e.g. `http://localhost:8000/<collective-key>
 
 You can also assign an avatar for each user by assigning some URL to a hosted image (there is no own upload feature, sorry). You can do that in the ` User profiles` area in the admin pages. There are many avatar generators, I like these:
 
-- https://getavataaars.com/
-- http://avatars.adorable.io/
-- https://robohash.org/
+- [https://getavataaars.com](https://getavataaars.com/)
+- [http://avatars.adorable.io](http://avatars.adorable.io/)
+- [https://robohash.org](https://robohash.org/)
 
 ## A Note about Security
 
@@ -84,7 +85,7 @@ Project is build with [Django](https://www.djangoproject.com/) 2.1, [Django-REST
 
 Oh the joy of deploying custom web apps to your own server. Our backend can be setup as a systemd service that runs a WSGI app via gunicorn, whereas the frontend is built into a bundle of static files that our nginx webserver can serve.
 
-#### Building the Frontend
+### Building the Frontend
 
 - `$ cd payshare/purchases/static/client`
 - Update the `src/store.js` `apiBaseUrl` as needed, depending where your API lives on.
@@ -102,7 +103,7 @@ Please see the following files for examples on simple systemd and nginx configur
 
 Notes: We should use https in any case, but it is also a requirement for the service-worker. One specialty about location blocks here is that for some we'll want to pass through the URL path and for others we don't.
 
-#### Image Hosting (e.g. avatars)
+### Image Hosting (e.g. avatars)
 
 You can upload images within the admin page using [Filer](https://django-filer.readthedocs.io/en/latest/index.html)
 which is particularly helpful to upload avatars to use within the UserProfile model.
@@ -112,8 +113,7 @@ field of the image so it can be used later on.
 Images are hosted efficiently by making use of [Whitenoise](http://whitenoise.evans.io/en/stable/),
 so there is no need to configure your webserver for it in addition.
 
-
-#### Paypal.me Integration
+### Paypal.me Integration
 
 Well, integration is a big word. You can set a paypal.me username in the profile
 of each User and the app will show a button on the cashup page to open a tab

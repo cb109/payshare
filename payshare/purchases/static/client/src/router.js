@@ -35,6 +35,14 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   const key = to.params.key
 
+  // Handle PWA initial startup.
+  if (to.path === '/index.html') {
+    store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
+    if (store.state.collective) {
+      return next(`/${store.state.collective.key}`)
+    }
+  }
+
   // Handle invalid UUID in URL.
   if (to.name != 'unknown' && key && !isUUID(key)) {
     return next('/unknown')
@@ -53,7 +61,7 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  // Handle not being logged in we we have to be.
+  // Handle not being logged in when we have to be.
   if (to.meta.requiresAuth && !store.getters.isLoggedIn) {
     return next(`/${key}`)
   }
