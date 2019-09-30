@@ -35,8 +35,8 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   const key = to.params.key
 
-  // Handle PWA initial startup.
-  if (to.path === '/index.html') {
+  // Handle PWA initial startup (see manifest.json -> start_url).
+  if (to.path === '/') {
     store.commit('LOAD_COLLECTIVE_FROM_LOCALSTORAGE')
     if (store.state.collective) {
       return next(`/${store.state.collective.key}`)
