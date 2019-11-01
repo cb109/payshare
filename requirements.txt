@@ -6,7 +6,6 @@
 #
 atomicwrites==1.3.0       # via pytest
 attrs==19.1.0             # via packaging, pytest
-colorama==0.4.1           # via pytest
 django-cors-headers==3.1.0
 django-filer==1.5.0
 django-js-asset==1.2.2    # via django-mptt
@@ -21,8 +20,7 @@ importlib-metadata==0.20  # via pluggy, pytest
 model-mommy==1.6.0
 more-itertools==7.2.0     # via pytest, zipp
 packaging==19.1           # via pytest
-pathlib2==2.3.4           # via pytest
-pillow==6.1.0             # via easy-thumbnails
+pillow==6.2.0             # via easy-thumbnails
 pluggy==0.12.0            # via pytest
 py-moneyed==0.8.0         # via django-money
 py==1.8.0                 # via pytest
@@ -30,7 +28,7 @@ pyparsing==2.4.2          # via packaging
 pytest-django==3.5.1
 pytest==5.1.2
 pytz==2019.2              # via django
-six==1.12.0               # via model-mommy, packaging, pathlib2
+six==1.12.0               # via model-mommy, packaging
 sqlparse==0.3.0           # via django
 unidecode==1.0.23         # via django-filer
 wcwidth==0.1.7            # via pytest
