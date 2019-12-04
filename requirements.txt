@@ -12,11 +12,11 @@ django-js-asset==1.2.2    # via django-mptt
 django-money==0.15
 django-mptt==0.10.0       # via django-filer
 django-polymorphic==2.0.3  # via django-filer
-django==2.2.5
+django==2.2.8
 djangorestframework==3.10.3
 easy-thumbnails==2.6      # via django-filer
 gunicorn==19.9.0
-importlib-metadata==0.20  # via pluggy, pytest
+importlib-metadata==0.20  # via pluggy
 model-mommy==1.6.0
 more-itertools==7.2.0     # via pytest, zipp
 packaging==19.1           # via pytest
