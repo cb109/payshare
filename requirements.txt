@@ -12,7 +12,7 @@ django-js-asset==1.2.2    # via django-mptt
 django-money==0.15
 django-mptt==0.10.0       # via django-filer
 django-polymorphic==2.0.3  # via django-filer
-django==2.2.8
+django==2.2.10
 djangorestframework==3.10.3
 easy-thumbnails==2.6      # via django-filer
 gunicorn==19.9.0
