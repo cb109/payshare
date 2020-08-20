@@ -19,6 +19,7 @@
         :items="members"
         item-value="id"
         item-text="username"
+        hide-details
         return-object>
         <template slot="item"
                   slot-scope="data">

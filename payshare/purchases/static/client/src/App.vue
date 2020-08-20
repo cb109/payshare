@@ -19,7 +19,7 @@
           <!-- Balance for selected User -->
           <v-list-tile>
             <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-title>
+            <v-list-tile-title class="auto-height">
               <span class="headline"
                     :class="{'red--text': selectedMemberBalance < 0,
                              'default--text': selectedMemberBalance == 0,
@@ -332,8 +332,7 @@ export default {
   padding-bottom: 0;
 }
 
-.auto-height .toolbar__content {
-  padding-top: 8px;
+.auto-height {
   height: auto !important;
 }
 
@@ -341,10 +340,6 @@ export default {
   white-space: normal;
   height: auto;
 }
-
-</style>
-
-<style>
 
 .version-container {
   width: 100%;
@@ -371,12 +366,11 @@ export default {
   background: #FAFAFA !important;
 }
 
-.dbg {
-  border: 1px solid red;
-}
-
-.dbg * {
-  border: 1px solid red;
+.dbg,
+.dbg *,
+[dbg],
+[dbg] * {
+  outline: 1px solid red;
 }
 
 .text--wrap {
