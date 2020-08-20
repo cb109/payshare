@@ -58,7 +58,8 @@
                 v-model="$i18n.locale"
                 :items="languages"
                 item-value="locale"
-                item-text="name">
+                item-text="name"
+                hide-details>
               </v-select>
             </v-list-tile-content>
           </v-list-tile>
