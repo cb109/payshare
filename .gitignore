@@ -1,7 +1,8 @@
-*.py[cod]
 .idea/
 .pytest_cache/
 .tox/
+*.py[cod]
+Activate.ps1
 db.sqlite3
 public/media/
 public/static/
