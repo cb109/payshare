@@ -10,39 +10,30 @@
     <v-card>
       <v-toolbar
         v-show="action === 'create'"
-        color="primary"
         flat
         dense
+        class="toolbar--no-side-padding"
       >
-        <v-btn-toggle
-          v-model="mode"
-          mandatory
-          class="elevation-0"
-          style="width: 100%"
+        <v-btn
+          flat
+          block
+          style="height: 56px"
+          @click="mode = 'purchase'"
+          :class="{'white black--text': isPurchaseMode,
+                   'grey lighten-2 grey--text': isLiquidationMode}"
         >
-          <v-btn
-            flat
-            block
-            style="height: 56px"
-            value="purchase"
-            :color="isPurchaseMode ? 'primary' : null"
-          >
-            <span class="black--text">
-              {{ $t('purchase') }}
-            </span>
-          </v-btn>
-          <v-btn
-            flat
-            block
-            style="height: 56px"
-            value="liquidation"
-            :color="isLiquidationMode ? 'primary' : null"
-          >
-            <span class="black--text">
-              {{ $t('liquidation') }}
-            </span>
-          </v-btn>
-        </v-btn-toggle>
+          {{ $t('purchase') }}
+        </v-btn>
+        <v-btn
+          flat
+          block
+          style="height: 56px"
+          @click="mode = 'liquidation'"
+          :class="{'white black--text': isLiquidationMode,
+                   'grey lighten-2 grey--text': isPurchaseMode}"
+        >
+          {{ $t('liquidation') }}
+        </v-btn>
       </v-toolbar>
       <v-card-text>
         <h3 class="headline mb-3">
@@ -416,3 +407,12 @@ export default {
 }
 
 </script>
+
+<style>
+
+.v-toolbar.toolbar--no-side-padding .v-toolbar__content {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+</style>
