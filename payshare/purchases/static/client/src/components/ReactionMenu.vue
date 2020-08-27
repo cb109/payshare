@@ -62,10 +62,6 @@ export default {
 
 <style scoped>
 
-.reaction-menu {
-
-}
-
 .reaction-btn {
   margin: 0;
   opacity: 0.35;

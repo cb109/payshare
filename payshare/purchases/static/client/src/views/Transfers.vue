@@ -191,7 +191,7 @@ export default {
   },
   watch: {
     searchText: {
-      handler: debounce(function(text) {
+      handler: debounce(function() {
         this.$store.commit('RESET_TRANSFERS_PAGE_INDEX')
         this.$store.dispatch('LIST_TRANSFERS')
       }, 300),
@@ -209,13 +209,13 @@ export default {
 $smaller-margin = 1px
 
 @media(max-width: 599px)
-  .custom-pagination-controls .pagination__item
+  .custom-pagination-controls .v-pagination__item
     width: 1.6rem
     height: 2rem
     margin-left: $smaller-margin
     margin-right: $smaller-margin
 
-  .custom-pagination-controls .pagination__navigation
+  .custom-pagination-controls .v-pagination__navigation
     margin-left: $smaller-margin
     margin-right: $smaller-margin
 
