@@ -3,10 +3,10 @@
 <div v-if="members">
   <v-list-tile>
     <v-list-tile-action>
-    <v-avatar v-if="member">
-      <img :src="member.avatar"
-           style="position: relative; left: -12px">
-    </v-avatar>
+      <v-avatar v-if="member">
+        <img :src="member.avatar"
+            style="position: relative; left: -12px">
+      </v-avatar>
       <v-icon v-else>
         person
       </v-icon>
@@ -20,7 +20,9 @@
         item-value="id"
         item-text="username"
         hide-details
-        return-object>
+        return-object
+        style="width: 100%"
+      >
         <template slot="item"
                   slot-scope="data">
           <v-list-tile-avatar>
