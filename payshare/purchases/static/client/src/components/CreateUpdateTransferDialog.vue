@@ -52,9 +52,22 @@
             </span>
           </v-layout>
         </h3>
-        <h4 class="subheading mb-2">
-          {{ explanation }}
-        </h4>
+        <v-layout align-center>
+          <h4 class="subheading mb-2">
+            {{ explanation }}
+          </h4>
+          <v-btn
+            v-if="isLiquidationMode && (creditor || debtor)"
+            small
+            flat
+            class="ml-auto my-0"
+            @click="swapCreditorAndDebtor()"
+          >
+            <v-icon medium>
+              swap_vert
+            </v-icon>
+          </v-btn>
+        </v-layout>
         <select-member-list-tile
           v-if="isPurchaseMode"
           class="mb-4"
@@ -76,21 +89,6 @@
           :members="membersMinusCreditor"
           :member.sync="debtor"
         ></select-member-list-tile>
-        <v-layout justify-end>
-          <v-btn
-            v-if="isLiquidationMode && (creditor || debtor)"
-            fab
-            small
-            absolute
-            style="right: 8px"
-            :style="{'top': swapButtonTopOffset}"
-            @click="swapCreditorAndDebtor()"
-          >
-            <v-icon medium>
-              swap_vert
-            </v-icon>
-          </v-btn>
-        </v-layout>
         <v-text-field
           clearable
           counter="100"
@@ -190,14 +188,6 @@ export default {
   computed: {
     confirmButtonTitle() {
       return this.isCreateAction ? this.$t('create') : this.$t('confirm')
-    },
-    swapButtonTopOffset() {
-      if (this.isCreateAction) {
-        return this.$vuetify.breakpoint.xsOnly ? '246px' : '220px'
-      }
-      else {
-        return this.$vuetify.breakpoint.xsOnly ? '196px' : '174px'
-      }
     },
     isPurchaseMode() {
       return this.mode === 'purchase'

@@ -329,7 +329,7 @@ export default {
 
 <style>
 
-.navigation-drawer {
+.v-navigation-drawer {
   padding-bottom: 0;
 }
 
@@ -337,7 +337,7 @@ export default {
   height: auto !important;
 }
 
-.list__tile__title--wrap {
+.v-list__tile__title--wrap {
   white-space: normal;
   height: auto;
 }

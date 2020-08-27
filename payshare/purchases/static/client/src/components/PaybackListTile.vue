@@ -129,18 +129,6 @@ export default {
 
 <style scoped>
 
-.avatar {
-  max-width: 72px;
-  max-height: 72px;
-}
-
-@media (max-width: 599px) {
-  .avatar {
-    max-width: 64px;
-    max-height: 64px;
-  }
-}
-
 .avatar-tile--small {
   min-width: 36px;
   max-width: 36px;
