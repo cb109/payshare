@@ -16,7 +16,7 @@
           <div class="text">
             <div class="description">
               <strong :class="{'primary--text': isBuyer}">
-                {{ getFullUserName(buyer) }}
+                {{ getUserName(buyer) }}
               </strong>
               {{ $t('paidFor') }} <br>
             </div>
