@@ -1,3 +1,11 @@
+export function getFullUserName(user) {
+  return (user.first_name || user.username) + ' ' + user.last_name;
+}
+
+export function getUserName(user) {
+  return user.first_name || user.username;
+}
+
 export default {
   computed: {
     collective() {
@@ -39,6 +47,8 @@ export default {
     },
   },
   methods: {
+    getFullUserName: getFullUserName,
+    getUserName: getUserName,
     getMemberForId(id) {
       const candidates = this.members.filter(m => m.id === id)
       if (!candidates.length) {

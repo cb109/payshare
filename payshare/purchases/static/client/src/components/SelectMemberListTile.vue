@@ -18,7 +18,7 @@
         @input="((user) => $emit('update:member', user))"
         :items="members"
         item-value="id"
-        item-text="username"
+        :item-text="getFullUserName"
         hide-details
         return-object
         style="width: 100%"
@@ -30,7 +30,7 @@
           </v-list-tile-avatar>
           <v-list-tile-content>
             <v-list-tile-title>
-              {{ data.item.username }}
+              {{ getUserName(data.item) }}
             </v-list-tile-title>
             <v-list-tile-sub-title>
               {{ data.item.last_name || '' }}
@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import { getUserName, getFullUserName } from '@/mixins/selectedMember'
 
 export default {
   name: 'select-member-list-tile',
@@ -62,6 +63,10 @@ export default {
       required: true,
     },
   },
+  methods: {
+    getFullUserName: getFullUserName,
+    getUserName: getUserName,
+  }
 }
 
 </script>
