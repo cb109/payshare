@@ -56,7 +56,7 @@ export default {
   },
   computed: {
     username() {
-      return this.getMemberForId(this.reaction.member).username
+      return this.getFullUserName(this.getMemberForId(this.reaction.member))
     },
   },
   methods: {

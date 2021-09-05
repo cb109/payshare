@@ -34,11 +34,11 @@
           <div class="text">
             <div class="description">
               <strong :class="{'primary--text': isCreditor}">
-                {{ creditor.username }}
+                {{ getFullUserName(creditor) }}
               </strong>
               {{ $t('gaveMoneyTo') }}
               <strong :class="{'primary--text': isDebtor}">
-                {{ debtor.username }}
+                {{ getFullUserName(debtor) }}
               </strong>
               {{ $t('for') }} <br>
             </div>

@@ -219,7 +219,9 @@ export default {
     },
     members() {
       const users = this.collective.members.concat()
-      return users.sort((u1, u2) => u1.username > u2.username)
+      return users.sort((u1, u2) => {
+        return this.getFullUserName(u1) > this.getFullUserName(u2);
+      })
     },
     membersMinusCreditor() {
       if (!this.creditor) {
