@@ -15,7 +15,7 @@
     </v-list-tile-avatar>
     <v-list-tile-content>
       <v-list-tile-title class="list__tile__title--wrap">
-        {{ member.username }}
+        {{ getUserName(member) }}
       </v-list-tile-title>
       <v-list-tile-sub-title>
         {{ member.last_name || '' }}
@@ -35,6 +35,8 @@
 </template>
 
 <script>
+
+import { getUserName } from '@/mixins/selectedMember'
 
 export default {
   name: 'member-balance-list-tile',
@@ -80,6 +82,9 @@ export default {
       return balance
     },
   },
+  methods: {
+    getUserName: getUserName,
+  }
 }
 
 </script>
