@@ -24,6 +24,7 @@ class UserAdmin(admin.ModelAdmin):
         "first_name",
         "last_name",
     )
+    search_fields = ("username", "first_name", "last_name", "email", "id")
 
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -34,7 +35,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         "paypal_me_username",
         "id",
     )
-
+    autocomplete_fields = ("user",)
     list_editable = ("avatar_image_url",)
 
     def avatar_image_url_link(self, profile):
@@ -62,6 +63,22 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 
 class CollectiveAdmin(admin.ModelAdmin):
+    class MembershipInline(admin.TabularInline):
+        model = Membership
+        autocomplete_fields = ("member",)
+
+        def get_queryset(self, request):
+            return (
+                super()
+                .get_queryset(request)
+                .order_by(
+                    "member__first_name",
+                    "member__last_name",
+                )
+            )
+
+    inlines = (MembershipInline,)
+
     readonly_fields = ("key",)
     list_display = (
         "name",
@@ -71,6 +88,7 @@ class CollectiveAdmin(admin.ModelAdmin):
         "currency_symbol",
         "id",
     )
+    search_fields = ("name", "id")
 
     @mark_safe
     def url(self, collective):
@@ -79,19 +97,44 @@ class CollectiveAdmin(admin.ModelAdmin):
 
 
 class PurchaseAdmin(admin.ModelAdmin):
-    list_display = ["name", "deleted", "price", "buyer", "id", "collective"]
+    list_display = ["name", "active", "price", "buyer", "id", "collective"]
+    list_filter = ("collective",)
+    autocomplete_fields = ("buyer", "collective")
+
+    def active(self, purchase):
+        return not purchase.deleted
+
+    active.boolean = True
 
 
 class LiquidationAdmin(admin.ModelAdmin):
     list_display = [
         "name",
-        "deleted",
+        "active",
         "amount",
         "creditor",
         "debtor",
         "id",
         "collective",
     ]
+    list_filter = ("collective",)
+    autocomplete_fields = ("creditor", "debtor", "collective")
+
+    def active(self, liquidation):
+        return not liquidation.deleted
+
+    active.boolean = True
+
+
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = [
+        "collective",
+        "member",
+        "created_at",
+        "id",
+    ]
+    list_filter = ("collective",)
+    autocomplete_fields = ("member", "collective")
 
 
 admin.site.unregister(User)
@@ -99,6 +142,6 @@ admin.site.register(User, UserAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 
 admin.site.register(Collective, CollectiveAdmin)
-admin.site.register(Membership)
+admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Purchase, PurchaseAdmin)
-admin.site.register(Liquidation)
+admin.site.register(Liquidation, LiquidationAdmin)
