@@ -29,21 +29,18 @@ class PayShareError(Exception):
 
 
 class CollectiveReadOnlyError(PayShareError):
-
     def __init__(self, collective):
         message = "{} is read-only".format(collective)
         super(CollectiveReadOnlyError, self).__init__(message)
 
 
 class UserNotMemberOfCollectiveError(PayShareError):
-
     def __init__(self, user, collective):
         message = "{} is not part of collective {}".format(user, collective)
         super(UserNotMemberOfCollectiveError, self).__init__(message)
 
 
 class LiquidationNeedsTwoDifferentUsersError(PayShareError):
-
     def __init__(self, user):
         message = "{} cannot be both debtor and creditor".format(user)
         super(LiquidationNeedsTwoDifferentUsersError, self).__init__(message)
@@ -51,6 +48,7 @@ class LiquidationNeedsTwoDifferentUsersError(PayShareError):
 
 class TimestampMixin(models.Model):
     """Add created and modified timestamps to a model."""
+
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
 
@@ -61,14 +59,13 @@ class TimestampMixin(models.Model):
 class UserProfile(models.Model):
     """A model to attach additional data to a Django User."""
 
-    user = models.OneToOneField("auth.User",
-                                on_delete=models.CASCADE,
-                                related_name="profile")
+    user = models.OneToOneField(
+        "auth.User", on_delete=models.CASCADE, related_name="profile"
+    )
 
-    avatar_image_url = models.CharField(max_length=1024,
-                                        null=True,
-                                        blank=True,
-                                        default=DEFAULT_AVATAR_URL)
+    avatar_image_url = models.CharField(
+        max_length=1024, null=True, blank=True, default=DEFAULT_AVATAR_URL
+    )
 
     paypal_me_username = models.CharField(
         max_length=64, null=True, blank=True, default=None
@@ -79,8 +76,7 @@ class UserProfile(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_userprofile_when_user_created(
-        sender, instance, created, **kwargs):
+def create_userprofile_when_user_created(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
@@ -93,6 +89,7 @@ class Collective(TimestampMixin, models.Model):
     provide key and password everytime. The token updates when the
     password is changed.
     """
+
     name = models.CharField(max_length=100)
     key = models.UUIDField(default=uuid.uuid4, editable=False)
     password = models.CharField(max_length=128)
@@ -129,11 +126,9 @@ class Collective(TimestampMixin, models.Model):
 
     @property
     def members(self):
-        return (
-            User.objects
-            .filter(membership__collective__id=self.id, is_active=True)
-            .order_by("username", "first_name", "last_name")
-        )
+        return User.objects.filter(
+            membership__collective__id=self.id, is_active=True
+        ).order_by("username", "first_name", "last_name")
 
     @property
     def stats(self):
@@ -176,8 +171,7 @@ class Collective(TimestampMixin, models.Model):
         except ZeroDivisionError:
             per_member = 0
 
-        debts = [
-            float(liquidation.amount.amount) for liquidation in liquidations]
+        debts = [float(liquidation.amount.amount) for liquidation in liquidations]
         overall_debt = sum(debts)
 
         median_purchased = 0
@@ -190,24 +184,30 @@ class Collective(TimestampMixin, models.Model):
 
         member_id_to_balance = {}
         for member in collective.members:
-            member_purchased = sum([
-                float(purchase.price.amount) for purchase in purchases
-                if purchase.buyer == member
-            ])
+            member_purchased = sum(
+                [
+                    float(purchase.price.amount)
+                    for purchase in purchases
+                    if purchase.buyer == member
+                ]
+            )
 
-            credit = sum([
-                float(liq.amount.amount) for liq in liquidations
-                if liq.creditor == member
-            ])
-            debt = sum([
-                float(liq.amount.amount) for liq in liquidations
-                if liq.debtor == member
-            ])
+            credit = sum(
+                [
+                    float(liq.amount.amount)
+                    for liq in liquidations
+                    if liq.creditor == member
+                ]
+            )
+            debt = sum(
+                [
+                    float(liq.amount.amount)
+                    for liq in liquidations
+                    if liq.debtor == member
+                ]
+            )
             has_to_pay = (
-                per_member -
-                float(member_purchased) -
-                float(credit) +
-                float(debt)
+                per_member - float(member_purchased) - float(credit) + float(debt)
             )
 
             balance = has_to_pay * -1
@@ -216,12 +216,12 @@ class Collective(TimestampMixin, models.Model):
             member_id_to_balance[member.id] = balance
 
         sorted_balances = sorted(
-            member_id_to_balance.items(),
-            key=lambda item: item[1],
-            reverse=True)
+            member_id_to_balance.items(), key=lambda item: item[1], reverse=True
+        )
 
-        serialized_paybacks = [payback.to_json()
-                               for payback in calc_paybacks(collective)]
+        serialized_paybacks = [
+            payback.to_json() for payback in calc_paybacks(collective)
+        ]
 
         stats = {
             "median_debt": median_debt,
@@ -241,19 +241,16 @@ class Collective(TimestampMixin, models.Model):
         members = self.members
         queries = [
             Q(collective=self, deleted=False),
-            Q(
-                Q(creditor__in=members) |
-                Q(debtor__in=members)
-            ),
+            Q(Q(creditor__in=members) | Q(debtor__in=members)),
         ]
         return Liquidation.objects.filter(*queries)
 
     @property
     def purchases(self):
         """Return Purchases for all current members."""
-        return Purchase.objects.filter(collective=self,
-                                       buyer__in=self.members,
-                                       deleted=False)
+        return Purchase.objects.filter(
+            collective=self, buyer__in=self.members, deleted=False
+        )
 
     def __str__(self):
         return u"{}".format(self.name)
@@ -266,16 +263,15 @@ class Collective(TimestampMixin, models.Model):
 
 class Membership(TimestampMixin, models.Model):
     """A membership is a mapping of a user to a collective."""
+
     member = models.ForeignKey("auth.User", on_delete=models.CASCADE)
-    collective = models.ForeignKey("purchases.Collective",
-                                   on_delete=models.CASCADE)
+    collective = models.ForeignKey("purchases.Collective", on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ("member", "collective")
 
     def __str__(self):
-        return u"{} in {}".format(self.member.username,
-                                  self.collective.name)
+        return u"{} in {}".format(self.member.username, self.collective.name)
 
 
 class Reaction(TimestampMixin, models.Model):
@@ -312,28 +308,26 @@ class Reaction(TimestampMixin, models.Model):
         """
         if self.content_object.reactions.filter(member=self.member).exists():
             raise IntegrityError(
-                "Reaction for object/member combination already exists")
+                "Reaction for object/member combination already exists"
+            )
         super(Reaction, self).save(*args, **kwargs)
 
 
 class Purchase(TimestampMixin, models.Model):
     """A Purchase describes a certain payment of a member of a Collective."""
+
     name = models.CharField(max_length=100)
-    price = MoneyField(max_digits=10,
-                       decimal_places=2,
-                       default_currency="EUR")
+    price = MoneyField(max_digits=10, decimal_places=2, default_currency="EUR")
     buyer = models.ForeignKey("auth.User", on_delete=models.CASCADE)
-    collective = models.ForeignKey("purchases.Collective",
-                                   on_delete=models.CASCADE)
+    collective = models.ForeignKey("purchases.Collective", on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
     reactions = GenericRelation(Reaction)
 
     def __str__(self):
-        return u"{} for {} by {} in {}".format(self.price,
-                                               self.name,
-                                               self.buyer.username,
-                                               self.collective.name)
+        return u"{} for {} by {} in {}".format(
+            self.price, self.name, self.buyer.username, self.collective.name
+        )
 
     @property
     def kind(self):
@@ -347,31 +341,32 @@ class Purchase(TimestampMixin, models.Model):
 @receiver(pre_save, sender=Purchase)
 def purchase_pre_save_ensure_membership(sender, instance, *args, **kwargs):
     if not instance.collective.is_member(instance.buyer):
-        raise UserNotMemberOfCollectiveError(instance.buyer,
-                                             instance.collective)
+        raise UserNotMemberOfCollectiveError(instance.buyer, instance.collective)
 
 
 class Liquidation(TimestampMixin, models.Model):
     """A liquidation describes a repayment of one member to another."""
+
     name = models.CharField(max_length=100)
-    amount = MoneyField(max_digits=10,
-                        decimal_places=2,
-                        default_currency="EUR")
-    debtor = models.ForeignKey("auth.User", related_name="debtor",
-                               on_delete=models.CASCADE)
-    creditor = models.ForeignKey("auth.User", related_name="creditor",
-                                 on_delete=models.CASCADE)
-    collective = models.ForeignKey("purchases.Collective",
-                                   on_delete=models.CASCADE)
+    amount = MoneyField(max_digits=10, decimal_places=2, default_currency="EUR")
+    debtor = models.ForeignKey(
+        "auth.User", related_name="debtor", on_delete=models.CASCADE
+    )
+    creditor = models.ForeignKey(
+        "auth.User", related_name="creditor", on_delete=models.CASCADE
+    )
+    collective = models.ForeignKey("purchases.Collective", on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
     reactions = GenericRelation(Reaction)
 
     def __str__(self):
-        return u"{} from {} to {} in {}".format(self.amount,
-                                                self.creditor.username,
-                                                self.debtor.username,
-                                                self.collective.name)
+        return u"{} from {} to {} in {}".format(
+            self.amount,
+            self.creditor.username,
+            self.debtor.username,
+            self.collective.name,
+        )
 
     @property
     def kind(self):
