@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from payshare.purchases.models import Collective
@@ -37,9 +35,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         "id",
     )
 
-    list_editable = (
-        "avatar_image_url",
-    )
+    list_editable = ("avatar_image_url",)
 
     def avatar_image_url_link(self, profile):
         image_url = profile.avatar_image_url
@@ -49,16 +45,16 @@ class UserProfileAdmin(admin.ModelAdmin):
             editor_url = image_url.replace(
                 "https://avataaars.io", "https://getavataaars.com"
             )
-        template = '''
+        template = """
             <image src="{0}"
                    style="max-width: 200px; max-height: 200px"/>
-        '''
+        """
         if is_avataaars_url:
-            template += '''
+            template += """
                 <a href="{1}" target="blank_">
                     Edit on https://getavataaars.com
                 </a>
-            '''
+            """
             html = template.format(image_url, editor_url)
         else:
             html = template.format(image_url)
@@ -69,12 +65,17 @@ class CollectiveAdmin(admin.ModelAdmin):
     readonly_fields = ("key",)
     list_display = (
         "name",
-        "key",
-        "password",
-        "currency_symbol",
+        "url",
+        "created_at",
         "readonly",
+        "currency_symbol",
         "id",
     )
+
+    @mark_safe
+    def url(self, collective):
+        url = reverse("app", args=[collective.key])
+        return f"<a href='{url}'>Visit in App: {collective.name}</a>"
 
 
 class PurchaseAdmin(admin.ModelAdmin):
@@ -82,8 +83,15 @@ class PurchaseAdmin(admin.ModelAdmin):
 
 
 class LiquidationAdmin(admin.ModelAdmin):
-    list_display = ["name", "deleted", "amount", "creditor", "debtor",
-                    "id", "collective"]
+    list_display = [
+        "name",
+        "deleted",
+        "amount",
+        "creditor",
+        "debtor",
+        "id",
+        "collective",
+    ]
 
 
 admin.site.unregister(User)
