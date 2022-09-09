@@ -5,7 +5,7 @@ A web app to track shared expenses in a group of people.
 [![Build Status](https://travis-ci.com/cb109/payshare.svg?branch=develop)](https://travis-ci.com/cb109/payshare)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a111b89f4464f3bb5eb69f08fad568e)](https://www.codacy.com/manual/cb109/payshare?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cb109/payshare&amp;utm_campaign=Badge_Grade)
 
-Payshare is the equivalent of a whiteboard in the kitchen of your shared flat where everyone writes down how much he paid for groceries, who paid the cinema ticket or pizza for whom and so on, while it does the math for you to figure out who should buy the next round.
+Payshare is the equivalent of a whiteboard in the kitchen of your shared flat where everyone writes down how much they paid for groceries, who paid the cinema ticket or pizza for whom and so on, while it does the math for you to figure out who should buy the next round.
 
 ## Demo
 
