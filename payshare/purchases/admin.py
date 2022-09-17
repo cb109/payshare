@@ -101,6 +101,7 @@ class PurchaseAdmin(admin.ModelAdmin):
     list_display = ["name", "active", "price", "buyer", "id", "collective"]
     list_filter = ("collective",)
     autocomplete_fields = ("buyer", "collective")
+    search_fields = ("name", "collective__name")
 
     def active(self, purchase):
         return not purchase.deleted
@@ -150,4 +151,5 @@ admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Collective, CollectiveAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Purchase, PurchaseAdmin)
+admin.site.register(PurchaseWeight, PurchaseWeightAdmin)
 admin.site.register(Liquidation, LiquidationAdmin)
