@@ -353,7 +353,7 @@ def get_member_share_of_purchase(
 
     weights = PurchaseWeight.objects.filter(purchase=purchase)
     try:
-        member_weight = weights.get(id=member.id).weight
+        member_weight = weights.get(member=member.id).weight
     except PurchaseWeight.DoesNotExist:
         member_weight = fallback_weight
 
