@@ -394,6 +394,30 @@ def test_api_stats(collective_with_members, transfers, client):
     assert stats["sorted_balances"] == [(user_2.id, 327.25), (user_1.id, -327.25)]
 
 
+def test_api_stats_with_uneven_purchase_weights(collective_with_members, client):
+    collective, user_1, user_2 = collective_with_members
+
+    purchase = mommy.make(
+        "purchases.Purchase",
+        name="my cool purchase",
+        collective=collective,
+        buyer=user_1,
+        price=1000.0,
+    )
+    mommy.make("purchases.PurchaseWeight", purchase=purchase, member=user_1, weight=3)
+    mommy.make("purchases.PurchaseWeight", purchase=purchase, member=user_2, weight=1)
+
+    url = "/api/v1/{}/stats".format(collective.key)
+    response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    stats = response.data
+
+    assert stats["overall_debt"] == 0
+    assert stats["overall_purchased"] == 1000
+    assert stats["sorted_balances"] == [(user_1.id, 250.0), (user_2.id, -250.0)]
+
+
 def test_api_version(client):
     url = "/api/v1/version"
     response = client.get(url, follow=True)

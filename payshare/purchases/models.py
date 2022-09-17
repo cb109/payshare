@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import uuid
+from decimal import Decimal
 from statistics import median
 
 from django.contrib.auth.hashers import check_password
@@ -166,12 +167,8 @@ class Collective(TimestampMixin, models.Model):
 
         prices = [purchase.price.amount for purchase in purchases]
         overall_purchased = sum(prices)
-        try:
-            per_member = float(overall_purchased) / float(num_members)
-        except ZeroDivisionError:
-            per_member = 0
 
-        debts = [float(liquidation.amount.amount) for liquidation in liquidations]
+        debts = [liquidation.amount.amount for liquidation in liquidations]
         overall_debt = sum(debts)
 
         median_purchased = 0
@@ -182,38 +179,54 @@ class Collective(TimestampMixin, models.Model):
         if debts:
             median_debt = median(debts)
 
+        def get_member_share_of_purchase(
+            purchase: Purchase,
+            member: User,
+            num_members: int,
+            fallback_weight: float = 0.0,
+        ) -> Decimal:
+
+            if not purchase.weights.exists():
+                return purchase.price.amount / num_members
+
+            weights = PurchaseWeight.objects.filter(purchase=purchase)
+            try:
+                member_weight = weights.get(id=member.id).weight
+            except PurchaseWeight.DoesNotExist:
+                member_weight = fallback_weight
+
+            weights_sum = sum([purchase.weight for purchase in weights])
+            share_per_weight = purchase.price.amount / Decimal(weights_sum)
+            return share_per_weight * Decimal(member_weight)
+
         member_id_to_balance = {}
         for member in collective.members:
-            member_purchased = sum(
+            owed_to_collective = sum(
                 [
-                    float(purchase.price.amount)
-                    for purchase in purchases
-                    if purchase.buyer == member
+                    get_member_share_of_purchase(purchase, member, num_members)
+                    for purchase in purchases.exclude(buyer=member)
+                ]
+            )
+            owed_from_collective = sum(
+                [
+                    purchase.price.amount
+                    - get_member_share_of_purchase(purchase, member, num_members)
+                    for purchase in purchases.filter(buyer=member)
                 ]
             )
 
             credit = sum(
-                [
-                    float(liq.amount.amount)
-                    for liq in liquidations
-                    if liq.creditor == member
-                ]
+                [liq.amount.amount for liq in liquidations.filter(creditor=member)]
             )
             debt = sum(
-                [
-                    float(liq.amount.amount)
-                    for liq in liquidations
-                    if liq.debtor == member
-                ]
+                [liq.amount.amount for liq in liquidations.filter(debtor=member)]
             )
-            has_to_pay = (
-                per_member - float(member_purchased) - float(credit) + float(debt)
-            )
+            has_to_pay = owed_to_collective - owed_from_collective - credit + debt
 
             balance = has_to_pay * -1
-            if balance == 0:  # Remove '-' from the display.
+            if balance == 0:  # Avoid minus sign on display.
                 balance = 0
-            member_id_to_balance[member.id] = balance
+            member_id_to_balance[member.id] = float(balance)
 
         sorted_balances = sorted(
             member_id_to_balance.items(), key=lambda item: item[1], reverse=True
@@ -224,11 +237,11 @@ class Collective(TimestampMixin, models.Model):
         ]
 
         stats = {
-            "median_debt": median_debt,
-            "median_purchased": median_purchased,
+            "median_debt": float(median_debt),
+            "median_purchased": float(median_purchased),
             "num_liquidations": num_liquidations,
             "num_purchases": num_purchases,
-            "overall_debt": overall_debt,
+            "overall_debt": float(overall_debt),
             "overall_purchased": float(overall_purchased),
             "sorted_balances": sorted_balances,
             "cashup": serialized_paybacks,
@@ -322,6 +335,9 @@ class Purchase(TimestampMixin, models.Model):
     collective = models.ForeignKey("purchases.Collective", on_delete=models.CASCADE)
     deleted = models.BooleanField(default=False)
 
+    weights = models.ManyToManyField(
+        "auth.User", through="purchases.PurchaseWeight", related_name="weighted_members"
+    )
     reactions = GenericRelation(Reaction)
 
     def __str__(self):
