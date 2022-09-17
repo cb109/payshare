@@ -349,6 +349,8 @@ export default {
         }
 
         return (
+          this.price !== '' &&
+          this.price !== null &&
           this.price !== 0 &&
           this.name &&
           this.name.trim().length > 0 &&
@@ -357,6 +359,8 @@ export default {
       }
       else if (this.isLiquidationMode) {
         return (
+          this.price !== '' &&
+          this.price !== null &&
           this.price !== 0 &&
           this.name &&
           this.name.trim().length > 0 &&
