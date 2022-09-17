@@ -68,14 +68,11 @@ class MoneyField(serializers.Field):
         return Money(data["amount"], data["currency"])
 
 
-class PurchaseWeightSerializer(serializers.ModelSerializer):
+class IncludedPurchaseWeightSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseWeight
         fields = (
-            "created_at",
-            "id",
             "member",
-            "purchase",
             "weight",
         )
 
@@ -144,7 +141,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
         weights = PurchaseWeight.objects.filter(purchase=purchase).order_by(
             "member__first_name", "member__last_name", "member__username"
         )
-        return PurchaseWeightSerializer(weights, many=True).data
+        return IncludedPurchaseWeightSerializer(weights, many=True).data
 
 
 class TransferSerializer(serializers.Serializer):

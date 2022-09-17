@@ -49,9 +49,9 @@
         <div
           v-if="purchase.weights.length > 0"
           slot="extra"
-          class="grey--text"
+          class="warning--text"
         >
-          {{ $t('splitDifferently') }}
+          {{ $t('isSplitDifferently') }}
         </div>
       </transfer-actionbar>
     </v-card-text>

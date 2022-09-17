@@ -20,7 +20,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.viewsets import ViewSet
 
 from payshare.purchases.calc import calc_paybacks
-from payshare.purchases.models import Collective
+from payshare.purchases.models import Collective, PurchaseWeight
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
 from payshare.purchases.models import Reaction
@@ -191,7 +191,7 @@ class PurchaseDetailView(APIView):
     authentication_classes = (HeaderAuthentication,)
 
     def put(self, request, key, pk):
-        """Create a new Purchase and return it in a serialized representation.
+        """Update a Purchase and return it serialized.
 
         URL Args:
             key (str): Collective key
@@ -215,8 +215,37 @@ class PurchaseDetailView(APIView):
         price_value = float(request.data["price"])
         _raise_if_wrong_amount(price_value)
         price = Money(price_value, EUR)
+        weights = request.data.get("weights", None)
 
         purchase = Purchase.objects.get(pk=pk)
+
+        # Handle different weights per Member.
+        if weights is None:
+            purchase.weights.clear()
+        else:
+            # Remove weights that are all even, which removes their purpose.
+            all_same = (
+                len(set([serialized_weight["weight"] for serialized_weight in weights]))
+                == 1
+            )
+            if all_same:
+                purchase.weights.clear()
+            else:
+                for serialized_weight in weights:
+                    member_id = serialized_weight["member"]
+                    member = User.objects.get(id=member_id)
+                    weight_value = serialized_weight["weight"]
+                    try:
+                        weight_instance = PurchaseWeight.objects.get(
+                            purchase=purchase, member=member
+                        )
+                        weight_instance.weight = weight_value
+                        weight_instance.save()
+                    except PurchaseWeight.DoesNotExist:
+                        weight_instance = PurchaseWeight.objects.create(
+                            purchase=purchase, member=member, weight=weight_value
+                        )
+
         purchase.name = request.data["name"]
         purchase.price = price
         purchase.buyer = buyer
@@ -372,7 +401,6 @@ def cashup(request, key):
 
 
 class ReactionViewSet(ViewSet):
-
     authentication_classes = (HeaderAuthentication,)
 
     def create(self, request, key):

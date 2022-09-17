@@ -90,12 +90,12 @@
           :member.sync="debtor"
         ></select-member-list-tile>
         <v-text-field
+          v-model="name"
           clearable
           counter="100"
-          :rules="[((v) => v.length < 100 || $t('tooLong'))]"
+          :rules="[((v) => !!v && v.length < 100 || $t('tooLong'))]"
           :label="$t('description')"
           :placeholder="$t('placeholderPurchaseName')"
-          v-model="name"
         ></v-text-field>
         <v-text-field
           type="number"
@@ -105,6 +105,79 @@
           :placeholder="'59.99'"
           class="price"
         ></v-text-field>
+        <div v-if="isPurchaseMode && isUpdateAction">
+          <v-radio-group
+            v-model="weightsExpanded"
+            row
+            mandatory
+            hide-details
+          >
+            <v-radio
+              :label="$t('weightsRadioOptionEven')"
+              :value="false"
+              color="grey"
+            />
+            <v-radio
+              :label="$t('weightsRadioOptionDifferent')"
+              :value="true"
+              color="warning"
+              :class="[weightsExpanded ? 'v-radio-label--warning' : '']"
+            />
+          </v-radio-group>
+          <v-slide-y-transition>
+            <div
+              v-if="weightsExpanded"
+              class="mt-3"
+            >
+              <table
+                style="
+                  width: 100%;
+                  border-collapse: separate;
+                  border-spacing: 0 4px;
+                "
+              >
+                <thead>
+                  <th class="px-2" style="text-align: left">
+                    {{ $t('weightsTableHeaderWho') }}
+                  </th>
+                  <th class="px-2" style="text-align: left">
+                    {{ $t('weightsTableHeaderShare') }}
+                  </th>
+                  <th class="px-2" style="text-align: left">
+                    {{ collective.currency_symbol }}
+                  </th>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="member in members"
+                    :key="member.id"
+                  >
+                    <td class="px-2">
+                      {{ getFullUserName(member) }}
+                    </td>
+                    <td class="px-2">
+                      <v-text-field
+                        :value="getPurchaseWeightForMemberId(member.id)"
+                        @input="(weight) => setPurchaseWeightForMemberId(member.id, Number(weight))"
+                        hide-details
+                        type="number"
+                        clearable
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="pt-0 pb-2"
+                        style="max-width: 140px"
+                      ></v-text-field>
+                    </td>
+                    <td class="px-2" :key="weightsModifiedCounter">
+                      {{ getPurchaseWeightPreviewForMember(transferToUpdate, member) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </v-slide-y-transition>
+        </div>
       </v-card-text>
       <v-card-actions class="pb-3">
         <v-layout
@@ -149,6 +222,8 @@ const defaults = {
 
   // For purchase only.
   buyer: null,
+  weightsExpanded: false,
+  weightsModifiedCounter: 0,
 
   // For liquidation only.
   creditor: null,
@@ -182,7 +257,7 @@ export default {
   },
   data() {
     return {
-      ...defaults,
+      ...defaults
     }
   },
   computed: {
@@ -245,8 +320,17 @@ export default {
     },
     formIsValid() {
       if (this.isPurchaseMode) {
+
+        if (this.isUpdateAction && this.weightsExpanded) {
+          const weights = this.getPurchaseUpdateWeights();
+          if (weights.some(weight => isNaN(weight.weight))) {
+            return false;
+          }
+        }
+
         return (
           this.price !== 0 &&
+          this.name &&
           this.name.trim().length > 0 &&
           this.buyer !== null
         )
@@ -254,6 +338,7 @@ export default {
       else if (this.isLiquidationMode) {
         return (
           this.price !== 0 &&
+          this.name &&
           this.name.trim().length > 0 &&
           this.creditor !== null &&
           this.debtor !== null
@@ -262,10 +347,19 @@ export default {
     },
   },
   watch: {
-    show: function(val) {
-      this.$bus.$emit('dialog-active', val)
+    show: function(show) {
+      this.$bus.$emit('dialog-active', show)
 
-      if (val) {
+      if (show) {
+        if (
+          this.isPurchaseMode &&
+          this.isUpdateAction &&
+          this.transferToUpdate &&
+          this.transferToUpdate.weights.length > 0
+        ) {
+          this.weightsExpanded = true;
+        }
+
         if (!this.buyer) {
           this.buyer = this.selectedMember
         }
@@ -283,6 +377,71 @@ export default {
     },
   },
   methods: {
+    getPurchaseWeightForMemberId(memberId) {
+      if (
+        this.isPurchaseMode &&
+        this.isUpdateAction &&
+        this.transferToUpdate &&
+        this.transferToUpdate.weights.length > 0
+      ) {
+        const forMember = this.transferToUpdate.weights.filter(w => w.member == memberId)[0];
+        if (forMember) {
+          return forMember.weight;
+        }
+      }
+      return 1;
+    },
+    setPurchaseWeightForMemberId(memberId, weight) {
+      if (
+        this.isPurchaseMode &&
+        this.isUpdateAction &&
+        this.transferToUpdate
+      ) {
+        const forMember = this.transferToUpdate.weights.filter(w => w.member == memberId)[0];
+        if (forMember) {
+          forMember.weight = weight;
+        } else {
+          if (!this.transferToUpdate.weights) {
+            this.transferToUpdate.weights = [];
+          }
+          this.transferToUpdate.weights.push({
+            member: memberId,
+            weight: weight,
+          });
+        }
+        this.weightsModifiedCounter += 1;
+      }
+    },
+    getPurchaseWeightPreviewForMember(purchase, member) {
+      if (!purchase) {
+        return '';
+      }
+      const memberIdToWeight = {};
+      for (const member_ of this.members) {
+        memberIdToWeight[member_.id] = this.getPurchaseWeightForMemberId(member_.id);
+      }
+      const weights = Object.values(memberIdToWeight).filter(w => !isNaN(w));
+      if (!weights.length) {
+        return '';
+      }
+      const weightsSum = weights.reduce((a, b) => a + b);
+      const perWeight = purchase.price.amount / weightsSum;
+      const amount = memberIdToWeight[member.id] * perWeight;
+      if (isNaN(amount)) {
+        return '';
+      }
+      return amount.toFixed(2) + this.collective.currency_symbol;
+    },
+    getPurchaseUpdateWeights() {
+      const weights = [];
+      for (const member of this.members) {
+        weights.push({
+          member: member.id,
+          weight: this.getPurchaseWeightForMemberId(member.id),
+        });
+      }
+      return weights;
+    },
     setupSignals() {
       this.$bus.$on('edit-transfer-in-dialog', (transfer) => {
         this.action = 'update'
@@ -362,12 +521,18 @@ export default {
     },
     updatePurchase() {
       this.loading = true
-      this.$store.dispatch('UPDATE_PURCHASE', {
+      const payload = {
         id: this.transferToUpdate.id,
         buyerId: this.buyer.id,
         price: this.price,
         name: this.name,
-      }).then(() => {
+      };
+
+      if (this.weightsExpanded) {
+        payload.weights = this.getPurchaseUpdateWeights();
+      }
+
+      this.$store.dispatch('UPDATE_PURCHASE', payload).then(() => {
         this.abort()
       }).catch(() => {
         this.loading = false
@@ -401,6 +566,10 @@ export default {
 </script>
 
 <style>
+
+.v-radio-label--warning .v-label {
+  color: #fb8c00 !important;
+}
 
 .v-toolbar.toolbar--no-side-padding .v-toolbar__content {
   padding-left: 0;
