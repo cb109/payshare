@@ -63,8 +63,9 @@ class Payback(object):
         }
 
 
-# FIXME: There is a lot of redundancy when looking at Collective.stats
 def calc_paybacks(collective):
+    from payshare.purchases.models import get_member_share_of_purchase  # noqa
+
     creditors = []
     debtors = []
     paybacks = []
@@ -73,22 +74,23 @@ def calc_paybacks(collective):
     num_members = len(members)
 
     purchases = collective.purchases
-    prices = [purchase.price.amount for purchase in purchases]
-    overall_purchased = sum(prices)
-    try:
-        each_member_must_pay = overall_purchased / Decimal(num_members)
-    except ZeroDivisionError:
-        each_member_must_pay = Decimal(0)
+
     member_to_balance = {}
     for member in collective.members:
-        member_purchased = sum(
+        owed_to_collective = sum(
             [
-                purchase.price.amount
-                for purchase in purchases
-                if purchase.buyer == member
+                get_member_share_of_purchase(purchase, member, num_members)
+                for purchase in purchases.exclude(buyer=member)
             ]
         )
-        balance = member_purchased - each_member_must_pay
+        owed_from_collective = sum(
+            [
+                purchase.price.amount
+                - get_member_share_of_purchase(purchase, member, num_members)
+                for purchase in purchases.filter(buyer=member)
+            ]
+        )
+        balance = owed_from_collective - owed_to_collective
         member_to_balance[member] = balance
 
     sorted_balances = sorted(

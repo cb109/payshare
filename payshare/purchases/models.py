@@ -154,6 +154,7 @@ class Collective(TimestampMixin, models.Model):
             }
 
         """
+
         collective = self
 
         members = collective.members
@@ -179,28 +180,8 @@ class Collective(TimestampMixin, models.Model):
         if debts:
             median_debt = median(debts)
 
-        def get_member_share_of_purchase(
-            purchase: Purchase,
-            member: User,
-            num_members: int,
-            fallback_weight: float = 0.0,
-        ) -> Decimal:
-
-            if not purchase.weights.exists():
-                return purchase.price.amount / num_members
-
-            weights = PurchaseWeight.objects.filter(purchase=purchase)
-            try:
-                member_weight = weights.get(id=member.id).weight
-            except PurchaseWeight.DoesNotExist:
-                member_weight = fallback_weight
-
-            weights_sum = sum([purchase.weight for purchase in weights])
-            share_per_weight = purchase.price.amount / Decimal(weights_sum)
-            return share_per_weight * Decimal(member_weight)
-
         member_id_to_balance = {}
-        for member in collective.members:
+        for member in members:
             owed_to_collective = sum(
                 [
                     get_member_share_of_purchase(purchase, member, num_members)
@@ -228,7 +209,7 @@ class Collective(TimestampMixin, models.Model):
                 balance = 0
             member_id_to_balance[member.id] = float(balance)
 
-        sorted_balances = sorted(
+        sorted_member_balances = sorted(
             member_id_to_balance.items(), key=lambda item: item[1], reverse=True
         )
 
@@ -243,7 +224,7 @@ class Collective(TimestampMixin, models.Model):
             "num_purchases": num_purchases,
             "overall_debt": float(overall_debt),
             "overall_purchased": float(overall_purchased),
-            "sorted_balances": sorted_balances,
+            "sorted_balances": sorted_member_balances,
             "cashup": serialized_paybacks,
         }
         return stats
@@ -358,6 +339,27 @@ class Purchase(TimestampMixin, models.Model):
 def purchase_pre_save_ensure_membership(sender, instance, *args, **kwargs):
     if not instance.collective.is_member(instance.buyer):
         raise UserNotMemberOfCollectiveError(instance.buyer, instance.collective)
+
+
+def get_member_share_of_purchase(
+    purchase: Purchase,
+    member: User,
+    num_members: int,
+    fallback_weight: float = 0.0,
+) -> Decimal:
+
+    if not purchase.weights.exists():
+        return purchase.price.amount / num_members
+
+    weights = PurchaseWeight.objects.filter(purchase=purchase)
+    try:
+        member_weight = weights.get(id=member.id).weight
+    except PurchaseWeight.DoesNotExist:
+        member_weight = fallback_weight
+
+    weights_sum = sum([purchase.weight for purchase in weights])
+    share_per_weight = purchase.price.amount / Decimal(weights_sum)
+    return share_per_weight * Decimal(member_weight)
 
 
 class PurchaseWeight(TimestampMixin, models.Model):

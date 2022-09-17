@@ -563,6 +563,52 @@ def test_calc_paybacks_with_negative_transfers(collective):
     assert (user_2, user_3, 5.00) in data
 
 
+def test_calc_paybacks_with_uneven_purchase_weights(collective):
+    user_1 = mommy.make("auth.User", username="user_1")
+    user_2 = mommy.make("auth.User", username="user_2")
+    user_3 = mommy.make("auth.User", username="user_3")
+
+    collective.add_member(user_1)
+    collective.add_member(user_2)
+    collective.add_member(user_3)
+
+    purchase_1 = mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        buyer=user_1,
+        name="Hotel",
+        price=1500.00,
+    )
+    mommy.make("purchases.PurchaseWeight", purchase=purchase_1, member=user_1, weight=3)
+    mommy.make("purchases.PurchaseWeight", purchase=purchase_1, member=user_2, weight=3)
+    user_3_weight = mommy.make(
+        "purchases.PurchaseWeight", purchase=purchase_1, member=user_3, weight=3
+    )
+
+    paybacks = calc_paybacks(collective)
+    assert len(paybacks) == 2
+
+    data = [
+        (payback.debtor, payback.creditor, float(payback.amount))
+        for payback in paybacks
+    ]
+    assert (user_2, user_1, 500.0) in data
+    assert (user_3, user_1, 500.0) in data
+
+    user_3_weight.weight = 1.0
+    user_3_weight.save()
+
+    paybacks = calc_paybacks(collective)
+    assert len(paybacks) == 2
+
+    data = [
+        (payback.debtor, payback.creditor, float(payback.amount))
+        for payback in paybacks
+    ]
+    assert (user_3, user_1, 214.28571428571428) in data
+    assert (user_2, user_1, 642.8571428571429) in data
+
+
 class TestReadOnlyMiddleware:
     @pytest.fixture
     def readonly_collective(self, collective_with_members):
