@@ -133,12 +133,14 @@
                 style="
                   width: 100%;
                   border-collapse: separate;
-                  border-spacing: 0 4px;
+                  border-spacing: 0 8px;
                 "
               >
                 <thead>
                   <th class="px-2" style="text-align: left">
                     {{ $t('weightsTableHeaderWho') }}
+                  </th>
+                  <th>
                   </th>
                   <th class="px-2" style="text-align: left">
                     {{ $t('weightsTableHeaderShare') }}
@@ -152,8 +154,26 @@
                     v-for="member in members"
                     :key="member.id"
                   >
-                    <td class="px-2">
-                      {{ getFullUserName(member) }}
+                    <td>
+                      <img
+                        :src="member.avatar"
+                        width="36"
+                        height="36"
+                      >
+                    </td>
+                    <td class="pl-1 pr-2">
+                      <v-layout column>
+                        <span
+                          style="font-size: 14px"
+                        >{{ getUserName(member) }}</span>
+                        <span
+                          v-if="member.last_name"
+                          class="grey--text"
+                          style="font-size: 14px"
+                        >
+                          {{ member.last_name }}
+                        </span>
+                      </v-layout>
                     </td>
                     <td class="px-2">
                       <v-text-field
