@@ -164,7 +164,7 @@ class Collective(TimestampMixin, models.Model):
         liquidations = collective.liquidations
         num_liquidations = liquidations.count()
 
-        prices = [float(purchase.price.amount) for purchase in purchases]
+        prices = [purchase.price.amount for purchase in purchases]
         overall_purchased = sum(prices)
         try:
             per_member = float(overall_purchased) / float(num_members)
@@ -229,7 +229,7 @@ class Collective(TimestampMixin, models.Model):
             "num_liquidations": num_liquidations,
             "num_purchases": num_purchases,
             "overall_debt": overall_debt,
-            "overall_purchased": overall_purchased,
+            "overall_purchased": float(overall_purchased),
             "sorted_balances": sorted_balances,
             "cashup": serialized_paybacks,
         }
