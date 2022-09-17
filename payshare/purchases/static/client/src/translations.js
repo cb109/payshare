@@ -62,6 +62,7 @@ const messages = {
     tooLong: 'Too long',
     unknownHint: 'You seem lost. You need to open this app from an invitation link.',
     usesIconsFrom: 'Uses icons from',
+    splitDifferently: 'Split differently',
     whoAreYou: 'That\'s me',
   },
   'de': {
@@ -127,6 +128,7 @@ const messages = {
     tooLong: 'Zu lang',
     unknownHint: 'Du scheinst dich verlaufen zu haben, du solltest die App über einen Einladungslink öffnen.',
     usesIconsFrom: 'Nutzt Icons von',
+    splitDifferently: 'Anders aufgeteilt',
     whoAreYou: 'Das bin ich',
   }
 }
