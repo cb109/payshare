@@ -344,6 +344,12 @@ def purchase_pre_save_ensure_membership(sender, instance, *args, **kwargs):
         raise UserNotMemberOfCollectiveError(instance.buyer, instance.collective)
 
 
+class PurchaseWeight(TimestampMixin, models.Model):
+    purchase = models.ForeignKey("purchases.Purchase", on_delete=models.CASCADE)
+    member = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    weight = models.FloatField(default=1.0)
+
+
 class Liquidation(TimestampMixin, models.Model):
     """A liquidation describes a repayment of one member to another."""
 

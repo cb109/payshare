@@ -7,6 +7,7 @@ from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Membership
 from payshare.purchases.models import Purchase
+from payshare.purchases.models import PurchaseWeight
 from payshare.purchases.models import UserProfile
 
 
@@ -105,6 +106,11 @@ class PurchaseAdmin(admin.ModelAdmin):
         return not purchase.deleted
 
     active.boolean = True
+
+
+class PurchaseWeightAdmin(admin.ModelAdmin):
+    list_display = ["purchase", "member", "weight", "id"]
+    autocomplete_fields = ("purchase", "member")
 
 
 class LiquidationAdmin(admin.ModelAdmin):
