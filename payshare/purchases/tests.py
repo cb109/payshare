@@ -1,3 +1,4 @@
+from decimal import Decimal
 import json
 
 import pytest
@@ -80,17 +81,21 @@ def test_collective_members(collective_with_members):
 @pytest.fixture
 def transfers(collective_with_members):
     collective, user_1, user_2 = collective_with_members
-    purchase = mommy.make("purchases.Purchase",
-                          name="my cool purchase",
-                          collective=collective,
-                          buyer=user_1,
-                          price=45.50)
-    liquidation = mommy.make("purchases.Liquidation",
-                             name="my nifty liquidation",
-                             collective=collective,
-                             creditor=user_2,
-                             debtor=user_1,
-                             amount=350.0)
+    purchase = mommy.make(
+        "purchases.Purchase",
+        name="my cool purchase",
+        collective=collective,
+        buyer=user_1,
+        price=45.50,
+    )
+    liquidation = mommy.make(
+        "purchases.Liquidation",
+        name="my nifty liquidation",
+        collective=collective,
+        creditor=user_2,
+        debtor=user_1,
+        amount=350.0,
+    )
     return purchase, liquidation
 
 
@@ -110,8 +115,7 @@ def test_collective_liquidations(collective_with_members, transfers):
     assert liquidation in collective.liquidations
 
 
-def test_api_list_collective_needs_password(
-        collective_with_members, transfers, client):
+def test_api_list_collective_needs_password(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
 
     url = "/api/v1/{}".format(collective.key)
@@ -132,15 +136,15 @@ def test_api_list_collective(collective_with_members, client):
 
     assert len(response.data["members"]) == 2
     member_identifiers = [
-        (member["username"], member["id"])
-        for member in response.data["members"]
+        (member["username"], member["id"]) for member in response.data["members"]
     ]
     assert (user_1.username, user_1.id) in member_identifiers
     assert (user_2.username, user_2.id) in member_identifiers
 
 
 def test_api_list_transfers_needs_password_or_token(
-        collective_with_members, transfers, client):
+    collective_with_members, transfers, client
+):
     collective, user_1, user_2 = collective_with_members
     url = "/api/v1/{}/transfers".format(collective.key)
 
@@ -151,9 +155,8 @@ def test_api_list_transfers_needs_password_or_token(
     assert response.status_code == status.HTTP_200_OK
 
     response = client.get(
-        url,
-        follow=True,
-        HTTP_AUTHORIZATION="Token {}".format(collective.token))
+        url, follow=True, HTTP_AUTHORIZATION=f"Token {collective.token}"
+    )
     assert response.status_code == status.HTTP_200_OK
 
 
@@ -172,18 +175,15 @@ def test_api_list_transfers(collective_with_members, transfers, client):
     assert (liquidation.kind, liquidation.id) in transfer_identifiers
 
 
-def test_api_list_transfers_with_search(collective_with_members,
-                                        transfers,
-                                        client):
+def test_api_list_transfers_with_search(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
     url = "/api/v1/{}/transfers".format(collective.key)
 
     # Match the purchase name only.
-    response = client.get(url,
-                          {"search": "cool"},
-                          follow=True,
-                          HTTP_AUTHORIZATION="foobar")
+    response = client.get(
+        url, {"search": "cool"}, follow=True, HTTP_AUTHORIZATION="foobar"
+    )
     assert response.status_code == status.HTTP_200_OK
     transfers = response.data["results"]
     assert len(transfers) == 1
@@ -191,10 +191,9 @@ def test_api_list_transfers_with_search(collective_with_members,
     assert transfers[0]["id"] == purchase.id
 
     # Match the liquidation name only.
-    response = client.get(url,
-                          {"search": "nifty"},
-                          follow=True,
-                          HTTP_AUTHORIZATION="foobar")
+    response = client.get(
+        url, {"search": "nifty"}, follow=True, HTTP_AUTHORIZATION="foobar"
+    )
     assert response.status_code == status.HTTP_200_OK
     transfers = response.data["results"]
     assert len(transfers) == 1
@@ -202,10 +201,9 @@ def test_api_list_transfers_with_search(collective_with_members,
     assert transfers[0]["id"] == liquidation.id
 
     # Match both via username.
-    response = client.get(url,
-                          {"search": user_1.username},
-                          follow=True,
-                          HTTP_AUTHORIZATION="foobar")
+    response = client.get(
+        url, {"search": user_1.username}, follow=True, HTTP_AUTHORIZATION="foobar"
+    )
     assert response.status_code == status.HTTP_200_OK
     transfers = response.data["results"]
     assert len(transfers) == 2
@@ -214,23 +212,27 @@ def test_api_list_transfers_with_search(collective_with_members,
 @pytest.fixture
 def softdeleted_transfers(collective_with_members):
     collective, user_1, user_2 = collective_with_members
-    purchase = mommy.make("purchases.Purchase",
-                          collective=collective,
-                          price=10,
-                          buyer=user_1,
-                          deleted=True)
-    liquidation = mommy.make("purchases.Liquidation",
-                             collective=collective,
-                             debtor=user_1,
-                             creditor=user_2,
-                             amount=20,
-                             deleted=True)
+    purchase = mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        price=10,
+        buyer=user_1,
+        deleted=True,
+    )
+    liquidation = mommy.make(
+        "purchases.Liquidation",
+        collective=collective,
+        debtor=user_1,
+        creditor=user_2,
+        amount=20,
+        deleted=True,
+    )
     return purchase, liquidation
 
 
-def test_api_list_transfers_skips_softdeleted(collective_with_members,
-                                              softdeleted_transfers,
-                                              client):
+def test_api_list_transfers_skips_softdeleted(
+    collective_with_members, softdeleted_transfers, client
+):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = softdeleted_transfers
 
@@ -251,11 +253,13 @@ def test_api_create_purchase(collective_with_members, client):
         "buyer": user_1.id,
         "price": 15.38,
     }
-    response = client.post(url,
-                           json.dumps(payload),
-                           content_type="application/json",
-                           follow=True,
-                           HTTP_AUTHORIZATION="foobar")
+    response = client.post(
+        url,
+        json.dumps(payload),
+        content_type="application/json",
+        follow=True,
+        HTTP_AUTHORIZATION="foobar",
+    )
     assert response.status_code == status.HTTP_200_OK
 
     purchase = response.data
@@ -266,12 +270,8 @@ def test_api_softdelete_purchase(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
 
-    url = "/api/v1/{}/{}/{}".format(collective.key,
-                                    purchase.kind,
-                                    purchase.id)
-    response = client.delete(url,
-                             follow=True,
-                             HTTP_AUTHORIZATION="foobar")
+    url = f"/api/v1/{collective.key}/{purchase.kind}/{purchase.id}"
+    response = client.delete(url, follow=True, HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
@@ -279,17 +279,19 @@ def test_api_update_purchase(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
 
-    url = "/api/v1/{}/purchase/{}".format(collective.key, purchase.id)
+    url = f"/api/v1/{collective.key}/purchase/{purchase.id}"
     payload = {
         "name": "Groceries 2",
         "buyer": user_2.id,
         "price": 100.0,
     }
-    response = client.put(url,
-                          data=json.dumps(payload),
-                          content_type="application/json",
-                          follow=True,
-                          HTTP_AUTHORIZATION="foobar")
+    response = client.put(
+        url,
+        data=json.dumps(payload),
+        content_type="application/json",
+        follow=True,
+        HTTP_AUTHORIZATION="foobar",
+    )
     assert response.status_code == status.HTTP_200_OK
 
     assert response.data["name"] == payload["name"]
@@ -307,11 +309,13 @@ def test_api_create_liquidation(collective_with_members, client):
         "debtor": user_2.id,
         "amount": 200.00,
     }
-    response = client.post(url,
-                           json.dumps(payload),
-                           content_type="application/json",
-                           follow=True,
-                           HTTP_AUTHORIZATION="foobar")
+    response = client.post(
+        url,
+        json.dumps(payload),
+        content_type="application/json",
+        follow=True,
+        HTTP_AUTHORIZATION="foobar",
+    )
     assert response.status_code == status.HTTP_200_OK
 
     purchase = response.data
@@ -329,11 +333,13 @@ def test_api_create_reaction(collective_with_members, transfers, client):
         "meaning": "positive",
         "member": user_2.id,
     }
-    response = client.post(url,
-                           json.dumps(payload),
-                           content_type="application/json",
-                           follow=True,
-                           HTTP_AUTHORIZATION="foobar")
+    response = client.post(
+        url,
+        json.dumps(payload),
+        content_type="application/json",
+        follow=True,
+        HTTP_AUTHORIZATION="foobar",
+    )
     assert response.status_code == status.HTTP_200_OK
 
     reaction = response.data
@@ -344,33 +350,30 @@ def test_api_create_reaction(collective_with_members, transfers, client):
 
 
 def test_cannot_create_multiple_reactions_for_member_on_same_transfer(
-        collective_with_members, transfers):
+    collective_with_members, transfers
+):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
 
-    Reaction.objects.create(member=user_1,
-                            content_object=purchase,
-                            meaning="positive")
+    Reaction.objects.create(member=user_1, content_object=purchase, meaning="positive")
 
     with pytest.raises(IntegrityError):
-        Reaction.objects.create(member=user_1,
-                                content_object=purchase,
-                                meaning="negative")
+        Reaction.objects.create(
+            member=user_1, content_object=purchase, meaning="negative"
+        )
 
 
 def test_api_delete_reaction(collective_with_members, transfers, client):
     # Setup
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
-    reaction = Reaction.objects.create(member=user_1,
-                                       content_object=purchase,
-                                       meaning="positive")
+    reaction = Reaction.objects.create(
+        member=user_1, content_object=purchase, meaning="positive"
+    )
 
     # Test
     url = "/api/v1/{}/reaction/{}".format(collective.key, reaction.id)
-    response = client.delete(url,
-                             follow=True,
-                             HTTP_AUTHORIZATION="foobar")
+    response = client.delete(url, follow=True, HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
     assert Reaction.objects.count() == 0
@@ -381,17 +384,38 @@ def test_api_stats(collective_with_members, transfers, client):
     purchase, liquidation = transfers
 
     url = "/api/v1/{}/stats".format(collective.key)
-    response = client.get(url,
-                          follow=True,
-                          HTTP_AUTHORIZATION="foobar")
+    response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_200_OK
 
     stats = response.data
 
     assert stats["overall_debt"] == 350
     assert stats["overall_purchased"] == 45.50
-    assert stats["sorted_balances"] == [
-        (user_2.id, 327.25), (user_1.id, -327.25)]
+    assert stats["sorted_balances"] == [(user_2.id, 327.25), (user_1.id, -327.25)]
+
+
+def test_api_stats_with_uneven_purchase_weights(collective_with_members, client):
+    collective, user_1, user_2 = collective_with_members
+
+    purchase = mommy.make(
+        "purchases.Purchase",
+        name="my cool purchase",
+        collective=collective,
+        buyer=user_1,
+        price=1000.0,
+    )
+    mommy.make("purchases.PurchaseWeight", purchase=purchase, member=user_1, weight=3)
+    mommy.make("purchases.PurchaseWeight", purchase=purchase, member=user_2, weight=1)
+
+    url = f"/api/v1/{collective.key}/stats"
+    response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
+    assert response.status_code == status.HTTP_200_OK
+
+    stats = response.data
+
+    assert stats["overall_debt"] == 0
+    assert stats["overall_purchased"] == 1000
+    assert stats["sorted_balances"] == [(user_1.id, 250.0), (user_2.id, -250.0)]
 
 
 def test_api_version(client):
@@ -399,6 +423,7 @@ def test_api_version(client):
     response = client.get(url, follow=True)
     assert response.status_code == status.HTTP_200_OK
     import payshare  # noqa
+
     assert response.data == str(payshare.__version__)
 
 
@@ -412,32 +437,42 @@ def collective_with_transfers_for_payback(collective):
     collective.add_member(user_2)
     collective.add_member(user_3)
 
-    mommy.make("purchases.Purchase",
-               collective=collective,
-               buyer=user_1,
-               name="Beer",
-               price=120.00)
-    mommy.make("purchases.Purchase",
-               collective=collective,
-               buyer=user_2,
-               name="Meat",
-               price=90.00)
-    mommy.make("purchases.Purchase",
-               collective=collective,
-               buyer=user_3,
-               name="Sweets",
-               price=5.00)
+    mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        buyer=user_1,
+        name="Beer",
+        price=120.00,
+    )
+    mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        buyer=user_2,
+        name="Meat",
+        price=90.00,
+    )
+    mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        buyer=user_3,
+        name="Sweets",
+        price=5.00,
+    )
 
-    mommy.make("purchases.Liquidation",
-               collective=collective,
-               creditor=user_3,
-               debtor=user_2,
-               amount=10.0)
-    mommy.make("purchases.Liquidation",
-               collective=collective,
-               creditor=user_2,
-               debtor=user_1,
-               amount=50.0)
+    mommy.make(
+        "purchases.Liquidation",
+        collective=collective,
+        creditor=user_3,
+        debtor=user_2,
+        amount=10.0,
+    )
+    mommy.make(
+        "purchases.Liquidation",
+        collective=collective,
+        creditor=user_2,
+        debtor=user_1,
+        amount=50.0,
+    )
 
     return collective, user_1, user_2, user_3
 
@@ -450,37 +485,39 @@ def test_paybacks(collective_with_transfers_for_payback):
 
     assert paybacks[0].debtor == user_3
     assert paybacks[0].creditor == user_1
-    assert paybacks[0].amount == 48.33333333333333
+    assert paybacks[0].amount == Decimal("48.33333333333333333333333333")
 
     assert paybacks[1].debtor == user_3
     assert paybacks[1].creditor == user_2
-    assert paybacks[1].amount == 8.333333333333329
+    assert paybacks[1].amount == Decimal("8.33333333333333333333333333")
 
     assert paybacks[2].debtor == user_1
     assert paybacks[2].creditor == user_2
-    assert paybacks[2].amount == 50.0
+    assert paybacks[2].amount == Decimal("50.0")
 
     # Adding a Liquidation can flip the creditor/debtor relation,
     # as otherwise the balance would become negative.
-    mommy.make("purchases.Liquidation",
-               collective=collective,
-               creditor=user_1,
-               debtor=user_2,
-               amount=60.0)
+    mommy.make(
+        "purchases.Liquidation",
+        collective=collective,
+        creditor=user_1,
+        debtor=user_2,
+        amount=60.0,
+    )
     paybacks = calc_paybacks(collective)
     assert len(paybacks) == 3
 
     assert paybacks[0].debtor == user_3
     assert paybacks[0].creditor == user_1
-    assert paybacks[0].amount == 48.33333333333333
+    assert paybacks[0].amount == Decimal("48.33333333333333333333333333")
 
     assert paybacks[1].debtor == user_3
     assert paybacks[1].creditor == user_2
-    assert paybacks[1].amount == 8.333333333333329
+    assert paybacks[1].amount == Decimal("8.33333333333333333333333333")
 
     assert paybacks[2].debtor == user_2
     assert paybacks[2].creditor == user_1
-    assert paybacks[2].amount == 10.0
+    assert paybacks[2].amount == Decimal("10.0")
 
 
 def test_calc_paybacks_with_negative_transfers(collective):
@@ -492,39 +529,87 @@ def test_calc_paybacks_with_negative_transfers(collective):
     collective.add_member(user_2)
     collective.add_member(user_3)
 
-    mommy.make("purchases.Purchase",
-               collective=collective,
-               buyer=user_1,
-               name="Electricty Bill Refund",
-               price=-90.00)
+    mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        buyer=user_1,
+        name="Electricty Bill Refund",
+        price=-90.00,
+    )
 
-    mommy.make("purchases.Purchase",
-               collective=collective,
-               buyer=user_2,
-               name="Pizza",
-               price=15.00)
+    mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        buyer=user_2,
+        name="Pizza",
+        price=15.00,
+    )
 
-    mommy.make("purchases.Liquidation",
-               collective=collective,
-               creditor=user_2,
-               debtor=user_3,
-               name="This makes no sense, but hey",
-               amount=-5.00)
+    mommy.make(
+        "purchases.Liquidation",
+        collective=collective,
+        creditor=user_2,
+        debtor=user_3,
+        name="This makes no sense, but hey",
+        amount=-5.00,
+    )
 
     paybacks = calc_paybacks(collective)
     assert len(paybacks) == 3
 
-    data = [
-        (payback.debtor, payback.creditor, payback.amount)
-        for payback in paybacks
-    ]
+    data = [(payback.debtor, payback.creditor, payback.amount) for payback in paybacks]
     assert (user_1, user_2, 40.00) in data
     assert (user_1, user_3, 25.00) in data
     assert (user_2, user_3, 5.00) in data
 
 
-class TestReadOnlyMiddleware:
+def test_calc_paybacks_with_uneven_purchase_weights(collective):
+    user_1 = mommy.make("auth.User", username="user_1")
+    user_2 = mommy.make("auth.User", username="user_2")
+    user_3 = mommy.make("auth.User", username="user_3")
 
+    collective.add_member(user_1)
+    collective.add_member(user_2)
+    collective.add_member(user_3)
+
+    purchase_1 = mommy.make(
+        "purchases.Purchase",
+        collective=collective,
+        buyer=user_1,
+        name="Hotel",
+        price=1500.00,
+    )
+    mommy.make("purchases.PurchaseWeight", purchase=purchase_1, member=user_1, weight=3)
+    mommy.make("purchases.PurchaseWeight", purchase=purchase_1, member=user_2, weight=3)
+    user_3_weight = mommy.make(
+        "purchases.PurchaseWeight", purchase=purchase_1, member=user_3, weight=3
+    )
+
+    paybacks = calc_paybacks(collective)
+    assert len(paybacks) == 2
+
+    data = [
+        (payback.debtor, payback.creditor, float(payback.amount))
+        for payback in paybacks
+    ]
+    assert (user_2, user_1, 500.0) in data
+    assert (user_3, user_1, 500.0) in data
+
+    user_3_weight.weight = 1.0
+    user_3_weight.save()
+
+    paybacks = calc_paybacks(collective)
+    assert len(paybacks) == 2
+
+    data = [
+        (payback.debtor, payback.creditor, float(payback.amount))
+        for payback in paybacks
+    ]
+    assert (user_3, user_1, 214.28571428571428) in data
+    assert (user_2, user_1, 642.8571428571429) in data
+
+
+class TestReadOnlyMiddleware:
     @pytest.fixture
     def readonly_collective(self, collective_with_members):
         collective, user_1, user_2 = collective_with_members
@@ -539,8 +624,7 @@ class TestReadOnlyMiddleware:
 
     def test_OPTIONS(self, readonly_collective, client):
         url = "/api/v1/{}".format(readonly_collective.key)
-        response = client.options(url,
-                                  follow=True, HTTP_AUTHORIZATION="foobar")
+        response = client.options(url, follow=True, HTTP_AUTHORIZATION="foobar")
         assert response.status_code == status.HTTP_200_OK
 
     def test_POST(self, readonly_collective, client):

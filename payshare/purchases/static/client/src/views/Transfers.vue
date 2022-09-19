@@ -199,6 +199,16 @@ export default {
   },
   mounted() {
     this.$store.dispatch('LIST_TRANSFERS')
+
+    this.$bus.$on('switch-to-tab', (tabTitle) => {
+      for (let tabIndex = 0; tabIndex < this.tabs.length; tabIndex++) {
+        const tab = this.tabs[tabIndex]
+        if (tab.title == tabTitle) {
+          this.currentTabIdx = tabIndex
+          break
+        }
+      }
+    })
   },
 }
 

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from typing import List
 
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -20,7 +20,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.viewsets import ViewSet
 
 from payshare.purchases.calc import calc_paybacks
-from payshare.purchases.models import Collective
+from payshare.purchases.models import Collective, PurchaseWeight
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
 from payshare.purchases.models import Reaction
@@ -49,6 +49,7 @@ class HeaderAuthentication(authentication.BaseAuthentication):
     password or a string like 'Token <TOKEN>'.
 
     """
+
     def authenticate(self, request):
         token_or_password = get_authorization_header(request).decode("utf-8")
         possible_token = token_or_password.replace("Token ", "")
@@ -57,8 +58,10 @@ class HeaderAuthentication(authentication.BaseAuthentication):
         key = key_from_resolvermatch(request._request.resolver_match)
 
         collective = collective_from_key(key)
-        if not (str(collective.token) == possible_token or
-                collective.check_password(token_or_password)):
+        if not (
+            str(collective.token) == possible_token
+            or collective.check_password(token_or_password)
+        ):
             raise AuthenticationFailed
 
         # Since we don't deal with Users here, just return None for "success".
@@ -69,10 +72,9 @@ class HeaderAuthentication(authentication.BaseAuthentication):
 @authentication_classes((HeaderAuthentication,))
 def collective(request, key):
     collective = collective_from_key(key)
-    serialized_collective = (
-        CollectiveSerializer(collective, context={"request": request})
-        .data
-    )
+    serialized_collective = CollectiveSerializer(
+        collective, context={"request": request}
+    ).data
     return Response(serialized_collective)
 
 
@@ -80,6 +82,7 @@ def collective(request, key):
 def version(request):
     """Return current payshare backend version (!= API version)."""
     from payshare import __version__  # noqa
+
     return Response(__version__)
 
 
@@ -87,8 +90,7 @@ class TransfersPagination(PageNumberPagination):
     page_size = 20
 
     def get_paginated_response(self, data):
-        response = super(TransfersPagination,
-                         self).get_paginated_response(data)
+        response = super().get_paginated_response(data)
         response.data["num_pages"] = self.page.paginator.num_pages
         return response
 
@@ -107,6 +109,7 @@ class TransfersViewSet(ListModelMixin, GenericViewSet):
         list[Purchase|Liquidation]
 
     """
+
     authentication_classes = (HeaderAuthentication,)
     pagination_class = TransfersPagination
     serializer_class = TransferSerializer
@@ -120,18 +123,14 @@ class TransfersViewSet(ListModelMixin, GenericViewSet):
 
         search_text = self.request.query_params.get("search")
         if search_text is not None:
-            purchase_query = (
-                purchase_query & Q(
-                    Q(name__icontains=search_text) |
-                    Q(buyer__username__icontains=search_text)
-                )
+            purchase_query = purchase_query & Q(
+                Q(name__icontains=search_text)
+                | Q(buyer__username__icontains=search_text)
             )
-            liquidation_query = (
-                liquidation_query & Q(
-                    Q(name__icontains=search_text) |
-                    Q(debtor__username__icontains=search_text) |
-                    Q(creditor__username__icontains=search_text)
-                )
+            liquidation_query = liquidation_query & Q(
+                Q(name__icontains=search_text)
+                | Q(debtor__username__icontains=search_text)
+                | Q(creditor__username__icontains=search_text)
             )
 
         purchases = collective.purchase_set.filter(purchase_query)
@@ -150,17 +149,28 @@ def _raise_if_wrong_amount(amount):
 @api_view(("POST",))
 @authentication_classes((HeaderAuthentication,))
 def create_purchase(request, key):
-    """Create a new Purchase and return it in a seriailzed representation.
+    """Create a new Purchase and return it in a serialized representation.
 
     URL Args:
+
         key (str): Collective key
 
     POST Args:
+
         name (str)
+
         buyer (int): User id
+
         price (float)
 
+        weights (list[dict]): Optional list of objects with
+            'member' (int) and 'weight' (float) information. If
+            weights are passed we expect one per member of the
+            Collective. Weights are used to specify the share of the
+            amount each member has to pay.
+
     Returns:
+
         Serialized Purchase
 
     """
@@ -184,6 +194,10 @@ def create_purchase(request, key):
         collective=collective,
         buyer=buyer,
     )
+
+    serialized_weights = request.data.get("weights", None)
+    _handle_purchase_weights(purchase, serialized_weights)
+
     serialized_purchase = PurchaseSerializer(purchase).data
     return Response(serialized_purchase)
 
@@ -192,18 +206,30 @@ class PurchaseDetailView(APIView):
     authentication_classes = (HeaderAuthentication,)
 
     def put(self, request, key, pk):
-        """Create a new Purchase and return it in a seriailzed representation.
+        """Update a Purchase and return it serialized.
 
         URL Args:
+
             key (str): Collective key
+
             pk (int) Purchase ID
 
         POST Args:
+
             name (str)
+
             buyer (int): User id
+
             price (float)
 
+            weights (list[dict]): Optional list of objects with
+                'member' (int) and 'weight' (float) information. If
+                weights are passed we expect one per member of the
+                Collective. Weights are used to specify the share of the
+                amount each member has to pay.
+
         Returns:
+
             Serialized Purchase
 
         """
@@ -218,6 +244,9 @@ class PurchaseDetailView(APIView):
         price = Money(price_value, EUR)
 
         purchase = Purchase.objects.get(pk=pk)
+        serialized_weights = request.data.get("weights", None)
+        _handle_purchase_weights(purchase, serialized_weights)
+
         purchase.name = request.data["name"]
         purchase.price = price
         purchase.buyer = buyer
@@ -237,19 +266,53 @@ class PurchaseDetailView(APIView):
         collective = collective_from_key(key)
         purchase = Purchase.objects.get(pk=pk)
         if not purchase.collective.id == collective.id:
-            raise ValidationError(
-                "Purchase to delete is not from given Collective"
-            )
+            raise ValidationError("Purchase to delete is not from given Collective")
 
         purchase.deleted = True
         purchase.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+def _handle_purchase_weights(purchase: Purchase, serialized_weights: List[dict]):
+    # Handle different weights per Member.
+    if serialized_weights is None:
+        purchase.weights.clear()
+    else:
+        # Remove weights that are all even, which removes their purpose.
+        all_same = (
+            len(
+                set(
+                    [
+                        serialized_weight["weight"]
+                        for serialized_weight in serialized_weights
+                    ]
+                )
+            )
+            == 1
+        )
+        if all_same:
+            purchase.weights.clear()
+        else:
+            for serialized_weight in serialized_weights:
+                member_id = serialized_weight["member"]
+                member = User.objects.get(id=member_id)
+                weight_value = serialized_weight["weight"]
+                try:
+                    weight_instance = PurchaseWeight.objects.get(
+                        purchase=purchase, member=member
+                    )
+                    weight_instance.weight = weight_value
+                    weight_instance.save()
+                except PurchaseWeight.DoesNotExist:
+                    weight_instance = PurchaseWeight.objects.create(
+                        purchase=purchase, member=member, weight=weight_value
+                    )
+
+
 @api_view(("POST",))
 @authentication_classes((HeaderAuthentication,))
 def create_liquidation(request, key):
-    """Create a new Liquidation and return it in a seriailzed representation.
+    """Create a new Liquidation and return it in a serialized representation.
 
     URL Args:
         key (str): Collective key
@@ -352,8 +415,7 @@ class LiquidationDetailView(APIView):
         collective = collective_from_key(key)
         liquidation = Liquidation.objects.get(pk=pk)
         if not liquidation.collective.id == collective.id:
-            raise ValidationError(
-                "Liquidation to delete is not from given Collective")
+            raise ValidationError("Liquidation to delete is not from given Collective")
 
         liquidation.deleted = True
         liquidation.save()
@@ -376,7 +438,6 @@ def cashup(request, key):
 
 
 class ReactionViewSet(ViewSet):
-
     authentication_classes = (HeaderAuthentication,)
 
     def create(self, request, key):
@@ -406,8 +467,7 @@ class ReactionViewSet(ViewSet):
         transfer_id = request.data["transfer_id"]
         transfer = cls.objects.get(id=transfer_id)
         if not transfer.collective.id == collective.id:
-            raise ValidationError(
-                "Object to react to is not from given Collective")
+            raise ValidationError("Object to react to is not from given Collective")
 
         member_id = request.data["member"]
         member = User.objects.get(id=member_id)
@@ -424,9 +484,9 @@ class ReactionViewSet(ViewSet):
             old_reaction.delete()
         except Reaction.DoesNotExist:
             pass
-        reaction = Reaction.objects.create(member=member,
-                                           meaning=meaning,
-                                           content_object=transfer)
+        reaction = Reaction.objects.create(
+            member=member, meaning=meaning, content_object=transfer
+        )
 
         serialized_reaction = ReactionSerializer(reaction).data
         return Response(serialized_reaction)
@@ -443,8 +503,8 @@ class ReactionViewSet(ViewSet):
 
         reaction_id = pk
         reaction = Reaction.objects.get(
-            id=reaction_id,
-            member__membership__collective=collective)
+            id=reaction_id, member__membership__collective=collective
+        )
         reaction.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)

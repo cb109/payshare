@@ -5,17 +5,14 @@ from rest_framework import serializers
 from payshare.purchases.models import Collective
 from payshare.purchases.models import Liquidation
 from payshare.purchases.models import Purchase
+from payshare.purchases.models import PurchaseWeight
 from payshare.purchases.models import Reaction
 
 
 class UserSerializer(serializers.ModelSerializer):
-    avatar = serializers.ReadOnlyField(
-        source="profile.avatar_image_url"
-    )
+    avatar = serializers.ReadOnlyField(source="profile.avatar_image_url")
     full_name = serializers.SerializerMethodField()
-    paypal_me_username = serializers.ReadOnlyField(
-        source="profile.paypal_me_username"
-    )
+    paypal_me_username = serializers.ReadOnlyField(source="profile.paypal_me_username")
 
     class Meta:
         model = User
@@ -71,8 +68,16 @@ class MoneyField(serializers.Field):
         return Money(data["amount"], data["currency"])
 
 
-class ReactionSerializer(serializers.ModelSerializer):
+class IncludedPurchaseWeightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseWeight
+        fields = (
+            "member",
+            "weight",
+        )
 
+
+class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = (
@@ -83,7 +88,7 @@ class ReactionSerializer(serializers.ModelSerializer):
         )
 
 
-def _get_sorted_serialzed_reactions_for_transfer(transfer):
+def _get_sorted_serialized_reactions_for_transfer(transfer):
     reactions = transfer.reactions.order_by("created_at")
     return ReactionSerializer(reactions, many=True).data
 
@@ -107,12 +112,13 @@ class LiquidationSerializer(serializers.ModelSerializer):
         )
 
     def get_reactions(self, liquidation):
-        return _get_sorted_serialzed_reactions_for_transfer(liquidation)
+        return _get_sorted_serialized_reactions_for_transfer(liquidation)
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
     price = MoneyField()
     reactions = serializers.SerializerMethodField()
+    weights = serializers.SerializerMethodField()
 
     class Meta:
         model = Purchase
@@ -125,10 +131,17 @@ class PurchaseSerializer(serializers.ModelSerializer):
             "name",
             "price",
             "reactions",
+            "weights",
         )
 
     def get_reactions(self, purchase):
-        return _get_sorted_serialzed_reactions_for_transfer(purchase)
+        return _get_sorted_serialized_reactions_for_transfer(purchase)
+
+    def get_weights(self, purchase):
+        weights = PurchaseWeight.objects.filter(purchase=purchase).order_by(
+            "member__first_name", "member__last_name", "member__username"
+        )
+        return IncludedPurchaseWeightSerializer(weights, many=True).data
 
 
 class TransferSerializer(serializers.Serializer):
