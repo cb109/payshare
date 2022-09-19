@@ -52,7 +52,7 @@
   <v-list-tile :value="highlight"
                :style="{'background': highlight ? '#E8EAF6' : ' initial' }">
     <v-list-tile-content>
-      <v-list-tile-title class="list__tile__title--wrap">
+      <v-list-tile-title class="auto-height list__tile__title--wrap">
         <v-layout
           wrap
           align-center
@@ -66,6 +66,17 @@
               {{ creditor.username }}
             </strong>
           </div>
+          <v-btn
+            v-if="isDebtor"
+            class="mr-0 mt-0 ml-auto"
+            color="success""
+            round
+            small
+            @click="addPaybackLiquidation(payback)"
+          >
+            <v-icon color="white" class="mr-1">check</v-icon>
+            {{$t('markPaybackAsDone') }}
+          </v-btn>
         </v-layout>
       </v-list-tile-title>
     </v-list-tile-content>
@@ -120,7 +131,19 @@ export default {
   methods: {
     openPaypalMePage(username, amount) {
       const url = `${PAYPAL_ME_BASE_URL}/${username}/${amount}`
-      window.open(url, '_blank');
+      window.open(url, '_blank')
+    },
+    addPaybackLiquidation(payback) {
+      this.$bus.$emit('switch-to-tab', 'feed')
+
+      this.$store.dispatch('CREATE_LIQUIDATION', {
+        creditorId: payback.debtor,
+        debtorId: payback.creditor,
+        amount: payback.amount,
+        name: this.$t('payback'),
+      }).then(() => {
+        this.$bus.$emit('switch-to-tab', 'feed')
+      })
     }
   },
 }
