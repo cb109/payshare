@@ -49,7 +49,7 @@
         <div
           v-if="purchase.weights.length > 0"
           slot="extra"
-          class="warning--text"
+          class="warning--text mr-2"
         >
           {{ $t('isSplitDifferently') }}
         </div>
