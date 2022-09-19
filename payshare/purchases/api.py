@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from typing import List
 
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -152,14 +152,25 @@ def create_purchase(request, key):
     """Create a new Purchase and return it in a serialized representation.
 
     URL Args:
+
         key (str): Collective key
 
     POST Args:
+
         name (str)
+
         buyer (int): User id
+
         price (float)
 
+        weights (list[dict]): Optional list of objects with
+            'member' (int) and 'weight' (float) information. If
+            weights are passed we expect one per member of the
+            Collective. Weights are used to specify the share of the
+            amount each member has to pay.
+
     Returns:
+
         Serialized Purchase
 
     """
@@ -183,6 +194,10 @@ def create_purchase(request, key):
         collective=collective,
         buyer=buyer,
     )
+
+    serialized_weights = request.data.get("weights", None)
+    _handle_purchase_weights(purchase, serialized_weights)
+
     serialized_purchase = PurchaseSerializer(purchase).data
     return Response(serialized_purchase)
 
@@ -194,15 +209,27 @@ class PurchaseDetailView(APIView):
         """Update a Purchase and return it serialized.
 
         URL Args:
+
             key (str): Collective key
+
             pk (int) Purchase ID
 
         POST Args:
+
             name (str)
+
             buyer (int): User id
+
             price (float)
 
+            weights (list[dict]): Optional list of objects with
+                'member' (int) and 'weight' (float) information. If
+                weights are passed we expect one per member of the
+                Collective. Weights are used to specify the share of the
+                amount each member has to pay.
+
         Returns:
+
             Serialized Purchase
 
         """
@@ -215,36 +242,10 @@ class PurchaseDetailView(APIView):
         price_value = float(request.data["price"])
         _raise_if_wrong_amount(price_value)
         price = Money(price_value, EUR)
-        weights = request.data.get("weights", None)
 
         purchase = Purchase.objects.get(pk=pk)
-
-        # Handle different weights per Member.
-        if weights is None:
-            purchase.weights.clear()
-        else:
-            # Remove weights that are all even, which removes their purpose.
-            all_same = (
-                len(set([serialized_weight["weight"] for serialized_weight in weights]))
-                == 1
-            )
-            if all_same:
-                purchase.weights.clear()
-            else:
-                for serialized_weight in weights:
-                    member_id = serialized_weight["member"]
-                    member = User.objects.get(id=member_id)
-                    weight_value = serialized_weight["weight"]
-                    try:
-                        weight_instance = PurchaseWeight.objects.get(
-                            purchase=purchase, member=member
-                        )
-                        weight_instance.weight = weight_value
-                        weight_instance.save()
-                    except PurchaseWeight.DoesNotExist:
-                        weight_instance = PurchaseWeight.objects.create(
-                            purchase=purchase, member=member, weight=weight_value
-                        )
+        serialized_weights = request.data.get("weights", None)
+        _handle_purchase_weights(purchase, serialized_weights)
 
         purchase.name = request.data["name"]
         purchase.price = price
@@ -270,6 +271,42 @@ class PurchaseDetailView(APIView):
         purchase.deleted = True
         purchase.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def _handle_purchase_weights(purchase: Purchase, serialized_weights: List[dict]):
+    # Handle different weights per Member.
+    if serialized_weights is None:
+        purchase.weights.clear()
+    else:
+        # Remove weights that are all even, which removes their purpose.
+        all_same = (
+            len(
+                set(
+                    [
+                        serialized_weight["weight"]
+                        for serialized_weight in serialized_weights
+                    ]
+                )
+            )
+            == 1
+        )
+        if all_same:
+            purchase.weights.clear()
+        else:
+            for serialized_weight in serialized_weights:
+                member_id = serialized_weight["member"]
+                member = User.objects.get(id=member_id)
+                weight_value = serialized_weight["weight"]
+                try:
+                    weight_instance = PurchaseWeight.objects.get(
+                        purchase=purchase, member=member
+                    )
+                    weight_instance.weight = weight_value
+                    weight_instance.save()
+                except PurchaseWeight.DoesNotExist:
+                    weight_instance = PurchaseWeight.objects.create(
+                        purchase=purchase, member=member, weight=weight_value
+                    )
 
 
 @api_view(("POST",))

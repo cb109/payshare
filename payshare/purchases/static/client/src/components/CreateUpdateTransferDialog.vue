@@ -105,7 +105,7 @@
           :placeholder="'59.99'"
           class="price"
         ></v-text-field>
-        <div v-if="isPurchaseMode && isUpdateAction">
+        <div v-if="isPurchaseMode">
           <v-radio-group
             v-model="weightsExpanded"
             row
@@ -175,7 +175,7 @@
                         </span>
                       </v-layout>
                     </td>
-                    <td class="px-2" style="min-width: 85px">
+                    <td class="px-2">
                       <v-text-field
                         :value="getPurchaseWeightValueForMemberId(member.id)"
                         @input="(weight) => setPurchaseWeightForMemberId(member.id, Number(weight))"
@@ -189,7 +189,11 @@
                         style="max-width: 140px"
                       ></v-text-field>
                     </td>
-                    <td class="px-2" :key="weightsModifiedCounter">
+                    <td
+                      class="px-2"
+                      :key="weightsModifiedCounter"
+                      style="min-width: 85px"
+                    >
                       {{ getPurchaseWeightPreviewForMember(member) }}
                     </td>
                   </tr>
@@ -236,6 +240,8 @@
 
 import selectedMember from '@/mixins/selectedMember'
 import SelectMemberListTile from '@/components/SelectMemberListTile'
+
+const DEFAULT_PURCHASE_MEMBER_WEIGHT = 1
 
 const defaults = {
   loading: false,
@@ -343,7 +349,7 @@ export default {
       if (this.isPurchaseMode) {
 
         if (this.isUpdateAction && this.weightsExpanded) {
-          const weights = this.getPurchaseUpdateWeights();
+          const weights = this.getPurchaseWeightsForAPICall();
           if (weights.some(weight => isNaN(weight.weight))) {
             return false;
           }
@@ -376,19 +382,23 @@ export default {
       this.$bus.$emit('dialog-active', show)
 
       if (show) {
-        // Expand weights UI if we already have some.
-        if (
-          this.isPurchaseMode &&
-          this.isUpdateAction &&
-          this.transferToUpdate
-        ) {
-          this.weights = JSON.parse(JSON.stringify(this.transferToUpdate.weights))
-          if (this.weights.length > 0) {
-            this.weightsExpanded = true
+        if (this.isPurchaseMode) {
+          if (this.isUpdateAction && this.transferToUpdate) {
+            // Load weights from edited Purchase and expand UI if it has some.
+            this.weights = JSON.parse(JSON.stringify(this.transferToUpdate.weights))
+            if (this.weights.length > 0) {
+              this.weightsExpanded = true
+            }
+          } else if (this.isCreateAction && !this.weights.length) {
+            // Initialize weights with default value.
+            this.weights = []
+            for (const member of this.members) {
+              this.setPurchaseWeightForMemberId(member.id, DEFAULT_PURCHASE_MEMBER_WEIGHT)
+            }
           }
         }
 
-        // Preselect buyer / creditor / debtor if possible.
+        // Preselect buyer / creditor if possible.
         if (!this.buyer) {
           this.buyer = this.selectedMember
         }
@@ -409,8 +419,6 @@ export default {
     getPurchaseWeightValueForMemberId(memberId) {
       if (
         this.isPurchaseMode &&
-        this.isUpdateAction &&
-        this.transferToUpdate &&
         this.weights.length > 0
       ) {
         const forMember = this.weights.filter(w => w.member == memberId)[0];
@@ -418,21 +426,14 @@ export default {
           return forMember.weight
         }
       }
-      return 1
+      return DEFAULT_PURCHASE_MEMBER_WEIGHT
     },
     setPurchaseWeightForMemberId(memberId, weight) {
-      if (
-        this.isPurchaseMode &&
-        this.isUpdateAction &&
-        this.transferToUpdate
-      ) {
+      if (this.isPurchaseMode) {
         const forMember = this.weights.filter(w => w.member == memberId)[0];
         if (forMember) {
           forMember.weight = weight
         } else {
-          if (!this.weights) {
-            this.weights = []
-          }
           this.weights.push({
             member: memberId,
             weight: weight,
@@ -458,7 +459,7 @@ export default {
       }
       return amount.toFixed(2) + this.collective.currency_symbol;
     },
-    getPurchaseUpdateWeights() {
+    getPurchaseWeightsForAPICall() {
       const weights = [];
       for (const member of this.members) {
         weights.push({
@@ -522,11 +523,17 @@ export default {
     },
     createPurchase() {
       this.loading = true
-      this.$store.dispatch('CREATE_PURCHASE', {
+
+      const payload = {
         buyerId: this.buyer.id,
         price: this.price,
         name: this.name,
-      }).then(() => {
+      }
+      if (this.weightsExpanded && this.weights.length > 0) {
+        payload.weights = this.getPurchaseWeightsForAPICall()
+      }
+
+      this.$store.dispatch('CREATE_PURCHASE', payload).then(() => {
         this.abort()
       }).catch(() => {
         this.loading = false
@@ -547,15 +554,15 @@ export default {
     },
     updatePurchase() {
       this.loading = true
+
       const payload = {
         id: this.transferToUpdate.id,
         buyerId: this.buyer.id,
         price: this.price,
         name: this.name,
       };
-
       if (this.weightsExpanded && this.weights.length > 0) {
-        payload.weights = this.getPurchaseUpdateWeights();
+        payload.weights = this.getPurchaseWeightsForAPICall()
       }
 
       this.$store.dispatch('UPDATE_PURCHASE', payload).then(() => {
