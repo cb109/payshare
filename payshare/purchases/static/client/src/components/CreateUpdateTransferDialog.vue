@@ -177,7 +177,7 @@
                     </td>
                     <td class="px-2" style="min-width: 85px">
                       <v-text-field
-                        :value="getPurchaseWeightForMemberId(member.id)"
+                        :value="getPurchaseWeightValueForMemberId(member.id)"
                         @input="(weight) => setPurchaseWeightForMemberId(member.id, Number(weight))"
                         hide-details
                         type="number"
@@ -244,6 +244,7 @@ const defaults = {
   buyer: null,
   weightsExpanded: false,
   weightsModifiedCounter: 0,
+  weights: [],
 
   // For liquidation only.
   creditor: null,
@@ -375,15 +376,19 @@ export default {
       this.$bus.$emit('dialog-active', show)
 
       if (show) {
+        // Expand weights UI if we already have some.
         if (
           this.isPurchaseMode &&
           this.isUpdateAction &&
-          this.transferToUpdate &&
-          this.transferToUpdate.weights.length > 0
+          this.transferToUpdate
         ) {
-          this.weightsExpanded = true;
+          this.weights = JSON.parse(JSON.stringify(this.transferToUpdate.weights))
+          if (this.weights.length > 0) {
+            this.weightsExpanded = true
+          }
         }
 
+        // Preselect buyer / creditor / debtor if possible.
         if (!this.buyer) {
           this.buyer = this.selectedMember
         }
@@ -401,19 +406,19 @@ export default {
     },
   },
   methods: {
-    getPurchaseWeightForMemberId(memberId) {
+    getPurchaseWeightValueForMemberId(memberId) {
       if (
         this.isPurchaseMode &&
         this.isUpdateAction &&
         this.transferToUpdate &&
-        this.transferToUpdate.weights.length > 0
+        this.weights.length > 0
       ) {
-        const forMember = this.transferToUpdate.weights.filter(w => w.member == memberId)[0];
+        const forMember = this.weights.filter(w => w.member == memberId)[0];
         if (forMember) {
-          return forMember.weight;
+          return forMember.weight
         }
       }
-      return 1;
+      return 1
     },
     setPurchaseWeightForMemberId(memberId, weight) {
       if (
@@ -421,35 +426,35 @@ export default {
         this.isUpdateAction &&
         this.transferToUpdate
       ) {
-        const forMember = this.transferToUpdate.weights.filter(w => w.member == memberId)[0];
+        const forMember = this.weights.filter(w => w.member == memberId)[0];
         if (forMember) {
-          forMember.weight = weight;
+          forMember.weight = weight
         } else {
-          if (!this.transferToUpdate.weights) {
-            this.transferToUpdate.weights = [];
+          if (!this.weights) {
+            this.weights = []
           }
-          this.transferToUpdate.weights.push({
+          this.weights.push({
             member: memberId,
             weight: weight,
-          });
+          })
         }
-        this.weightsModifiedCounter += 1;
+        this.weightsModifiedCounter += 1
       }
     },
     getPurchaseWeightPreviewForMember(member) {
       const memberIdToWeight = {};
       for (const member_ of this.members) {
-        memberIdToWeight[member_.id] = this.getPurchaseWeightForMemberId(member_.id);
+        memberIdToWeight[member_.id] = this.getPurchaseWeightValueForMemberId(member_.id);
       }
-      const weights = Object.values(memberIdToWeight).filter(w => !isNaN(w));
+      const weights = Object.values(memberIdToWeight).filter(w => !isNaN(w))
       if (!weights.length) {
-        return '';
+        return ''
       }
       const weightsSum = weights.reduce((a, b) => a + b);
       const perWeight = this.price / weightsSum;
       const amount = memberIdToWeight[member.id] * perWeight;
       if (isNaN(amount)) {
-        return '';
+        return ''
       }
       return amount.toFixed(2) + this.collective.currency_symbol;
     },
@@ -458,8 +463,8 @@ export default {
       for (const member of this.members) {
         weights.push({
           member: member.id,
-          weight: this.getPurchaseWeightForMemberId(member.id),
-        });
+          weight: this.getPurchaseWeightValueForMemberId(member.id),
+        })
       }
       return weights;
     },
@@ -549,7 +554,7 @@ export default {
         name: this.name,
       };
 
-      if (this.weightsExpanded) {
+      if (this.weightsExpanded && this.weights.length > 0) {
         payload.weights = this.getPurchaseUpdateWeights();
       }
 
