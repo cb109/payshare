@@ -45,7 +45,15 @@
         class="pb-1"
         :allow-edit="allowEdit"
         :transfer="transfer"
-      />
+      >
+        <div
+          v-if="purchase.weights.length > 0"
+          slot="extra"
+          class="warning--text mr-2"
+        >
+          {{ $t('isSplitDifferently') }}
+        </div>
+      </transfer-actionbar>
     </v-card-text>
   </v-card>
 </div>

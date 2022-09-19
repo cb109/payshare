@@ -190,7 +190,10 @@ const store = new Vuex.Store({
         price: opts.price,
         name: opts.name,
       }
-      return axios.put(url, payload, config).then(response => {
+      if (opts.weights) {
+        payload.weights = opts.weights
+      }
+      return axios.put(url, payload, config).then((response) => {
         context.dispatch('LIST_TRANSFERS')
         context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
       })
@@ -209,7 +212,10 @@ const store = new Vuex.Store({
         price: opts.price,
         name: opts.name,
       }
-      return axios.post(url, payload, config).then(response => {
+      if (opts.weights) {
+        payload.weights = opts.weights
+      }
+      return axios.post(url, payload, config).then((response) => {
         context.dispatch('LIST_TRANSFERS')
         context.dispatch('UPDATE_COLLECTIVE_FINANCIAL_STATS')
       })

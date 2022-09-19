@@ -1,48 +1,48 @@
 <template>
 
-<div>
-  <v-layout align-center
-            wrap>
-    <div v-for="(reaction, reactionIdx) in transfer.reactions"
-         :key="reactionIdx"
-         class="mb-1">
-      <v-layout align-center>
-        <mini-reaction
-          :reaction="reaction"
-          :initially-expanded="usernamesInitiallyExpanded"
-        ></mini-reaction>
-      </v-layout>
-    </div>
-    <v-layout
-      v-if="allowEdit"
-      nowrap
-    >
-      <v-spacer></v-spacer>
-      <reaction-menu
-        v-if="selectedMember"
-        class="mr-1"
-        :member="selectedMember"
-        :transfer="transfer"
-      ></reaction-menu>
-      <v-btn icon
-             small
-             class="ma-0 mr-1"
-             @click="edit(transfer)">
-        <v-icon color="grey lighten-1">
-          edit
-        </v-icon>
-      </v-btn>
-      <v-btn icon
-             small
-            class="ma-0"
-             @click="softdelete(transfer.name, transfer)">
-        <v-icon color="grey lighten-1">
-          delete
-        </v-icon>
-      </v-btn>
+<v-layout align-center
+          wrap>
+
+  <slot name="extra"></slot>
+  <div v-for="(reaction, reactionIdx) in transfer.reactions"
+        :key="reactionIdx"
+        class="mb-1">
+    <v-layout align-center>
+      <mini-reaction
+        :reaction="reaction"
+        :initially-expanded="usernamesInitiallyExpanded"
+      ></mini-reaction>
     </v-layout>
+  </div>
+  <v-layout
+    v-if="allowEdit"
+    nowrap
+  >
+    <v-spacer></v-spacer>
+    <reaction-menu
+      v-if="selectedMember"
+      class="mr-1"
+      :member="selectedMember"
+      :transfer="transfer"
+    ></reaction-menu>
+    <v-btn icon
+            small
+            class="ma-0 mr-1"
+            @click="edit(transfer)">
+      <v-icon color="grey lighten-1">
+        edit
+      </v-icon>
+    </v-btn>
+    <v-btn icon
+            small
+          class="ma-0"
+            @click="softdelete(transfer.name, transfer)">
+      <v-icon color="grey lighten-1">
+        delete
+      </v-icon>
+    </v-btn>
   </v-layout>
-</div>
+</v-layout>
 
 </template>
 
