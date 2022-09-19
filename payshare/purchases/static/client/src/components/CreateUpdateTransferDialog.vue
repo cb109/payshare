@@ -175,7 +175,7 @@
                         </span>
                       </v-layout>
                     </td>
-                    <td class="px-2">
+                    <td class="px-2" style="min-width: 85px">
                       <v-text-field
                         :value="getPurchaseWeightForMemberId(member.id)"
                         @input="(weight) => setPurchaseWeightForMemberId(member.id, Number(weight))"
@@ -190,7 +190,7 @@
                       ></v-text-field>
                     </td>
                     <td class="px-2" :key="weightsModifiedCounter">
-                      {{ getPurchaseWeightPreviewForMember(transferToUpdate, member) }}
+                      {{ getPurchaseWeightPreviewForMember(member) }}
                     </td>
                   </tr>
                 </tbody>
@@ -436,10 +436,7 @@ export default {
         this.weightsModifiedCounter += 1;
       }
     },
-    getPurchaseWeightPreviewForMember(purchase, member) {
-      if (!purchase) {
-        return '';
-      }
+    getPurchaseWeightPreviewForMember(member) {
       const memberIdToWeight = {};
       for (const member_ of this.members) {
         memberIdToWeight[member_.id] = this.getPurchaseWeightForMemberId(member_.id);
@@ -449,7 +446,7 @@ export default {
         return '';
       }
       const weightsSum = weights.reduce((a, b) => a + b);
-      const perWeight = purchase.price.amount / weightsSum;
+      const perWeight = this.price / weightsSum;
       const amount = memberIdToWeight[member.id] * perWeight;
       if (isNaN(amount)) {
         return '';
