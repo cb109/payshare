@@ -155,7 +155,7 @@ def test_api_list_transfers_needs_password_or_token(
     assert response.status_code == status.HTTP_200_OK
 
     response = client.get(
-        url, follow=True, HTTP_AUTHORIZATION="Token {}".format(collective.token)
+        url, follow=True, HTTP_AUTHORIZATION=f"Token {collective.token}"
     )
     assert response.status_code == status.HTTP_200_OK
 
@@ -270,7 +270,7 @@ def test_api_softdelete_purchase(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
 
-    url = "/api/v1/{}/{}/{}".format(collective.key, purchase.kind, purchase.id)
+    url = f"/api/v1/{collective.key}/{purchase.kind}/{purchase.id}"
     response = client.delete(url, follow=True, HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -279,7 +279,7 @@ def test_api_update_purchase(collective_with_members, transfers, client):
     collective, user_1, user_2 = collective_with_members
     purchase, liquidation = transfers
 
-    url = "/api/v1/{}/purchase/{}".format(collective.key, purchase.id)
+    url = f"/api/v1/{collective.key}/purchase/{purchase.id}"
     payload = {
         "name": "Groceries 2",
         "buyer": user_2.id,
@@ -407,7 +407,7 @@ def test_api_stats_with_uneven_purchase_weights(collective_with_members, client)
     mommy.make("purchases.PurchaseWeight", purchase=purchase, member=user_1, weight=3)
     mommy.make("purchases.PurchaseWeight", purchase=purchase, member=user_2, weight=1)
 
-    url = "/api/v1/{}/stats".format(collective.key)
+    url = f"/api/v1/{collective.key}/stats"
     response = client.get(url, follow=True, HTTP_AUTHORIZATION="foobar")
     assert response.status_code == status.HTTP_200_OK
 
