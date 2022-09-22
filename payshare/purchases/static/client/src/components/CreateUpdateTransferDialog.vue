@@ -123,6 +123,17 @@
               color="warning"
               :class="[weightsExpanded ? 'v-radio-label--warning' : '']"
             />
+            <v-slide-x-transition>
+              <v-btn
+                v-if="weightsExpanded"
+                icon
+                small
+                class="ma-0"
+                @click="askUserForWeightsValueForAll()"
+              >
+                <v-icon>tune</v-icon>
+              </v-btn>
+            </v-slide-x-transition>
           </v-radio-group>
           <v-slide-y-transition>
             <div
@@ -416,6 +427,16 @@ export default {
     },
   },
   methods: {
+    askUserForWeightsValueForAll() {
+      const weightsValue = Number(
+        prompt(this.$t('weightsForAllPrompt'))
+      );
+      if (weightsValue) {
+        for (let member of this.members) {
+          this.setPurchaseWeightForMemberId(member.id, weightsValue);
+        }
+      }
+    },
     getPurchaseWeightValueForMemberId(memberId) {
       if (
         this.isPurchaseMode &&
