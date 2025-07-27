@@ -87,6 +87,12 @@ Oh the joy of deploying custom web apps to your own server. Our backend can be s
 
 ### Building the Frontend
 
+When using node 17+ avoid incompatbility with webpack's OpenSSL via e.g.:
+```powershell
+# Windows Powershell
+$env:NODE_OPTIONS="--openssl-legacy-provider"
+```
+
 - `$ cd payshare/purchases/static/client`
 - Update the `src/store.js` `apiBaseUrl` as needed, depending where your API lives on.
 - `$ npm run build`
