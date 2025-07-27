@@ -1,1 +1,11 @@
-django
+Django
+django-cors-headers
+django-filer
+django-money
+djangorestframework
+whitenoise
+
+gunicorn
+model_mommy
+pytest
+pytest-django
