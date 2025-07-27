@@ -162,7 +162,7 @@ export default {
       const leftAndRightNavButtonWidth = 2 * 48
       const widthPerPageButton = this.$vuetify.breakpoint.xs ? 28 : 44
       const leftoverWidth = availableWidth - drawerOffset - leftAndRightNavButtonWidth
-      return (leftoverWidth / widthPerPageButton) - 1
+      return (leftoverWidth / widthPerPageButton) - 2
     },
     busy() {
       return this.$store.state.busy
