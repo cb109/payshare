@@ -1,5 +1,6 @@
 [project]
 name = "payshare"
+version = "2.13.0"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
