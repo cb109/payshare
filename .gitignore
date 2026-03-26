@@ -7,3 +7,4 @@ db.sqlite3
 public/media/
 public/static/
 venv/
+uv.lock
