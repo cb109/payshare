@@ -11,7 +11,7 @@
     "e2e:open": "vue-cli-service e2e:open"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.2",
     "moment": "^2.22.2",
     "register-service-worker": "^1.0.0",
     "vue": "^2.5.13",
