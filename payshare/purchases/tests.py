@@ -481,19 +481,15 @@ def test_paybacks(collective_with_transfers_for_payback):
     collective, user_1, user_2, user_3 = collective_with_transfers_for_payback
 
     paybacks = calc_paybacks(collective)
-    assert len(paybacks) == 3
+    assert len(paybacks) == 2
 
-    assert paybacks[0].debtor == user_3
-    assert paybacks[0].creditor == user_1
-    assert paybacks[0].amount == Decimal("48.33333333333333333333333333")
+    assert paybacks[0].debtor == user_1
+    assert paybacks[0].creditor == user_2
+    assert paybacks[0].amount == Decimal("1.66666666666666666666666667")
 
     assert paybacks[1].debtor == user_3
     assert paybacks[1].creditor == user_2
-    assert paybacks[1].amount == Decimal("8.33333333333333333333333333")
-
-    assert paybacks[2].debtor == user_1
-    assert paybacks[2].creditor == user_2
-    assert paybacks[2].amount == Decimal("50.0")
+    assert paybacks[1].amount == Decimal("56.66666666666666666666666667")
 
     # Adding a Liquidation can flip the creditor/debtor relation,
     # as otherwise the balance would become negative.
@@ -505,19 +501,15 @@ def test_paybacks(collective_with_transfers_for_payback):
         amount=60.0,
     )
     paybacks = calc_paybacks(collective)
-    assert len(paybacks) == 3
+    assert len(paybacks) == 2
 
-    assert paybacks[0].debtor == user_3
+    assert paybacks[0].debtor == user_2
     assert paybacks[0].creditor == user_1
-    assert paybacks[0].amount == Decimal("48.33333333333333333333333333")
+    assert paybacks[0].amount == Decimal("1.66666666666666666666666667")
 
     assert paybacks[1].debtor == user_3
-    assert paybacks[1].creditor == user_2
-    assert paybacks[1].amount == Decimal("8.33333333333333333333333333")
-
-    assert paybacks[2].debtor == user_2
-    assert paybacks[2].creditor == user_1
-    assert paybacks[2].amount == Decimal("10.0")
+    assert paybacks[1].creditor == user_1
+    assert paybacks[1].amount == Decimal("56.66666666666666666666666667")
 
 
 def test_calc_paybacks_with_negative_transfers(collective):
@@ -555,12 +547,45 @@ def test_calc_paybacks_with_negative_transfers(collective):
     )
 
     paybacks = calc_paybacks(collective)
-    assert len(paybacks) == 3
+    assert len(paybacks) == 2
 
     data = [(payback.debtor, payback.creditor, payback.amount) for payback in paybacks]
-    assert (user_1, user_2, 40.00) in data
-    assert (user_1, user_3, 25.00) in data
-    assert (user_2, user_3, 5.00) in data
+    assert (user_1, user_2, 35.00) in data
+    assert (user_1, user_3, 30.00) in data
+
+
+def test_calc_paybacks_finds_minimum_instead_of_greedy_solution(collective):
+    creditor_1 = mommy.make("auth.User", username="creditor_1")
+    creditor_2 = mommy.make("auth.User", username="creditor_2")
+    debtor_1 = mommy.make("auth.User", username="debtor_1")
+    debtor_2 = mommy.make("auth.User", username="debtor_2")
+    debtor_3 = mommy.make("auth.User", username="debtor_3")
+    for member in [creditor_1, creditor_2, debtor_1, debtor_2, debtor_3]:
+        collective.add_member(member)
+
+    for creditor, debtor, amount in [
+        (creditor_1, debtor_1, 4),
+        (creditor_1, debtor_2, 2),
+        (creditor_2, debtor_2, 1),
+        (creditor_2, debtor_3, 3),
+    ]:
+        mommy.make(
+            "purchases.Liquidation",
+            collective=collective,
+            creditor=creditor,
+            debtor=debtor,
+            amount=amount,
+        )
+
+    paybacks = calc_paybacks(collective)
+
+    assert len(paybacks) == 3
+    data = {(payback.debtor, payback.creditor, payback.amount) for payback in paybacks}
+    assert data == {
+        (debtor_1, creditor_2, Decimal("4")),
+        (debtor_2, creditor_1, Decimal("3")),
+        (debtor_3, creditor_1, Decimal("3")),
+    }
 
 
 def test_calc_paybacks_with_uneven_purchase_weights(collective):
