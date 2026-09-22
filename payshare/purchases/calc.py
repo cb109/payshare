@@ -1,5 +1,14 @@
+from collections import namedtuple
 from decimal import Decimal
 from functools import lru_cache
+
+CollectiveMember = namedtuple("CollectiveMember", ["member", "amount"])
+"""A member of the Collective and the absolute amount they owe or are owed."""
+
+MemberSlot = namedtuple("MemberSlot", ["role", "index"])
+"""Reference to a CollectiveMember via its role ('debtor'/'creditor') and list index."""
+
+Transfer = namedtuple("Transfer", ["debtor_index", "creditor_index", "amount"])
 
 
 class BaseMember(object):
@@ -65,46 +74,55 @@ class Payback(object):
 
 
 def _minimum_paybacks(member_to_balance, member_to_disbursed):
+    def most_disbursed_first(collective_member):
+        return (
+            -member_to_disbursed[collective_member.member],
+            -collective_member.amount,
+            collective_member.member.id,
+        )
+
     debtors = sorted(
         [
-            (member, abs(balance))
+            CollectiveMember(member, abs(balance))
             for member, balance in member_to_balance.items()
             if balance < 0
         ],
-        key=lambda item: (-member_to_disbursed[item[0]], -item[1], item[0].id),
+        key=most_disbursed_first,
     )
     creditors = sorted(
         [
-            (member, balance)
+            CollectiveMember(member, balance)
             for member, balance in member_to_balance.items()
             if balance > 0
         ],
-        key=lambda item: (-member_to_disbursed[item[0]], -item[1], item[0].id),
+        key=most_disbursed_first,
     )
 
+    def member_for_slot(slot):
+        collective_members = debtors if slot.role == "debtor" else creditors
+        return collective_members[slot.index]
+
     activity_priority = sorted(
-        [("debtor", index) for index in range(len(debtors))]
-        + [("creditor", index) for index in range(len(creditors))],
-        key=lambda item: (
-            -member_to_disbursed[
-                debtors[item[1]][0]
-                if item[0] == "debtor"
-                else creditors[item[1]][0]
-            ],
-            item[0],
-            item[1],
+        [MemberSlot("debtor", index) for index in range(len(debtors))]
+        + [MemberSlot("creditor", index) for index in range(len(creditors))],
+        key=lambda slot: (
+            -member_to_disbursed[member_for_slot(slot).member],
+            slot.role,
+            slot.index,
         ),
     )
 
     def score(transfers):
         debtor_counts = [0] * len(debtors)
         creditor_counts = [0] * len(creditors)
-        for debtor_index, creditor_index, _amount in transfers:
-            debtor_counts[debtor_index] += 1
-            creditor_counts[creditor_index] += 1
+        for transfer in transfers:
+            debtor_counts[transfer.debtor_index] += 1
+            creditor_counts[transfer.creditor_index] += 1
         activity_counts = tuple(
-            debtor_counts[index] if role == "debtor" else creditor_counts[index]
-            for role, index in activity_priority
+            debtor_counts[slot.index]
+            if slot.role == "debtor"
+            else creditor_counts[slot.index]
+            for slot in activity_priority
         )
         return len(transfers), activity_counts
 
@@ -127,7 +145,7 @@ def _minimum_paybacks(member_to_balance, member_to_disbursed):
             remaining_debts[debtor_index] -= amount
             remaining_credits[creditor_index] -= amount
             transfers = (
-                (debtor_index, creditor_index, amount),
+                Transfer(debtor_index, creditor_index, amount),
             ) + settle(tuple(remaining_debts), tuple(remaining_credits))
             transfers_score = score(transfers)
             if best_score is None or transfers_score < best_score:
@@ -137,12 +155,16 @@ def _minimum_paybacks(member_to_balance, member_to_disbursed):
         return best or ()
 
     transfers = settle(
-        tuple(balance for _member, balance in debtors),
-        tuple(balance for _member, balance in creditors),
+        tuple(debtor.amount for debtor in debtors),
+        tuple(creditor.amount for creditor in creditors),
     )
     return [
-        Payback(debtors[debtor_index][0], creditors[creditor_index][0], amount)
-        for debtor_index, creditor_index, amount in transfers
+        Payback(
+            debtors[transfer.debtor_index].member,
+            creditors[transfer.creditor_index].member,
+            transfer.amount,
+        )
+        for transfer in transfers
     ]
 
 
