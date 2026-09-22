@@ -19,7 +19,7 @@ from django.utils import timezone
 from djmoney.models.fields import MoneyField
 from filer.fields.image import FilerImageField
 
-from payshare.purchases.calc import calc_paybacks
+from payshare.purchases.calc import calc_member_balances, calc_paybacks
 
 
 DEFAULT_AVATAR_URL = "https://avataaars.io/?avatarStyle=Circle&topType=NoHair&accessoriesType=Blank&facialHairType=Blank&clotheType=ShirtCrewNeck&clotheColor=Black&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"  # noqa
@@ -180,31 +180,9 @@ class Collective(TimestampMixin, models.Model):
         if debts:
             median_debt = median(debts)
 
+        member_to_balance, _ = calc_member_balances(collective)
         member_id_to_balance = {}
-        for member in members:
-            owed_to_collective = sum(
-                [
-                    get_member_share_of_purchase(purchase, member, num_members)
-                    for purchase in purchases.exclude(buyer=member)
-                ]
-            )
-            owed_from_collective = sum(
-                [
-                    purchase.price.amount
-                    - get_member_share_of_purchase(purchase, member, num_members)
-                    for purchase in purchases.filter(buyer=member)
-                ]
-            )
-
-            credit = sum(
-                [liq.amount.amount for liq in liquidations.filter(creditor=member)]
-            )
-            debt = sum(
-                [liq.amount.amount for liq in liquidations.filter(debtor=member)]
-            )
-            has_to_pay = owed_to_collective - owed_from_collective - credit + debt
-
-            balance = has_to_pay * -1
+        for member, balance in member_to_balance.items():
             if balance == 0:  # Avoid minus sign on display.
                 balance = 0
             member_id_to_balance[member.id] = float(balance)

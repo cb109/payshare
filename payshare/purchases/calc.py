@@ -1,6 +1,8 @@
 from collections import namedtuple
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from functools import lru_cache
+
+CENTS = Decimal("0.01")
 
 CollectiveMember = namedtuple("CollectiveMember", ["member", "amount"])
 """A member of the Collective and the absolute amount they owe or are owed."""
@@ -168,7 +170,11 @@ def _minimum_paybacks(member_to_balance, member_to_disbursed):
     ]
 
 
-def calc_paybacks(collective):
+def calc_member_balances(collective):
+    """Return (member_to_balance, member_to_disbursed) in cent-exact Decimals.
+
+    Balances are quantized to cents and guaranteed to sum to exactly zero.
+    """
     from payshare.purchases.models import get_member_share_of_purchase  # noqa
 
     members = collective.members
@@ -178,7 +184,7 @@ def calc_paybacks(collective):
 
     member_to_balance = {}
     member_to_disbursed = {}
-    for member in collective.members:
+    for member in members:
         owed_to_collective = sum(
             [
                 get_member_share_of_purchase(purchase, member, num_members)
@@ -201,11 +207,17 @@ def calc_paybacks(collective):
             for liquidation in collective.liquidations.filter(debtor=member)
         )
         balance = owed_from_collective - owed_to_collective + credit - debt
-        member_to_balance[member] = balance
+        # Quantize to cents so paybacks survive being stored as Liquidations
+        # (2 decimal places) without leaving fractional residue.
+        member_to_balance[member] = Decimal(balance).quantize(
+            CENTS, rounding=ROUND_HALF_UP
+        )
         member_to_disbursed[member] = sum(
             purchase.price.amount for purchase in purchases.filter(buyer=member)
         )
 
+    # Rounding can leave a few cents of imbalance; assign them to the
+    # member with the largest balance so everything sums to exactly zero.
     balance_residue = sum(member_to_balance.values(), Decimal("0"))
     if balance_residue:
         largest_balance_member = max(
@@ -213,4 +225,9 @@ def calc_paybacks(collective):
         )
         member_to_balance[largest_balance_member] -= balance_residue
 
+    return member_to_balance, member_to_disbursed
+
+
+def calc_paybacks(collective):
+    member_to_balance, member_to_disbursed = calc_member_balances(collective)
     return _minimum_paybacks(member_to_balance, member_to_disbursed)

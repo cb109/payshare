@@ -485,11 +485,14 @@ def test_paybacks(collective_with_transfers_for_payback):
 
     assert paybacks[0].debtor == user_1
     assert paybacks[0].creditor == user_2
-    assert paybacks[0].amount == Decimal("1.66666666666666666666666667")
+    assert paybacks[0].amount == Decimal("1.67")
 
     assert paybacks[1].debtor == user_3
     assert paybacks[1].creditor == user_2
-    assert paybacks[1].amount == Decimal("56.66666666666666666666666667")
+    assert paybacks[1].amount == Decimal("56.67")
+
+    # All paybacks are zero-sum and cent-exact.
+    assert sum(payback.amount for payback in paybacks) == Decimal("58.34")
 
     # Adding a Liquidation can flip the creditor/debtor relation,
     # as otherwise the balance would become negative.
@@ -505,11 +508,11 @@ def test_paybacks(collective_with_transfers_for_payback):
 
     assert paybacks[0].debtor == user_2
     assert paybacks[0].creditor == user_1
-    assert paybacks[0].amount == Decimal("1.66666666666666666666666667")
+    assert paybacks[0].amount == Decimal("1.67")
 
     assert paybacks[1].debtor == user_3
     assert paybacks[1].creditor == user_1
-    assert paybacks[1].amount == Decimal("56.66666666666666666666666667")
+    assert paybacks[1].amount == Decimal("56.67")
 
 
 def test_calc_paybacks_with_negative_transfers(collective):
@@ -630,8 +633,8 @@ def test_calc_paybacks_with_uneven_purchase_weights(collective):
         (payback.debtor, payback.creditor, float(payback.amount))
         for payback in paybacks
     ]
-    assert (user_3, user_1, 214.28571428571428) in data
-    assert (user_2, user_1, 642.8571428571429) in data
+    assert (user_3, user_1, 214.29) in data
+    assert (user_2, user_1, 642.86) in data
 
 
 class TestReadOnlyMiddleware:
