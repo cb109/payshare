@@ -1,6 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
+from django.conf import settings
 from django.shortcuts import render
 
-# Create your views here.
+
+def app(request, uuid):
+    """Dehydrate the Vue app from its dist folder.
+
+    Args:
+        uuid (uuid): Collective key, simply passed through.
+
+    """
+    return render(request, settings.CLIENT_APP_TEMPLATE)
