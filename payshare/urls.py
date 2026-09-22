@@ -1,19 +1,18 @@
 from django.conf import settings
 from django.conf.urls import include
-from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 
 from payshare.purchases import api
 from payshare.purchases import views
 
 
 urlpatterns = [
-    url(r"^admin/", admin.site.urls),
-    url(r"^api-auth/", include("rest_framework.urls",
+    re_path(r"^admin/", admin.site.urls),
+    re_path(r"^api-auth/", include("rest_framework.urls",
                                namespace="rest_framework")),
-    url(r"^(?P<uuid>[a-f0-9-]{36})/$", views.app, name="app"),
+    re_path(r"^(?P<uuid>[a-f0-9-]{36})/$", views.app, name="app"),
 
     path("api/v1/<uuid:key>", api.collective),
     path("api/v1/<uuid:key>/cashup", api.cashup),
